@@ -1,12 +1,10 @@
 package items;
 
-import android.content.*;
-import android.graphics.*;
-import android.view.*;
-
 import poor2D.Matrix;
 import poor2D.Operations;
 import poor2D.Vector;
+
+import java.util.List;
 
 /**
  * Created by alex on 7/13/14.
@@ -15,6 +13,8 @@ import poor2D.Vector;
 public class TankCore {
     private Vector position = new Vector(0.0f, 0.0f);
     private Vector target = new Vector(1.0f, 0.0f);
+
+    private Vector horizontal = new Vector(1.0f, 0.0f);
 
 
     public TankCore(){}
@@ -45,15 +45,15 @@ public class TankCore {
      */
     public void turn(float degree){
 
-        target = Operations.multiply(Matrix.initRotationTransformation(degree), new Vector(1.0f, 0.0f));
+        target = Operations.multiply(Matrix.initRotationTransformation(degree), horizontal);
     }
 
     public void step(float multiplier){
-        position = Operations.add(position, Operations.multiply(multiplier, (Vector) target.clone()));
+        position = Operations.add(position, Operations.multiply(multiplier, target));
     }
 
     @Override
     public String toString(){
-        return "Position: " + position + "; Target: " + target + ";";
+        return "Tank: Position: " + position + "; Target: " + target + ";";
     }
 }
