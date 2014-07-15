@@ -88,9 +88,10 @@ public class ProthoTank {
     }
 
     public void turnTank(int angle){
-        //tank.turn(angle);
-        //draw.setX(tank.getPosition().get(0));
-        //draw.setY(-tank.getPosition().get(1));
+        tank.turn(angle);
+        draw.setX(tank.getTarget().get(0));
+        draw.setY(-tank.getTarget().get(1));
+        //System.out.println(tank);
         drawTank();
     }
 
