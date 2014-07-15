@@ -80,10 +80,17 @@ public class ProthoTank {
         //tank.turn( (float)(45.0f * Math.PI / 180.0f));
         //tank.setTarget(new Vector(0.0f, -1.0f));
         tank.turn(angle);
-        tank.step(3);
+        tank.step(5);
         draw.setX(tank.getPosition().get(0));
         draw.setY(-tank.getPosition().get(1));
         //System.out.println(tank);
+        drawTank();
+    }
+
+    public void turnTank(int angle){
+        //tank.turn(angle);
+        //draw.setX(tank.getPosition().get(0));
+        //draw.setY(-tank.getPosition().get(1));
         drawTank();
     }
 

@@ -39,7 +39,7 @@ public class MainActivity extends ActionBarActivity {
     private Handler serverHandler = new Handler();
     private Runnable serverTask = new Runnable(){
         public void run(){
-            new ClientHandler(MainActivity.this).execute(messageToSend);
+            //new ClientHandler(MainActivity.this).execute(messageToSend);
         }
     };
 
@@ -113,13 +113,15 @@ public class MainActivity extends ActionBarActivity {
         final Point size = new Point();
         currentDisplay.getSize(size);
 
+        RelativeLayout.LayoutParams lp = new RelativeLayout.LayoutParams(LinearLayout.LayoutParams.WRAP_CONTENT, LinearLayout.LayoutParams.WRAP_CONTENT);
+        //lp.setMargins(size.x / 25, size.x / 25, size.x / 25, size.x / 25);
+
         layout_joystick = (StickSpace) findViewById(R.id.layout_joystick);
         RelativeLayout main_frame = (RelativeLayout) findViewById(R.id.main_frame);
-        rotation_rate = (RelativeLayout) findViewById(R.id.rotation_rate);
 
         js = new JoyStickClass(getApplicationContext(), layout_joystick, R.drawable.stick);
         js.setStickSize(size.x / 25, size.x / 25);
-        js.setLayoutSize(size.x / 4, size.x / 4);
+        js.setLayoutSize(size.x / 6, size.x / 6);
         js.setLayoutAlpha(250);
         js.setStickAlpha(240);
         js.setOffset(90);
@@ -143,13 +145,19 @@ public class MainActivity extends ActionBarActivity {
         fire_button.setLayoutParams(params);
         fire_button.setOnClickListener(fireButtonListener);
 
-        ViewGroup.LayoutParams rotation_params = rotation_rate.getLayoutParams();
-        rotation_params.width = size.x / 8;
-        rotation_params.height = size.x / 8;
-        rotation_rate.setLayoutParams(rotation_params);
+        //ViewGroup.LayoutParams rotation_params = rotation_rate.getLayoutParams();
+        //rotation_params.width = size.x / 8;
+        //rotation_params.height = size.x / 8;
+        //System.out.println("!!!!!!!!!!!!!! : " +size.x / 8);
+        //rotation_rate.setLayoutParams(rotation_params);
 
-        RotationRate rate = new RotationRate(getApplicationContext(), rotation_rate);
-        rate.drawRing();
+        RotationRate rate = (RotationRate) findViewById(R.id.circleProgress);
+        rate.setTank(tank);
+        params = rate.getLayoutParams();
+        params.width = size.x / 6;
+        params.height = size.x / 6;
+        rate.setLayoutParams(params);
+        //rate.setRoadRadius();
 
     }
 
