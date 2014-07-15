@@ -1,0 +1,9 @@
+<?xml version="1.0" encoding="utf-8"?>
+<layer-list xmlns:android="http://schemas.android.com/apk/res/android"
+    android:shape="oval">
+    <solid android:color="#9F2200"/>
+    <stroke android:width="2sp"
+        android:color="#fff" />
+    <item android:drawable="@drawable/fire_key1">fire</item>
+    <item android:drawable="@drawable/fire_button_space"></item>
+</layer-list>
