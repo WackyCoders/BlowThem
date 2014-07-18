@@ -55,10 +55,10 @@ public class BulletCore {
     public static void commonBulletStep(float multiplier) {
         for (BulletCore element : bulletArray) {
             if (element != null) {
-                //if (element.getX() < 400.0f/*SCREEN_SIZE*/ && element.getY() < 400.0f/*SCREEN_SIZE*/)
+                if (element.getX() < 1000.0f/*SCREEN_SIZE*/ && element.getY() < 1000.0f/*SCREEN_SIZE*/)
                     element.bulletStep(multiplier);
-                //else
-                  //  element.destroy();
+                else
+                    element.destroy();
             }
         }
     }
