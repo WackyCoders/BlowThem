@@ -4,6 +4,7 @@ import android.content.*;
 import android.graphics.*;
 import android.util.Log;
 import android.view.*;
+import android.widget.ImageView;
 
 import items.TankCore;
 import poor2D.Vector;
@@ -17,14 +18,11 @@ public class ProthoTank {
     private Context mContext;
     private ViewGroup mLayout;
     private ViewGroup.LayoutParams params;
-    private DrawCanvas draw;
+    protected DrawCanvas draw;
     private int position_x = 100, position_y = 100;
     private float angle = 0;
     private int tankWidth, tankHeight;
     private int stickSize;
-    private Bitmap tankGun;
-    private int gun_width, gun_height;
-    private DrawGun gun;
     protected FireBullet bullet;
 
     private Display display;
@@ -38,12 +36,6 @@ public class ProthoTank {
     public ProthoTank(Context context, ViewGroup layout, JoyStickClass joystick, int protho_tank_id, int stickSize, int tank_gun_id){
         mContext = context;
         protho_tank = BitmapFactory.decodeResource(mContext.getResources(), protho_tank_id);
-
-        tankGun = BitmapFactory.decodeResource(mContext.getResources(), tank_gun_id);
-
-        gun_width = tankGun.getWidth();
-        gun_height = tankGun.getHeight();
-        gun = new DrawGun(mContext);
 
         draw = new DrawCanvas(mContext);
         paint = new Paint();
@@ -81,9 +73,13 @@ public class ProthoTank {
         //tank.setTarget(new Vector(0.0f, -1.0f));
         tank.turn(angle);
         tank.step(5);
-        draw.setAngle(angle);
+        angle = (float) cal_angle_degrees(arg1.getX() - joystick.getJoystickCenterX(), -(arg1.getY() - joystick.getJoystickCenterY()));
+        draw.setAngle(-angle);
         draw.setX(tank.getPosition().get(0));
         draw.setY(-tank.getPosition().get(1));
+
+        //draw.setX(tank.getTarget().get(0));
+        //draw.setY(-tank.getTarget().get(1));
         //System.out.println(tank);
         drawTank();
     }
@@ -95,6 +91,18 @@ public class ProthoTank {
         //System.out.println(tank);
         drawTank();
     }*/
+
+    private double cal_angle_degrees(float x, float y) {
+        if(x >= 0 && y >= 0)
+            return Math.toDegrees(Math.atan(y / x));
+        else if(x < 0 && y >= 0)
+            return Math.toDegrees(Math.atan(y / x)) + 180;
+        else if(x < 0 && y < 0)
+            return Math.toDegrees(Math.atan(y / x)) + 180;
+        else if(x >= 0 && y < 0)
+            return Math.toDegrees(Math.atan(y / x)) + 360;
+        return 0;
+    }
 
     private double cal_angle(float x, float y) {
         if(x >= 0 && y >= 0)
@@ -108,19 +116,11 @@ public class ProthoTank {
         return 0;
     }
 
-    public void drawGun(MotionEvent arg1) {
-        gun.setX(draw.getX() + tankWidth / 2);
-        gun.setY(draw.getY() + tankHeight / 2);
-        //System.out.println("GUN width : " + gun.getX() + " height : " + gun.getY());
-        drawGun();
-    }
 
     public void setTankSize(int width, int height) {
         protho_tank = Bitmap.createScaledBitmap(protho_tank, width, height, false);
         tankWidth = protho_tank.getWidth();
         tankHeight = protho_tank.getHeight();
-        gun.setY(draw.getX() + width / 2);
-        gun.setX(draw.getX() + height / 2);
 
         bullet.width = draw.getX() + width / 2;
         bullet.height = draw.getY() + height / 2;
@@ -131,13 +131,6 @@ public class ProthoTank {
             mLayout.removeView(draw);
         } catch (Exception e) { }
         mLayout.addView(draw);
-    }
-
-    public void drawGun(){
-        try {
-            mLayout.removeView(gun);
-        } catch (Exception e) { }
-        mLayout.addView(gun);
     }
 
     public void drawFire(){
@@ -153,19 +146,34 @@ public class ProthoTank {
         drawFire();
     }
 
-    private class DrawCanvas extends View{
+    public int getTankHeight() {
+        return tankHeight;
+    }
+
+    public int getTankWidth() {
+        return tankWidth;
+    }
+
+    protected class DrawCanvas extends View{
         private float x = 0, y = 0;
         private float angle = 0;
 
         private DrawCanvas(Context context){
             super(context);
+
+            //setBackgroundColor(Color.WHITE);
         }
 
         @Override
         protected void onDraw(Canvas canvas) {
-            //canvas.rotate(angle);
-            canvas.drawBitmap(protho_tank, x, y, paint);
-            //canvas.save();
+            canvas.drawBitmap(rotateBitmap(protho_tank, angle), x, y, paint);
+            //canvas.drawBitmap(protho_tank, x, y, paint);
+        }
+
+        public Bitmap rotateBitmap(Bitmap source, float angle){
+            Matrix matrix = new Matrix();
+            matrix.postRotate(angle);
+            return Bitmap.createBitmap(source, 0, 0, source.getWidth(), source.getHeight(), matrix, true);
         }
 
         public void setX(float x) {
@@ -187,38 +195,5 @@ public class ProthoTank {
         public void setAngle(float angle) {
             this.angle = angle;
         }
-    }
-
-    protected class DrawGun extends View{
-        private float x, y;
-
-        private DrawGun(Context context){
-            super(context);
-        }
-
-        @Override
-        protected void onDraw(Canvas canvas) {
-            canvas.drawBitmap(tankGun, x, y, paint);
-        }
-
-        public void setX(float x) {
-            this.x = x;
-        }
-
-        public void setY(float y) {
-            this.y = y;
-        }
-
-        public float getX() {
-            return x;
-        }
-
-        public float getY() {
-            return y;
-        }
-    }
-
-    public DrawGun getGun() {
-        return gun;
     }
 }

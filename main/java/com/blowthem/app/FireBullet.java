@@ -9,26 +9,26 @@ import android.view.*;
  */
 public class FireBullet extends View {
     private Paint paint;
-    private ProthoTank gun;
+    private ProthoTank tank;
     protected float width;
     protected float height;
     private int edge_width, edge_height;
     private boolean flag_of_fire_rate = true;
     private int STROKE;
 
-    public FireBullet(Context context, ProthoTank gun){
+    public FireBullet(Context context, ProthoTank tank){
         super(context);
         paint = new Paint();
         paint.setColor(Color.GREEN);
-        this.gun = gun;
-        this.width = gun.getGun().getX();
-        this.height = gun.getGun().getY();
+        this.tank = tank;
+        this.width = tank.draw.getX() + tank.getTankWidth() / 2;
+        this.height = tank.draw.getY() + tank.getTankHeight() / 2;
         flag_of_fire_rate = true;
     }
 
     public void init(){
-        this.width = gun.getGun().getX();
-        this.height = gun.getGun().getY();
+        this.width = tank.draw.getX() + tank.getTankWidth() / 2;
+        this.height = tank.draw.getY() + tank.getTankHeight() / 2;
     }
 
     @Override

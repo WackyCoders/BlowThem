@@ -79,7 +79,6 @@ public class MainActivity extends ActionBarActivity {
         public void run(){
             synchronized (tank) {
                 tank.drawTank(event1);
-                tank.drawGun(event1);
             }
         }
     };
@@ -177,7 +176,6 @@ public class MainActivity extends ActionBarActivity {
         tank = new ProthoTank(getApplicationContext(), main_frame, js, R.drawable.protho_tank, js.getStickSize(), R.drawable.tank_gun);
         tank.setTankSize(size.x /17, size.x / 17);
         tank.drawTank();
-        tank.drawGun();
         tank.bullet.init();
         bullet_stroke = size.x / 100;
 
