@@ -137,7 +137,7 @@ public class RotationRate extends View {
         float sweep = this.arcScrolled * 0.01f;
         canvas.drawArc(box, arcLoadingStartAngle + 90, this.arcScrolled, false, paint);
         rotateAngle = arcScrolled;
-        tank.turnTank(rotateAngle);
+        //tank.turnTank(rotateAngle);
     }
 
     private double cal_angle(float x, float y) {

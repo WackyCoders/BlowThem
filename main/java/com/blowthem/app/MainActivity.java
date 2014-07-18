@@ -21,7 +21,10 @@ public class MainActivity extends ActionBarActivity {
     private JoyStickClass js;
     private StickSpace layout_joystick;
     private ProthoTank tank;
+
     private MotionEvent fireEvent;
+    private MotionEvent event1;
+
     private MediaPlayer sound;
     private int bullet_stroke;
     private static String SERVER_IP = "192.168.1.6";//192.168.56.1
@@ -29,10 +32,55 @@ public class MainActivity extends ActionBarActivity {
 
     private FireButton fire_button;
 
-    private Handler mHandler = new Handler();
+    private Handler mFire = new Handler();
+    private Runnable mFireTask = new Runnable(){
+        public void run(){
+            //android.os.Process.setThreadPriority(android.os.Process.THREAD_PRIORITY_BACKGROUND);
+            synchronized (tank) {
+                tank.drawFire(fireEvent);
+            }
+        }
+    };
+
+    private Handler timerHandler = new Handler();
+    private Runnable timerRunnable = new Runnable() {
+        @Override
+        public void run() {
+            //final float X = event1.getX();
+            //final float Y = event1.getY();
+            mHandler.removeCallbacks(mUpdateTask);
+            mHandler.post(mUpdateTask);
+            timerHandler.postDelayed(this, 0);
+        }
+    };
+
+    private Handler bulletThreadHandler = new Handler();
+    private Runnable bulletThreadTask = new Runnable() {
+        @Override
+        public void run() {
+            mFire.removeCallbacks(mFireTask);
+            mFire.post(mFireTask);
+            if(tank.bullet.isFlag_of_fire_rate()) {
+                bulletThreadHandler.postDelayed(this, 0);
+            } else {
+                if (sound != null) {
+                    sound.release();
+                    sound = null;
+                }
+                sound = MediaPlayer.create(getApplicationContext(), R.raw.bomb_exploding);
+                sound.start();
+                isClicked = true;
+            }
+        }
+    };
+
+    private Handler mHandler = new Handler(Looper.getMainLooper());
     private Runnable mUpdateTask = new Runnable(){
         public void run(){
-            tank.drawFire(fireEvent);
+            synchronized (tank) {
+                tank.drawTank(event1);
+                tank.drawGun(event1);
+            }
         }
     };
 
@@ -40,20 +88,46 @@ public class MainActivity extends ActionBarActivity {
     private Runnable serverTask = new Runnable(){
         public void run(){
             //new ClientHandler(MainActivity.this).execute(messageToSend);
+
         }
     };
 
     private boolean isClicked = true;
 
-    private Timer fireRate = new Timer();
+    private View.OnTouchListener layout_stickListener = new View.OnTouchListener() {
+        @Override
+        public boolean onTouch(View v, final MotionEvent event) {
+            event1 = event;
+            js.drawStick(event1);
+            switch(event.getAction()){
+                case MotionEvent.ACTION_DOWN:
+                    mHandler.removeCallbacks(mUpdateTask);
+                    mHandler.post(mUpdateTask);
+                    break;
+
+                case MotionEvent.ACTION_MOVE:
+                    timerHandler.removeCallbacks(timerRunnable);
+                    timerHandler.postDelayed(timerRunnable, 0);
+
+                    break;
+
+                case MotionEvent.ACTION_UP:
+                    timerHandler.removeCallbacks(timerRunnable);
+                    mHandler.removeCallbacks(mUpdateTask);
+                    break;
+            }
+            return true;
+        }
+    };
+
     private View.OnClickListener fireButtonListener = new View.OnClickListener() {
         @Override
         public void onClick(View v) {
             if(isClicked) {
                 fire_button.setPressed(true);
                 messageToSend = "clicked";//server message
-                serverHandler.removeCallbacks(serverTask);
-                serverHandler.post(serverTask);
+                //serverHandler.removeCallbacks(serverTask);
+                //serverHandler.post(serverTask);
                 if(sound != null){
                     sound.release();
                     sound= null;
@@ -64,40 +138,12 @@ public class MainActivity extends ActionBarActivity {
                 isClicked = false;
                 tank.bullet = new FireBullet(getApplicationContext(), tank);
                 tank.bullet.setSTROKE(bullet_stroke);
-                //fireRate.schedule(new TimerTask() {
-                //   @Override
-                //    public void run() {
-                        mHandler.removeCallbacks(mUpdateTask);
-                        mHandler.post(mUpdateTask);
-                        Thread t = new Thread() {
-                            @Override
-                            public void run() {
-                                    while (tank.bullet.isFlag_of_fire_rate()) {
-                                        //Thread.sleep(5);
-                                        mHandler.removeCallbacks(mUpdateTask);
-                                        mHandler.post(mUpdateTask);
-                                    }
-                                    if (sound != null) {
-                                        sound.release();
-                                        sound = null;
-                                    }
-                                    sound = MediaPlayer.create(getApplicationContext(), R.raw.bomb_exploding);
-                                    sound.start();
-                                    isClicked = true;
-                            }
-                        };
-                        t.start();
-                //    }
-                //}, 5);
+                mFire.removeCallbacks(mFireTask);
+                mFire.post(mFireTask);
+                bulletThreadHandler.removeCallbacks(bulletThreadTask);
+                bulletThreadHandler.postDelayed(bulletThreadTask, 0);
             }
             fire_button.setPressed(false);
-            //Timer count_down = new Timer();
-            //count_down.schedule(new TimerTask() {
-            //    @Override
-            //    public void run() {
-            //        fire_button.setPressed(false);
-            //    }
-            //}, 4000);
         }
     };
 
@@ -137,6 +183,7 @@ public class MainActivity extends ActionBarActivity {
 
         layout_joystick.setTank(tank);
         layout_joystick.setJs(js);
+        layout_joystick.setOnTouchListener(layout_stickListener);
 
         fire_button = (FireButton) findViewById(R.id.fire_button);
         ViewGroup.LayoutParams params = fire_button.getLayoutParams();
@@ -144,12 +191,6 @@ public class MainActivity extends ActionBarActivity {
         params.height = size.x / 12;
         fire_button.setLayoutParams(params);
         fire_button.setOnClickListener(fireButtonListener);
-
-        //ViewGroup.LayoutParams rotation_params = rotation_rate.getLayoutParams();
-        //rotation_params.width = size.x / 8;
-        //rotation_params.height = size.x / 8;
-        //System.out.println("!!!!!!!!!!!!!! : " +size.x / 8);
-        //rotation_rate.setLayoutParams(rotation_params);
 
         RotationRate rate = (RotationRate) findViewById(R.id.circleProgress);
         rate.setTank(tank);

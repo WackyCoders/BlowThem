@@ -81,19 +81,20 @@ public class ProthoTank {
         //tank.setTarget(new Vector(0.0f, -1.0f));
         tank.turn(angle);
         tank.step(5);
+        draw.setAngle(angle);
         draw.setX(tank.getPosition().get(0));
         draw.setY(-tank.getPosition().get(1));
         //System.out.println(tank);
         drawTank();
     }
 
-    public void turnTank(int angle){
+    /*public void turnTank(int angle){
         tank.turn(angle);
         draw.setX(tank.getTarget().get(0));
         draw.setY(-tank.getTarget().get(1));
         //System.out.println(tank);
         drawTank();
-    }
+    }*/
 
     private double cal_angle(float x, float y) {
         if(x >= 0 && y >= 0)
@@ -154,6 +155,7 @@ public class ProthoTank {
 
     private class DrawCanvas extends View{
         private float x = 0, y = 0;
+        private float angle = 0;
 
         private DrawCanvas(Context context){
             super(context);
@@ -161,7 +163,9 @@ public class ProthoTank {
 
         @Override
         protected void onDraw(Canvas canvas) {
+            //canvas.rotate(angle);
             canvas.drawBitmap(protho_tank, x, y, paint);
+            //canvas.save();
         }
 
         public void setX(float x) {
@@ -178,6 +182,10 @@ public class ProthoTank {
 
         public float getY() {
             return y;
+        }
+
+        public void setAngle(float angle) {
+            this.angle = angle;
         }
     }
 
