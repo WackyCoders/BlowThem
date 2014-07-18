@@ -5,13 +5,16 @@ import poor2D.Vector;
 
 import java.util.ArrayList;
 import java.util.List;
-
+import static items.Constants.*;
 /**
  * Created by alex on 7/15/14.
  */
 public class BulletCore {
+
+    
+
     static {
-        bulletArray = new BulletCore[20];
+        bulletArray = new BulletCore[BULLETS];
     }
 
     public static BulletCore[] bulletArray;
@@ -23,13 +26,13 @@ public class BulletCore {
         bulletPosition = (Vector) position.clone();
         bulletTarget = (Vector) target.clone();
 
-        for (int i = 0; i < 10; ++i) {
+        for (int i = 0; i < bulletArray.length; ++i) {
             if (bulletArray[i] == null) {
                 bulletArray[i] = this;
                 indexInList = i;
                 break;
             }
-            assert i != 9;
+            assert i != bulletArray.length-1;
         }
     }
 
@@ -52,7 +55,7 @@ public class BulletCore {
     public static void commonBulletStep(float multiplier) {
         for (BulletCore element : bulletArray) {
             if (element != null) {
-                if (element.getX() < 200 || element.getY() < 200)
+                if (element.getX() < SCREEN_SIZE && element.getY() < SCREEN_SIZE)
                     element.bulletStep(multiplier);
                 else
                     element.destroy();
