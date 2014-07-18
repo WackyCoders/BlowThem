@@ -31,7 +31,7 @@ public class ProthoTank {
 
     private JoyStickClass joystick;
 
-    private TankCore tank = new TankCore();
+    public TankCore tank = new TankCore();
 
     public ProthoTank(Context context, ViewGroup layout, JoyStickClass joystick, int protho_tank_id, int stickSize, int tank_gun_id){
         mContext = context;

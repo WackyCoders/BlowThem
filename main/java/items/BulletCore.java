@@ -18,8 +18,8 @@ public class BulletCore {
     }
 
     public static BulletCore[] bulletArray;
-    private Vector bulletPosition;
-    private Vector bulletTarget;
+    public Vector bulletPosition;
+    public Vector bulletTarget;
     private int indexInList;
 
     public BulletCore(Vector position, Vector target) {
@@ -55,10 +55,10 @@ public class BulletCore {
     public static void commonBulletStep(float multiplier) {
         for (BulletCore element : bulletArray) {
             if (element != null) {
-                if (element.getX() < SCREEN_SIZE && element.getY() < SCREEN_SIZE)
+                //if (element.getX() < 400.0f/*SCREEN_SIZE*/ && element.getY() < 400.0f/*SCREEN_SIZE*/)
                     element.bulletStep(multiplier);
-                else
-                    element.destroy();
+                //else
+                  //  element.destroy();
             }
         }
     }

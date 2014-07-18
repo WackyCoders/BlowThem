@@ -3,11 +3,11 @@ package items;
 /**
  * Created by alex on 7/17/14.
  */
-public class Constants {
+class Constants {
 
     private Constants(){}
 
-    public final static int BULLETS = 20;
+    public final static int BULLETS = 5;
 
     /*
     An abstract screen is of size 1.0x1.0
