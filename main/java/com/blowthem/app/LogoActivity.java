@@ -15,6 +15,17 @@ import android.view.WindowManager;
 
 public class LogoActivity extends ActionBarActivity {
 
+
+    private Handler handler = new Handler();
+    private Intent intent;
+    private Runnable doNextActivity = new Runnable() {
+        @Override
+        public void run() {
+            startActivity(intent);
+            finish();
+        }
+    };
+
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -22,23 +33,18 @@ public class LogoActivity extends ActionBarActivity {
         getActionBar().hide();
         setRequestedOrientation(ActivityInfo.SCREEN_ORIENTATION_LANDSCAPE);
         setContentView(R.layout.activity_logo);
+        intent = new Intent(this, MainSettingsActivity.class);
+    }
 
-        final Handler handler = new Handler();
-        final Intent intent = new Intent(this, MainSettingsActivity.class);
-        final Runnable doNextActivity = new Runnable() {
-            @Override
-            public void run() {
-                startActivity(intent);
-                finish();
-            }
-        };
+    @Override
+    protected void onPostCreate(Bundle savedInstanceState) {
+        super.onPostCreate(savedInstanceState);
+        handler.postDelayed(doNextActivity, 1500);
+    }
 
-        new Thread(){
-            @Override
-            public void run() {
-                SystemClock.sleep(1500);
-                handler.post(doNextActivity);
-            }
-        }.start();
+    @Override
+    protected void onDestroy() {
+        super.onDestroy();
+        handler.removeCallbacks(doNextActivity);
     }
 }

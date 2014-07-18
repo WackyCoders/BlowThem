@@ -97,6 +97,7 @@ public class MainActivity extends ActionBarActivity {
         @Override
         public boolean onTouch(View v, final MotionEvent event) {
             event1 = event;
+            System.out.println("Bad event allocation : " + event);
             js.drawStick(event1);
             switch(event.getAction()){
                 case MotionEvent.ACTION_DOWN:
