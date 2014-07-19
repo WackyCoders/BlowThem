@@ -43,7 +43,8 @@ public class FireBullet extends View {
             BulletCore.commonBulletStep(15.0f);
             width = bullet.getX();
             height = -bullet.getY();
-            canvas.drawLine(width, height, width + 10, height + 10, paint);
+            //canvas.drawLine(width, height, width + 10, height + 10, paint);
+            canvas.drawCircle(width, height, 10, paint);
 
             //width += 15;
             //height += 15;

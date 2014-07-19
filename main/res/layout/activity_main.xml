@@ -11,45 +11,49 @@
     tools:context=".MainActivity"
     style="@style/MainFrame">
 
-    <com.blowthem.app.FireButton
-        android:id="@+id/fire_button"
+    <RelativeLayout
         android:layout_width="105dp"
         android:layout_height="105dp"
-        android:background="@drawable/fire_round_button"
         android:layout_alignTop="@+id/layout_joystick"
         android:layout_alignParentRight="true"
         android:layout_alignParentEnd="true"
-        android:layout_marginTop="42dp"/>
-
-        <com.blowthem.app.RotationRate
-            android:layout_width="100dp"
-            android:layout_height="100dp"
-            android:id="@+id/circleProgress"
-            custom:roadColor="#575757"
-            custom:roadStrokeWidth="60"
+        android:id="@+id/fire_indificator_and_button">
+        <com.blowthem.app.FireIndicator
+            android:id="@+id/fire_indicator"
+            android:layout_width="200dp"
+            android:layout_height="200dp"
+            android:layout_centerInParent="true"
+            custom:roadColor="#ff1f6212"
+            custom:roadStrokeWidth="70"
             custom:roadInnerCircleColor="#ffffff"
             custom:roadInnerCircleStrokeWidth="4"
             custom:roadOuterCircleColor="#ffffff"
             custom:roadOuterCircleStrokeWidth="4"
-            custom:arcLoadingColor="#f5d600"
+            custom:arcLoadingColor="#ff00f567"
             custom:arcLoadingStrokeWidth="5"
             custom:arcLoadingDashLength="10"
             custom:arcLoadingDistanceBetweenDashes="5"
             custom:arcLoadingStartAngle="270"
             custom:textColor="#ffffff"
-            custom:textSize="48"
-            android:layout_alignParentBottom="true"
-            android:layout_toRightOf="@+id/layout_joystick" />
+            custom:textSize="48"/>
 
-        <com.blowthem.app.StickSpace
-            android:id="@+id/layout_joystick"
-            android:layout_width="100dp"
-            android:layout_height="100dp"
-            android:background="@drawable/stick_total_space"
-            android:gravity="bottom"
-            android:layout_alignParentBottom="true"
-            android:layout_alignParentLeft="true">
-        </com.blowthem.app.StickSpace>
+        <com.blowthem.app.FireButton
+            android:id="@+id/fire_button"
+            android:layout_width="105dp"
+            android:layout_height="105dp"
+            android:background="@drawable/fire_round_button"
+            android:layout_centerInParent="true" />
+    </RelativeLayout>
+
+    <com.blowthem.app.StickSpace
+        android:id="@+id/layout_joystick"
+        android:layout_width="100dp"
+        android:layout_height="100dp"
+        android:background="@drawable/stick_total_space"
+        android:gravity="bottom"
+        android:layout_alignParentBottom="true"
+        android:layout_alignParentLeft="true">
+    </com.blowthem.app.StickSpace>
 
 
 </RelativeLayout>

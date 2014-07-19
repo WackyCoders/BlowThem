@@ -4,14 +4,13 @@ import android.content.*;
 import android.content.pm.*;
 import android.graphics.*;
 import android.media.*;
-import android.support.v7.app.*;
 import android.os.*;
+import android.support.v7.app.*;
 import android.view.*;
 import android.widget.*;
 
 import java.io.*;
 import java.net.*;
-import java.util.*;
 
 
 public class MainActivity extends ActionBarActivity {
@@ -21,6 +20,7 @@ public class MainActivity extends ActionBarActivity {
     private JoyStickClass js;
     private StickSpace layout_joystick;
     private ProthoTank tank;
+    private FireIndicator circleProgress;
 
     private MotionEvent fireEvent;
     private MotionEvent event1;
@@ -28,9 +28,10 @@ public class MainActivity extends ActionBarActivity {
     private MediaPlayer sound;
     private int bullet_stroke;
     private static String SERVER_IP = "192.168.1.6";//192.168.56.1
-    private RelativeLayout rotation_rate;
+    private RelativeLayout fire_indificator;
 
     private FireButton fire_button;
+    private int percent = 0;
 
     private Handler mFire = new Handler();
     private Runnable mFireTask = new Runnable(){
@@ -51,6 +52,32 @@ public class MainActivity extends ActionBarActivity {
             mHandler.removeCallbacks(mUpdateTask);
             mHandler.post(mUpdateTask);
             timerHandler.postDelayed(this, 0);
+        }
+    };
+
+    private Handler indicatorHandler = new Handler();
+    private Runnable indicatorTask = new Runnable(){
+        @Override
+        public void run() {
+            percent += 10;
+            fillIndicator.removeCallbacks(fillIndicatorTask);
+            fillIndicator.post(fillIndicatorTask);
+            if(percent != 100){
+                indicatorHandler.postDelayed(this, 1000);
+            } else {
+                fillIndicator.removeCallbacks(fillIndicatorTask);
+                fillIndicator.post(fillIndicatorTask);
+                percent = 0;
+            }
+        }
+    };
+
+    private Handler fillIndicator = new Handler();
+    private Runnable fillIndicatorTask = new Runnable() {
+        @Override
+        public void run() {
+            circleProgress.setPercent(percent);
+            circleProgress.invalidate();
         }
     };
 
@@ -126,6 +153,10 @@ public class MainActivity extends ActionBarActivity {
                 messageToSend = "clicked";//server message
                 //serverHandler.removeCallbacks(serverTask);
                 //serverHandler.post(serverTask);
+
+                indicatorHandler.removeCallbacks(indicatorTask);
+                indicatorHandler.postDelayed(indicatorTask, 100);
+
                 if(sound != null){
                     sound.release();
                     sound= null;
@@ -180,6 +211,12 @@ public class MainActivity extends ActionBarActivity {
         layout_joystick.setJs(js);
         layout_joystick.setOnTouchListener(layout_stickListener);
 
+        fire_indificator = (RelativeLayout) findViewById(R.id.fire_indificator_and_button);
+        ViewGroup.LayoutParams paramsFire = fire_indificator.getLayoutParams();
+        paramsFire.width = size.x / 6;
+        paramsFire.height = size.x / 6;
+        fire_indificator.setLayoutParams(paramsFire);
+
         fire_button = (FireButton) findViewById(R.id.fire_button);
         ViewGroup.LayoutParams params = fire_button.getLayoutParams();
         params.width = size.x / 12;
@@ -187,14 +224,7 @@ public class MainActivity extends ActionBarActivity {
         fire_button.setLayoutParams(params);
         fire_button.setOnClickListener(fireButtonListener);
 
-        RotationRate rate = (RotationRate) findViewById(R.id.circleProgress);
-        rate.setTank(tank);
-        params = rate.getLayoutParams();
-        params.width = size.x / 6;
-        params.height = size.x / 6;
-        rate.setLayoutParams(params);
-        //rate.setRoadRadius();
-
+        circleProgress = (FireIndicator) findViewById(R.id.fire_indicator);
     }
 
     private class ClientHandler extends AsyncTask<String, Void, Socket> {
