@@ -59,11 +59,11 @@ public class MainActivity extends ActionBarActivity {
     private Runnable indicatorTask = new Runnable(){
         @Override
         public void run() {
-            percent += 10;
+            percent += 1;
             fillIndicator.removeCallbacks(fillIndicatorTask);
             fillIndicator.post(fillIndicatorTask);
             if(percent != 100){
-                indicatorHandler.postDelayed(this, 1000);
+                indicatorHandler.postDelayed(this, 100);
             } else {
                 fillIndicator.removeCallbacks(fillIndicatorTask);
                 fillIndicator.post(fillIndicatorTask);
@@ -213,14 +213,14 @@ public class MainActivity extends ActionBarActivity {
 
         fire_indificator = (RelativeLayout) findViewById(R.id.fire_indificator_and_button);
         ViewGroup.LayoutParams paramsFire = fire_indificator.getLayoutParams();
-        paramsFire.width = size.x / 6;
-        paramsFire.height = size.x / 6;
+        paramsFire.width = size.x / 8;
+        paramsFire.height = size.x / 8;
         fire_indificator.setLayoutParams(paramsFire);
 
         fire_button = (FireButton) findViewById(R.id.fire_button);
         ViewGroup.LayoutParams params = fire_button.getLayoutParams();
-        params.width = size.x / 12;
-        params.height = size.x / 12;
+        params.width = size.x / 16;
+        params.height = size.x / 16;
         fire_button.setLayoutParams(params);
         fire_button.setOnClickListener(fireButtonListener);
 
