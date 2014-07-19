@@ -74,11 +74,12 @@ public class MainActivity extends ActionBarActivity {
         }
     };
 
-    private Handler mHandler = new Handler(Looper.getMainLooper());
+    private Handler mHandler = new Handler();
     private Runnable mUpdateTask = new Runnable(){
         public void run(){
             synchronized (tank) {
-                tank.drawTank(event1);
+                //tank.drawTank(event1);
+                tank.drawTank(js.TANK_X, js.TANK_Y);
             }
         }
     };
@@ -95,9 +96,8 @@ public class MainActivity extends ActionBarActivity {
 
     private View.OnTouchListener layout_stickListener = new View.OnTouchListener() {
         @Override
-        public boolean onTouch(View v, final MotionEvent event) {
+        public boolean onTouch(View v, MotionEvent event) {
             event1 = event;
-            System.out.println("Bad event allocation : " + event);
             js.drawStick(event1);
             switch(event.getAction()){
                 case MotionEvent.ACTION_DOWN:
@@ -108,7 +108,6 @@ public class MainActivity extends ActionBarActivity {
                 case MotionEvent.ACTION_MOVE:
                     timerHandler.removeCallbacks(timerRunnable);
                     timerHandler.postDelayed(timerRunnable, 0);
-
                     break;
 
                 case MotionEvent.ACTION_UP:
@@ -124,7 +123,6 @@ public class MainActivity extends ActionBarActivity {
         @Override
         public void onClick(View v) {
             if(isClicked) {
-                fire_button.setPressed(true);
                 messageToSend = "clicked";//server message
                 //serverHandler.removeCallbacks(serverTask);
                 //serverHandler.post(serverTask);
@@ -143,7 +141,6 @@ public class MainActivity extends ActionBarActivity {
                 bulletThreadHandler.removeCallbacks(bulletThreadTask);
                 bulletThreadHandler.postDelayed(bulletThreadTask, 0);
             }
-            fire_button.setPressed(false);
         }
     };
 
@@ -172,7 +169,6 @@ public class MainActivity extends ActionBarActivity {
         js.setStickAlpha(240);
         js.setOffset(90);
         js.setMinimumDistance(0);
-
 
         tank = new ProthoTank(getApplicationContext(), main_frame, js, R.drawable.protho_tank, js.getStickSize(), R.drawable.tank_gun);
         tank.setTankSize(size.x /17, size.x / 17);

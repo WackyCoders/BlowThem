@@ -50,8 +50,7 @@ public class ProthoTank {
         this.joystick = joystick;
     }
 
-    public void drawTank(MotionEvent arg1) {
-
+    public void drawTank(int X, int Y) {
         /**
          * !!!!!!!!!!!!!!!!!!!!!!!!!!!!!
          * Слава, заебашь в JoystickCenterX и JoystickCenterY точные координаты центра
@@ -67,30 +66,16 @@ public class ProthoTank {
          */
         //System.out.println("X : " + arg1.getX() + " Y : " + arg1.getY());
         //System.out.println(joystick + " joystick center : (" + joystick.getJoystickCenterX() + " , " + joystick.getJoystickCenterY() + "); ");
-        angle = (float) cal_angle(arg1.getX() - joystick.getJoystickCenterX(), -(arg1.getY() - joystick.getJoystickCenterY()));
-        //Log.d(String.valueOf(Math.toDegrees(angle)), "Angle");
-        //tank.turn( (float)(45.0f * Math.PI / 180.0f));
-        //tank.setTarget(new Vector(0.0f, -1.0f));
+        //System.out.println(" event in protho tank : " + arg1);
+        angle = (float) cal_angle(X - joystick.getJoystickCenterX(), -(Y - joystick.getJoystickCenterY()));
         tank.turn(angle);
         tank.step(5);
-        angle = (float) cal_angle_degrees(arg1.getX() - joystick.getJoystickCenterX(), -(arg1.getY() - joystick.getJoystickCenterY()));
+        angle = (float) cal_angle_degrees(X - joystick.getJoystickCenterX(), -(Y - joystick.getJoystickCenterY()));
         draw.setAngle(-angle);
         draw.setX(tank.getPosition().get(0));
         draw.setY(-tank.getPosition().get(1));
-
-        //draw.setX(tank.getTarget().get(0));
-        //draw.setY(-tank.getTarget().get(1));
-        //System.out.println(tank);
         drawTank();
     }
-
-    /*public void turnTank(int angle){
-        tank.turn(angle);
-        draw.setX(tank.getTarget().get(0));
-        draw.setY(-tank.getTarget().get(1));
-        //System.out.println(tank);
-        drawTank();
-    }*/
 
     private double cal_angle_degrees(float x, float y) {
         if(x >= 0 && y >= 0)
@@ -197,3 +182,4 @@ public class ProthoTank {
         }
     }
 }
+

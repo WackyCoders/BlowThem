@@ -37,6 +37,8 @@ public class JoyStickClass {
 	private boolean touch_state = false;
     private float joystickCenterX, joystickCenterY;
 
+    protected int TANK_X, TANK_Y;
+
 
     //TANK MOTION
     //private TankCore tank = new TankCore();
@@ -60,11 +62,14 @@ public class JoyStickClass {
 	}
 	
 	public void drawStick(MotionEvent arg1) {
+        this.TANK_X = (int)arg1.getRawX();
+        this.TANK_Y = (int)arg1.getRawY();
+
 		position_x = (int) (arg1.getX() - (params.width / 2));
 		position_y = (int) (arg1.getY() - (params.height / 2));
 	    distance = (float) Math.sqrt(Math.pow(position_x, 2) + Math.pow(position_y, 2));
 	    angle = (float) cal_angle(position_x, position_y);
-
+        //System.out.println("Button click and joystick procceeding event : " + arg1);
 		if(arg1.getAction() == MotionEvent.ACTION_DOWN) {
 			if(distance <= (params.width / 2) - OFFSET) {
 				draw.position(arg1.getX(), arg1.getY());
