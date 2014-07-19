@@ -21,6 +21,7 @@ public class ProthoTank extends TankCore{
     protected DrawCanvas draw;
     private int position_x = 100, position_y = 100;
     private float angle = 0;
+    private float angle1 = 0;
     private int tankWidth, tankHeight;
     private int stickSize;
     protected FireBullet bullet;
@@ -50,10 +51,11 @@ public class ProthoTank extends TankCore{
         this.joystick = joystick;
     }
 
-    public void drawTank(int X, int Y) {
-
-        angle = (float) cal_angle((X - joystick.getJoystickCenterX()) / width, /*-*/(Y - joystick.getJoystickCenterY()) / height);
+    public void drawTank(int X, int Y){
+        angle = (float) cal_angle((X - joystick.getJoystickCenterX()) / width * height, (Y - joystick.getJoystickCenterY()));
+        angle1 = (float) Math.toDegrees(cal_angle((X - joystick.getJoystickCenterX()), (Y - joystick.getJoystickCenterY())));
         turn(angle);
+
         step(0.005f);
         angle = (float) Math.toDegrees(angle);
         draw.setAngle(angle);
@@ -62,19 +64,7 @@ public class ProthoTank extends TankCore{
         drawTank();
     }
 
-    /*private double cal_angle_degrees(float x, float y) {
-        if(x >= 0 && y >= 0)
-            return Math.toDegrees(Math.atan(y / x));
-        else if(x < 0 && y >= 0)
-            return Math.toDegrees(Math.atan(y / x)) + 180;
-        else if(x < 0 && y < 0)
-            return Math.toDegrees(Math.atan(y / x)) + 180;
-        else if(x >= 0 && y < 0)
-            return Math.toDegrees(Math.atan(y / x)) + 360;
-        return 0;
-    }*/
-
-    private double cal_angle(float x, float y) {
+    private double cal_angle(float x, float y){
         if(x >= 0 && y >= 0)
             return Math.atan(y / x);
         else if(x < 0 && y >= 0)
@@ -99,14 +89,14 @@ public class ProthoTank extends TankCore{
     public void drawTank() {
         try {
             mLayout.removeView(draw);
-        } catch (Exception e) { }
+        } catch (Exception e) {}
         mLayout.addView(draw);
     }
 
     public void drawFire(){
         try {
             mLayout.removeView(bullet);
-        } catch (Exception e) { }
+        } catch (Exception e) {}
         mLayout.addView(bullet);
     }
 
@@ -136,7 +126,7 @@ public class ProthoTank extends TankCore{
 
         @Override
         protected void onDraw(Canvas canvas) {
-            canvas.drawBitmap(rotateBitmap(protho_tank, angle), x, y, paint);
+            canvas.drawBitmap(rotateBitmap(protho_tank, angle1), x, y, paint);
             //canvas.drawBitmap(protho_tank, x, y, paint);
         }
 
