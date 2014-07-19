@@ -47,7 +47,7 @@ public class FireBullet extends View {
             width = bullet.getX() * tank.width;
             height = bullet.getY() * tank.height;
             Log.d("CoordADSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSs", bullet.getX() + " " + bullet.getY());
-            canvas.drawCircle(width, height, 10, paint);
+            canvas.drawCircle(width, height, 5, paint);
 
         } /*else {
             bullet.setFlagOfFireRate(false);
