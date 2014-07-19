@@ -28,10 +28,12 @@ public class MainActivity extends ActionBarActivity {
     private MediaPlayer sound;
     private int bullet_stroke;
     private static String SERVER_IP = "192.168.1.6";//192.168.56.1
-    private RelativeLayout fire_indificator;
+    private RelativeLayout fire_indificator, main_frame;
 
     private FireButton fire_button;
     private int percent = 0;
+
+    private boolean flagEnablesToFire = true;
 
     private Handler mFire = new Handler();
     private Runnable mFireTask = new Runnable(){
@@ -63,8 +65,9 @@ public class MainActivity extends ActionBarActivity {
             fillIndicator.removeCallbacks(fillIndicatorTask);
             fillIndicator.post(fillIndicatorTask);
             if(percent != 100){
-                indicatorHandler.postDelayed(this, 100);
+                indicatorHandler.postDelayed(this, 30);
             } else {
+                flagEnablesToFire = true;
                 fillIndicator.removeCallbacks(fillIndicatorTask);
                 fillIndicator.post(fillIndicatorTask);
                 percent = 0;
@@ -149,13 +152,14 @@ public class MainActivity extends ActionBarActivity {
     private View.OnClickListener fireButtonListener = new View.OnClickListener() {
         @Override
         public void onClick(View v) {
-            if(isClicked) {
+            if(isClicked && flagEnablesToFire) {
+                flagEnablesToFire = false;
                 messageToSend = "clicked";//server message
                 //serverHandler.removeCallbacks(serverTask);
                 //serverHandler.post(serverTask);
 
                 indicatorHandler.removeCallbacks(indicatorTask);
-                indicatorHandler.postDelayed(indicatorTask, 100);
+                indicatorHandler.postDelayed(indicatorTask, 30);
 
                 if(sound != null){
                     sound.release();
@@ -191,7 +195,7 @@ public class MainActivity extends ActionBarActivity {
         //lp.setMargins(size.x / 25, size.x / 25, size.x / 25, size.x / 25);
 
         layout_joystick = (StickSpace) findViewById(R.id.layout_joystick);
-        RelativeLayout main_frame = (RelativeLayout) findViewById(R.id.main_frame);
+        main_frame = (RelativeLayout) findViewById(R.id.main_frame);
 
         js = new JoyStickClass(getApplicationContext(), layout_joystick, R.drawable.stick);
         js.setStickSize(size.x / 25, size.x / 25);
@@ -199,7 +203,7 @@ public class MainActivity extends ActionBarActivity {
         js.setLayoutAlpha(250);
         js.setStickAlpha(240);
         js.setOffset(90);
-        js.setMinimumDistance(0);
+        js.setMinimumDistance(30);
 
         tank = new ProthoTank(getApplicationContext(), main_frame, js, R.drawable.protho_tank, js.getStickSize(), R.drawable.tank_gun);
         tank.setTankSize(size.x /17, size.x / 17);

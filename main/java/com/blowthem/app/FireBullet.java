@@ -3,7 +3,7 @@ package com.blowthem.app;
 import android.content.*;
 import android.graphics.*;
 import android.util.Log;
-import android.view.*;
+import android.view.*; 
 
 import items.BulletCore;
 import poor2D.Operations;
@@ -43,11 +43,11 @@ public class FireBullet extends View {
         paint.setStrokeWidth(STROKE);
 
         if(bullet.getFlagOfFireRate()) {
-            bullet.bulletStep(tank.width, tank.height, 0.03f);
-            width = bullet.getX() * tank.width;
-            height = bullet.getY() * tank.height;
-            Log.d("CoordADSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSs", bullet.getX() + " " + bullet.getY());
             canvas.drawCircle(width, height, 5, paint);
+            bullet.bulletStep(tank.observableWidth, tank.observableHeight, 0.03f);
+            width = bullet.getX() * tank.observableWidth + tank.getTankWidth() / 2;
+            height = bullet.getY() * tank.observableHeight + tank.getTankHeight() / 2;
+            //Log.d("CoordADSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSs", bullet.getX() + " " + bullet.getY());
 
         } /*else {
             bullet.setFlagOfFireRate(false);

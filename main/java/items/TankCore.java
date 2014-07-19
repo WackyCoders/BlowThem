@@ -4,7 +4,7 @@ import android.util.Log;
 
 import poor2D.Matrix;
 import poor2D.Operations;
-import poor2D.Vector;
+import poor2D.Vector; 
 
 import java.util.List;
 
@@ -20,6 +20,7 @@ public class TankCore {
 
     private Vector horizontal = new Vector(1.0f, 0.0f);
 
+    private float startX = 0, stratY = 0;
 
     public TankCore(){}
 
@@ -52,9 +53,17 @@ public class TankCore {
         target = Operations.multiply(Matrix.initRotationTransformation(degree), horizontal);
     }
 
+    public void setStartX(float startX) {
+        this.startX = startX;
+    }
+
+    public void setStratY(float stratY) {
+        this.stratY = stratY;
+    }
+
     public void step(float factorX, float factorY, float commonFactor){
         Vector result = Operations.add(position, /*new Vector(target.get(0) * factorY / factorX * commonFactor, target.get(1) * commonFactor));*/Operations.multiply(commonFactor, target));
-        if (result.get(0) < SCREEN_SIZE && result.get(1) < SCREEN_SIZE && result.get(0) >= 0 && result.get(1) >= 0){
+        if (result.get(0) < SCREEN_SIZE && result.get(1) < SCREEN_SIZE && result.get(0) >= startX && result.get(1) >= stratY){
             Log.d(" SLDKJFVHEUBVISDHNJIN", Float.toString(result.get(0)) + " === " + Float.toString(result.get(1)));
             position = result;}
     }
