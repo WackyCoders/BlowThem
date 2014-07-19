@@ -52,11 +52,11 @@ public class ProthoTank extends TankCore{
     }
 
     public void drawTank(int X, int Y){
-        angle = (float) cal_angle((X - joystick.getJoystickCenterX()) / width * height, (Y - joystick.getJoystickCenterY()));
+        angle = (float) cal_angle((float)(X - joystick.getJoystickCenterX()) / width, (float)(Y - joystick.getJoystickCenterY()) / height);
         angle1 = (float) Math.toDegrees(cal_angle((X - joystick.getJoystickCenterX()), (Y - joystick.getJoystickCenterY())));
         turn(angle);
 
-        step(width, height, 0.005f);
+        step(width, height, 0.01f);
         angle = (float) Math.toDegrees(angle);
         draw.setAngle(angle);
         draw.setX(getPosition().get(0) * width);

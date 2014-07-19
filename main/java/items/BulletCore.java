@@ -58,14 +58,14 @@ public class BulletCore {
         return bulletPosition.get(1);
     }
 
-    public void bulletStep(float multiplier) {
+    public void bulletStep(float factorX, float factorY, float commonFactor) {
         if (getX() < SCREEN_SIZE && getY() < SCREEN_SIZE && getX() > 0 && getY() > 0)
-            bulletPosition = Operations.add(bulletPosition, Operations.multiply(multiplier, bulletTarget));
+            bulletPosition = Operations.add(bulletPosition, Operations.multiply(commonFactor, bulletTarget));//new Vector(bulletTarget.get(0) * factorY / factorX * commonFactor, bulletTarget.get(1) * commonFactor));
         else
             flagOfFireRate = false;
     }
 
-    public static void commonBulletStep(float multiplier) {
+    /*public static void commonBulletStep(float multiplier) {
         for (BulletCore element : bulletArray) {
             if (element != null) {
                 if (element.getX() < SCREEN_SIZE && element.getY() < SCREEN_SIZE)
@@ -74,7 +74,7 @@ public class BulletCore {
                     element.destroy();
             }
         }
-    }
+    }*/
 
     @Override
     public String toString(){

@@ -43,7 +43,7 @@ public class FireBullet extends View {
         paint.setStrokeWidth(STROKE);
 
         if(bullet.getFlagOfFireRate()) {
-            bullet.bulletStep(0.03f);
+            bullet.bulletStep(tank.width, tank.height, 0.03f);
             width = bullet.getX() * tank.width;
             height = bullet.getY() * tank.height;
             Log.d("CoordADSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSs", bullet.getX() + " " + bullet.getY());
