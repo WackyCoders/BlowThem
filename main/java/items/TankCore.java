@@ -52,8 +52,8 @@ public class TankCore {
         target = Operations.multiply(Matrix.initRotationTransformation(degree), horizontal);
     }
 
-    public void step(float multiplier){
-        Vector result = Operations.add(position, Operations.multiply(multiplier, target));
+    public void step(float factorX, float factorY, float commonFactor){
+        Vector result = Operations.add(position, new Vector(target.get(0) * factorY / factorX * commonFactor, target.get(1) * commonFactor));/*Operations.multiply(multiplier, target)*/
         if (result.get(0) < SCREEN_SIZE && result.get(1) < SCREEN_SIZE && result.get(0) >= 0 && result.get(1) >= 0){
             Log.d(" SLDKJFVHEUBVISDHNJIN", Float.toString(result.get(0)) + " === " + Float.toString(result.get(1)));
             position = result;}

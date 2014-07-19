@@ -15,12 +15,12 @@ public class Runner {
         TankCore tank = new TankCore();
         BulletCore first = new BulletCore(tank.getPosition(), tank.getTarget());
         BulletCore.commonBulletStep(2.0f);
-        tank.step(1.0f);
+        //tank.step(1.0f);
         tank.turn((float) (Math.PI / 4));
         BulletCore second = new BulletCore(tank.getPosition(), tank.getTarget());
         BulletCore.commonBulletStep(100000.0f);
         BulletCore.commonBulletStep(0.0f);
-        tank.step(1.0f);
+        //tank.step(1.0f);
 
 
         System.out.println(tank);
