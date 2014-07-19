@@ -1,10 +1,14 @@
 package items;
 
+import android.util.Log;
+
 import poor2D.Matrix;
 import poor2D.Operations;
 import poor2D.Vector;
 
 import java.util.List;
+
+import static items.Constants.SCREEN_SIZE;
 
 /**
  * Created by alex on 7/13/14.
@@ -49,7 +53,10 @@ public class TankCore {
     }
 
     public void step(float multiplier){
-        position = Operations.add(position, Operations.multiply(multiplier, target));
+        Vector result = Operations.add(position, Operations.multiply(multiplier, target));
+        if (result.get(0) < SCREEN_SIZE && result.get(1) < SCREEN_SIZE && result.get(0) >= 0 && result.get(1) >= 0){
+            Log.d(" SLDKJFVHEUBVISDHNJIN", Float.toString(result.get(0)) + " === " + Float.toString(result.get(1)));
+            position = result;}
     }
 
     @Override

@@ -12,7 +12,7 @@ import poor2D.Vector;
 /**
  * Created by walter on 08.07.14.
  */
-public class ProthoTank {
+public class ProthoTank extends TankCore{
     private Bitmap protho_tank;
     private Paint paint;
     private Context mContext;
@@ -26,12 +26,12 @@ public class ProthoTank {
     protected FireBullet bullet;
 
     private Display display;
-    private int width;
-    private int height;
+    public int width;
+    public int height;
 
     private JoyStickClass joystick;
 
-    public TankCore tank = new TankCore();
+    //public TankCore tank = new TankCore();
 
     public ProthoTank(Context context, ViewGroup layout, JoyStickClass joystick, int protho_tank_id, int stickSize, int tank_gun_id){
         mContext = context;
@@ -51,33 +51,18 @@ public class ProthoTank {
     }
 
     public void drawTank(int X, int Y) {
-        /**
-         * !!!!!!!!!!!!!!!!!!!!!!!!!!!!!
-         * Слава, заебашь в JoystickCenterX и JoystickCenterY точные координаты центра
-         * джойстика. Я их определил на глазок, а это не камильфо
-         * !!!!!!!!!!!!!!!!!!!!!!!!!!!!!
-         */
 
-        //final float joystickCenterX = 140.0f, joystickCenterY = 400.0f;//32 389
-
-        /**
-         * Это временное решение, т.к. на движение влияют касания экрана не только
-         * внутри джойстика, но и вне его. Нужно дорабатывать джойстик:)
-         */
-        //System.out.println("X : " + arg1.getX() + " Y : " + arg1.getY());
-        //System.out.println(joystick + " joystick center : (" + joystick.getJoystickCenterX() + " , " + joystick.getJoystickCenterY() + "); ");
-        //System.out.println(" event in protho tank : " + arg1);
-        angle = (float) cal_angle(X - joystick.getJoystickCenterX(), -(Y - joystick.getJoystickCenterY()));
-        tank.turn(angle);
-        tank.step(5);
-        angle = (float) cal_angle_degrees(X - joystick.getJoystickCenterX(), -(Y - joystick.getJoystickCenterY()));
-        draw.setAngle(-angle);
-        draw.setX(tank.getPosition().get(0));
-        draw.setY(-tank.getPosition().get(1));
+        angle = (float) cal_angle((X - joystick.getJoystickCenterX()) / width, /*-*/(Y - joystick.getJoystickCenterY()) / height);
+        turn(angle);
+        step(0.005f);
+        angle = (float) Math.toDegrees(angle);
+        draw.setAngle(angle);
+        draw.setX(getPosition().get(0) * width);
+        draw.setY(getPosition().get(1) * height);
         drawTank();
     }
 
-    private double cal_angle_degrees(float x, float y) {
+    /*private double cal_angle_degrees(float x, float y) {
         if(x >= 0 && y >= 0)
             return Math.toDegrees(Math.atan(y / x));
         else if(x < 0 && y >= 0)
@@ -87,7 +72,7 @@ public class ProthoTank {
         else if(x >= 0 && y < 0)
             return Math.toDegrees(Math.atan(y / x)) + 360;
         return 0;
-    }
+    }*/
 
     private double cal_angle(float x, float y) {
         if(x >= 0 && y >= 0)

@@ -22,6 +22,15 @@ public class BulletCore {
     public Vector bulletTarget;
     private int indexInList;
 
+    private boolean flagOfFireRate = true;
+
+    public void setFlagOfFireRate(boolean value){
+        flagOfFireRate = value;
+    }
+    public boolean getFlagOfFireRate(){
+        return flagOfFireRate;
+    }
+
     public BulletCore(Vector position, Vector target) {
         bulletPosition = (Vector) position.clone();
         bulletTarget = (Vector) target.clone();
@@ -37,7 +46,8 @@ public class BulletCore {
     }
 
     private void destroy() {
-        bulletArray[indexInList] = null;
+        //bulletArray[indexInList] = null;
+        flagOfFireRate = false;
     }
 
     public float getX() {
@@ -48,14 +58,17 @@ public class BulletCore {
         return bulletPosition.get(1);
     }
 
-    private void bulletStep(float multiplier) {
-        bulletPosition = Operations.add(bulletPosition, Operations.multiply(multiplier, bulletTarget));
+    public void bulletStep(float multiplier) {
+        if (getX() < SCREEN_SIZE && getY() < SCREEN_SIZE && getX() > 0 && getY() > 0)
+            bulletPosition = Operations.add(bulletPosition, Operations.multiply(multiplier, bulletTarget));
+        else
+            flagOfFireRate = false;
     }
 
     public static void commonBulletStep(float multiplier) {
         for (BulletCore element : bulletArray) {
             if (element != null) {
-                if (element.getX() < 1000.0f/*SCREEN_SIZE*/ && element.getY() < 1000.0f/*SCREEN_SIZE*/)
+                if (element.getX() < SCREEN_SIZE && element.getY() < SCREEN_SIZE)
                     element.bulletStep(multiplier);
                 else
                     element.destroy();
