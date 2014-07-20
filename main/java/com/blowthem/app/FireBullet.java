@@ -47,7 +47,6 @@ public class FireBullet extends View {
             bullet.bulletStep(tank.observableWidth, tank.observableHeight, 0.03f);
             width = bullet.getX() * tank.observableWidth + tank.getTankWidth() / 2;
             height = bullet.getY() * tank.observableHeight + tank.getTankHeight() / 2;
-            //Log.d("CoordADSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSs", bullet.getX() + " " + bullet.getY());
 
         } /*else {
             bullet.setFlagOfFireRate(false);
