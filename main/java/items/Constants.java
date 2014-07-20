@@ -2,7 +2,7 @@ package items;
 
 /**
  * Created by alex on 7/17/14.
- */
+ */ 
 class Constants {
 
     private Constants(){}
@@ -13,4 +13,6 @@ class Constants {
     An abstract screen is of size 1.0x1.0
      */
     public final static float SCREEN_SIZE = 1.0f;
+
+    public static float startX = 0, startY = 0;
 }

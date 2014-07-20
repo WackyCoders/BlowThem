@@ -7,8 +7,7 @@ import poor2D.Operations;
 import poor2D.Vector; 
 
 import java.util.List;
-
-import static items.Constants.SCREEN_SIZE;
+import static items.Constants.*;
 
 /**
  * Created by alex on 7/13/14.
@@ -20,7 +19,6 @@ public class TankCore {
 
     private Vector horizontal = new Vector(1.0f, 0.0f);
 
-    private float startX = 0, stratY = 0;
 
     public TankCore(){}
 
@@ -54,18 +52,19 @@ public class TankCore {
     }
 
     public void setStartX(float startX) {
-        this.startX = startX;
+        Constants.startX = startX;
     }
 
     public void setStratY(float stratY) {
-        this.stratY = stratY;
+        Constants.startY = stratY;
     }
 
     public void step(float factorX, float factorY, float commonFactor){
         Vector result = Operations.add(position, /*new Vector(target.get(0) * factorY / factorX * commonFactor, target.get(1) * commonFactor));*/Operations.multiply(commonFactor, target));
-        if (result.get(0) < SCREEN_SIZE && result.get(1) < SCREEN_SIZE && result.get(0) >= startX && result.get(1) >= stratY){
-            Log.d(" SLDKJFVHEUBVISDHNJIN", Float.toString(result.get(0)) + " === " + Float.toString(result.get(1)));
-            position = result;}
+        if (result.get(0) < SCREEN_SIZE && result.get(1) < SCREEN_SIZE && result.get(0) >= startX && result.get(1) >= startY){
+            //Log.d(" SLDKJFVHEUBVISDHNJIN", Float.toString(result.get(0)) + " === " + Float.toString(result.get(1)));
+            position = result;
+        }
     }
 
     @Override

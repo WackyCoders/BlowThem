@@ -3,7 +3,7 @@ package items;
 import poor2D.Operations;
 import poor2D.Vector;
 
-import java.util.ArrayList;
+import java.util.ArrayList; 
 import java.util.List;
 import static items.Constants.*;
 /**
@@ -59,7 +59,7 @@ public class BulletCore {
     }
 
     public void bulletStep(float factorX, float factorY, float commonFactor) {
-        if (getX() < SCREEN_SIZE && getY() < SCREEN_SIZE && getX() > 0 && getY() > 0)
+        if (getX() < SCREEN_SIZE && getY() < SCREEN_SIZE && getX() > startX && getY() > startY)
             bulletPosition = Operations.add(bulletPosition, Operations.multiply(commonFactor, bulletTarget));//new Vector(bulletTarget.get(0) * factorY / factorX * commonFactor, bulletTarget.get(1) * commonFactor));
         else
             flagOfFireRate = false;
