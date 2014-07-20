@@ -17,20 +17,18 @@ public class FireBullet extends View {
     private ProthoTank tank;
     protected float width;
     protected float height;
-    private int edge_width, edge_height;
-    //private boolean flag_of_fire_rate = true;
+    private int edge_width, edge_height;;
     private int STROKE;
-    BulletCore bullet;
+    BulletCore core;
 
     public FireBullet(Context context, ProthoTank tank){
         super(context);
         paint = new Paint();
         paint.setColor(Color.GREEN);
         this.tank = tank;
-        bullet = new BulletCore(new Vector(tank.getPosition().get(0), tank.getPosition().get(1)), tank.getTarget());
+        core = new BulletCore(tank.core.getPosition(), tank.core.getTarget());
         this.width = tank.draw.getX() + tank.getTankWidth() / 2;
         this.height = tank.draw.getY() + tank.getTankHeight() / 2;
-        //bullet.setFlagOfFireRate(true);
     }
 
     public void init(){
@@ -42,16 +40,13 @@ public class FireBullet extends View {
     protected void onDraw(Canvas canvas) {
         paint.setStrokeWidth(STROKE);
 
-        if(bullet.getFlagOfFireRate()) {
+        if(core.getAlive()) {
             canvas.drawCircle(width, height, 5, paint);
-            bullet.bulletStep(tank.observableWidth, tank.observableHeight, 0.03f);
-            width = bullet.getX() * tank.observableWidth + tank.getTankWidth() / 2;
-            height = bullet.getY() * tank.observableHeight + tank.getTankHeight() / 2;
+            core.step();
+            width = core.getX() * tank.observableWidth + tank.getTankWidth() / 2;
+            height = core.getY() * tank.observableHeight + tank.getTankHeight() / 2;
 
-        } /*else {
-            bullet.setFlagOfFireRate(false);
-        }*/
-
+        }
     }
 
     public void setEdge_width(int edge_width) {
@@ -62,9 +57,8 @@ public class FireBullet extends View {
         this.edge_height = edge_height;
     }
 
-    public boolean isFlag_of_fire_rate() {
-        //return flag_of_fire_rate;
-        return bullet.getFlagOfFireRate();
+    public boolean isAlive() {
+        return core.getAlive();
     }
 
     public void setSTROKE(int STROKE) {
