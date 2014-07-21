@@ -3,81 +3,63 @@ package items;
 import poor2D.Operations;
 import poor2D.Vector;
 
-import java.util.ArrayList; 
-import java.util.List;
 import static items.Constants.*;
 /**
  * Created by alex on 7/15/14.
  */
 public class BulletCore {
 
-    
+    private Vector position;
+    private Vector target;
 
-    static {
-        bulletArray = new BulletCore[BULLETS];
-    }
-
-    public static BulletCore[] bulletArray;
-    public Vector bulletPosition;
-    public Vector bulletTarget;
-    private int indexInList;
-
-    private boolean flagOfFireRate = true;
-
-    public void setFlagOfFireRate(boolean value){
-        flagOfFireRate = value;
-    }
-    public boolean getFlagOfFireRate(){
-        return flagOfFireRate;
-    }
+    private boolean isAlive = true;
+    private float speedFactor = 0.03f;
 
     public BulletCore(Vector position, Vector target) {
-        bulletPosition = (Vector) position.clone();
-        bulletTarget = (Vector) target.clone();
-
-        for (int i = 0; i < bulletArray.length; ++i) {
-            if (bulletArray[i] == null) {
-                bulletArray[i] = this;
-                indexInList = i;
-                break;
-            }
-            assert i != bulletArray.length-1;
-        }
+        this.position = position;
+        this.target = target;
     }
 
-    private void destroy() {
-        //bulletArray[indexInList] = null;
-        flagOfFireRate = false;
+    public void setAlive(boolean value){
+        isAlive = value;
     }
 
-    public float getX() {
-        return bulletPosition.get(0);
+    public boolean getAlive(){
+        return isAlive;
     }
 
-    public float getY() {
-        return bulletPosition.get(1);
+    public void setSpeedFactor(float factor){
+        speedFactor = factor;
     }
 
-    public void bulletStep(float factorX, float factorY, float commonFactor) {
-        if (getX() < SCREEN_SIZE && getY() < SCREEN_SIZE && getX() > startX && getY() > startY)
-            bulletPosition = Operations.add(bulletPosition, Operations.multiply(commonFactor, bulletTarget));//new Vector(bulletTarget.get(0) * factorY / factorX * commonFactor, bulletTarget.get(1) * commonFactor));
+    public float getSpeedFactor(){
+        return speedFactor;
+    }
+    public Vector getPosition(){
+        return (Vector) position.clone();
+    }
+
+    public float getX(){
+        return position.get(0);
+    }
+
+    public float getY(){
+        return position.get(1);
+    }
+
+    public Vector getTarget() {
+        return (Vector) target.clone();
+    }
+
+    public void step() {
+        if (position.get(0) < SCREEN_END && position.get(1) < SCREEN_END && position.get(0) > SCREEN_START && position.get(1) > SCREEN_START)
+            position = Operations.add(position, Operations.multiply(speedFactor, target));
         else
-            flagOfFireRate = false;
+            isAlive = false;
     }
-
-    /*public static void commonBulletStep(float multiplier) {
-        for (BulletCore element : bulletArray) {
-            if (element != null) {
-                if (element.getX() < SCREEN_SIZE && element.getY() < SCREEN_SIZE)
-                    element.bulletStep(multiplier);
-                else
-                    element.destroy();
-            }
-        }
-    }*/
 
     @Override
     public String toString(){
-        return "Bullet" + indexInList + ": Position: " + bulletPosition + "; Target: " + bulletTarget + ";";
+        return "Bullet: Position: " + position + "; Target: " + target + ";";
     }
 }

@@ -93,7 +93,7 @@ public class MainActivity extends ActionBarActivity {
         public void run() {
             mFire.removeCallbacks(mFireTask);
             mFire.post(mFireTask);
-            if(tank.bullet.isFlag_of_fire_rate()) {
+            if(tank.bullet.isAlive()) {
                 bulletThreadHandler.postDelayed(this, 0);
             } else {
                 //ExplodeView explode = new ExplodeView(getApplicationContext());

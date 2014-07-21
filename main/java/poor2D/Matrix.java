@@ -46,7 +46,6 @@ public class Matrix {
     public static Matrix initRotationTransformation(float degree){
         Matrix result = new Matrix();
         result.set(0, 0, (float) Math.cos(degree));
-        //////////////////////
         result.set(0, 1, (float) Math.sin(-degree));
         result.set(1, 0, (float) Math.sin(degree));
         result.set(1, 1, (float) Math.cos(degree));
