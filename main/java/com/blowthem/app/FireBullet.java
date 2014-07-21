@@ -1,7 +1,7 @@
 package com.blowthem.app;
 
 import android.content.*;
-import android.graphics.*;
+import android.graphics.*; 
 import android.util.Log;
 import android.view.*; 
 
@@ -20,6 +20,7 @@ public class FireBullet extends View {
     private int edge_width, edge_height;
     //private boolean flag_of_fire_rate = true;
     private int STROKE;
+    protected float explodeX, explodeY;
     BulletCore bullet;
 
     public FireBullet(Context context, ProthoTank tank){
@@ -43,14 +44,16 @@ public class FireBullet extends View {
         paint.setStrokeWidth(STROKE);
 
         if(bullet.getFlagOfFireRate()) {
+            width = bullet.getX() * tank.width; //+ tank.getTankWidth() / 2 ;
+            height = bullet.getY() * tank.height; // + tank.getTankHeight() / 2;
             canvas.drawCircle(width, height, 5, paint);
-            bullet.bulletStep(tank.observableWidth, tank.observableHeight, 0.03f);
-            width = bullet.getX() * tank.observableWidth + tank.getTankWidth() / 2;
-            height = bullet.getY() * tank.observableHeight + tank.getTankHeight() / 2;
+            bullet.bulletStep(tank.width, tank.height, 0.03f); //? observable??
 
-        } /*else {
-            bullet.setFlagOfFireRate(false);
-        }*/
+        } else {
+           // bullet.setFlagOfFireRate(false);
+            explodeX = this.width;
+            explodeY = this.height;
+        }
 
     }
 

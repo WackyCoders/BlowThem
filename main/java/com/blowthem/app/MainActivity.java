@@ -9,6 +9,8 @@ import android.support.v7.app.*;
 import android.view.*;
 import android.widget.*;
 
+import com.blowthem.app.animation.ExplodeView;
+
 import java.io.*;
 import java.net.*;
 
@@ -17,10 +19,11 @@ public class MainActivity extends ActionBarActivity {
 
     private String messageToSend = "Hello!";
 
-    private JoyStickClass js;
-    private StickSpace layout_joystick;
+    //private JoyStickClass js;
+    private JoyStick js;
     private ProthoTank tank;
     private FireIndicator circleProgress;
+    private Point size;
 
     private MotionEvent fireEvent;
     private MotionEvent event1;
@@ -93,6 +96,11 @@ public class MainActivity extends ActionBarActivity {
             if(tank.bullet.isFlag_of_fire_rate()) {
                 bulletThreadHandler.postDelayed(this, 0);
             } else {
+                //ExplodeView explode = new ExplodeView(getApplicationContext());
+                //explode.setX(tank.bullet.explodeX);
+                //explode.setY(tank.bullet.explodeY);
+                //main_frame.addView(explode);
+
                 if (sound != null) {
                     sound.release();
                     sound = null;
@@ -152,30 +160,30 @@ public class MainActivity extends ActionBarActivity {
     private View.OnClickListener fireButtonListener = new View.OnClickListener() {
         @Override
         public void onClick(View v) {
-            if(isClicked && flagEnablesToFire) {
-                flagEnablesToFire = false;
-                messageToSend = "clicked";//server message
-                //serverHandler.removeCallbacks(serverTask);
-                //serverHandler.post(serverTask);
+        if(isClicked && flagEnablesToFire) {
+            flagEnablesToFire = false;
+            messageToSend = "clicked";//server message
+            //serverHandler.removeCallbacks(serverTask);
+            //serverHandler.post(serverTask);
 
-                indicatorHandler.removeCallbacks(indicatorTask);
-                indicatorHandler.postDelayed(indicatorTask, 30);
+            indicatorHandler.removeCallbacks(indicatorTask);
+            indicatorHandler.postDelayed(indicatorTask, 30);
 
-                if(sound != null){
-                    sound.release();
-                    sound= null;
-                }
-                sound = MediaPlayer.create(getApplicationContext(), R.raw.laser_blaster);
-                sound.start();
-
-                isClicked = false;
-                tank.bullet = new FireBullet(getApplicationContext(), tank);
-                tank.bullet.setSTROKE(bullet_stroke);
-                mFire.removeCallbacks(mFireTask);
-                mFire.post(mFireTask);
-                bulletThreadHandler.removeCallbacks(bulletThreadTask);
-                bulletThreadHandler.postDelayed(bulletThreadTask, 0);
+            if(sound != null){
+                sound.release();
+                sound= null;
             }
+            sound = MediaPlayer.create(getApplicationContext(), R.raw.laser_blaster);
+            sound.start();
+
+            isClicked = false;
+            tank.bullet = new FireBullet(getApplicationContext(), tank);
+            tank.bullet.setSTROKE(bullet_stroke);
+            mFire.removeCallbacks(mFireTask);
+            mFire.post(mFireTask);
+            bulletThreadHandler.removeCallbacks(bulletThreadTask);
+            bulletThreadHandler.postDelayed(bulletThreadTask, 0);
+        }
         }
     };
 
@@ -188,41 +196,48 @@ public class MainActivity extends ActionBarActivity {
         getWindow().setFlags(WindowManager.LayoutParams.FLAG_FULLSCREEN, WindowManager.LayoutParams.FLAG_FULLSCREEN);
 
         final Display currentDisplay  = getWindowManager().getDefaultDisplay();
-        final Point size = new Point();
+        size = new Point();
         currentDisplay.getSize(size);
 
-        RelativeLayout.LayoutParams lp = new RelativeLayout.LayoutParams(LinearLayout.LayoutParams.WRAP_CONTENT, LinearLayout.LayoutParams.WRAP_CONTENT);
-        //lp.setMargins(size.x / 25, size.x / 25, size.x / 25, size.x / 25);
-
-        layout_joystick = (StickSpace) findViewById(R.id.layout_joystick);
         main_frame = (RelativeLayout) findViewById(R.id.main_frame);
 
-        js = new JoyStickClass(getApplicationContext(), layout_joystick, R.drawable.stick);
-        js.setStickSize(size.x / 25, size.x / 25);
-        js.setLayoutSize(size.x / 6, size.x / 6);
-        js.setLayoutAlpha(250);
-        js.setStickAlpha(240);
-        js.setOffset(90);
-        js.setMinimumDistance(30);
+        js = (JoyStick) findViewById(R.id.layout_joystick);
+        ViewGroup.LayoutParams params = js.getLayoutParams();
+        params.width = size.x / 6;
+        params.height = size.x / 6;
+        js.setLayoutParams(params);
+        js.setStickRadius(size.x / 55);
+        js.setOFFSET(size.x / 60);
+        js.setOnTouchListener(layout_stickListener);
+        ViewTreeObserver observer = js.getViewTreeObserver();
+        observer.addOnGlobalLayoutListener(new ViewTreeObserver.OnGlobalLayoutListener() {
+            @Override
+            public void onGlobalLayout() {
+                js.getViewTreeObserver().removeGlobalOnLayoutListener(this);
+                js.init();
+            }
+        });
+        //js.setStickSize(size.x / 25, size.x / 25);
+        //js.setLayoutSize(size.x / 6, size.x / 6);
+        //js.setLayoutAlpha(250);
+        //js.setStickAlpha(240);
+        //js.setOffset(90);
+        //js.setMinimumDistance(30);
 
-        tank = new ProthoTank(getApplicationContext(), main_frame, js, R.drawable.protho_tank, js.getStickSize(), R.drawable.tank_gun);
-        tank.setTankSize(size.x /17, size.x / 17);
+        tank = new ProthoTank(getApplicationContext(), main_frame, js, R.drawable.protho_tank);
+        tank.setTankSize(size.x / 17, size.x / 17);
         tank.drawTank();
         tank.bullet.init();
         bullet_stroke = size.x / 100;
 
-        layout_joystick.setTank(tank);
-        layout_joystick.setJs(js);
-        layout_joystick.setOnTouchListener(layout_stickListener);
-
         fire_indificator = (RelativeLayout) findViewById(R.id.fire_indificator_and_button);
-        ViewGroup.LayoutParams paramsFire = fire_indificator.getLayoutParams();
-        paramsFire.width = size.x / 8;
-        paramsFire.height = size.x / 8;
-        fire_indificator.setLayoutParams(paramsFire);
+        params = fire_indificator.getLayoutParams();
+        params.width = size.x / 8;
+        params.height = size.x / 8;
+        fire_indificator.setLayoutParams(params);
 
         fire_button = (FireButton) findViewById(R.id.fire_button);
-        ViewGroup.LayoutParams params = fire_button.getLayoutParams();
+        params = fire_button.getLayoutParams();
         params.width = size.x / 16;
         params.height = size.x / 16;
         fire_button.setLayoutParams(params);
@@ -230,6 +245,8 @@ public class MainActivity extends ActionBarActivity {
 
         circleProgress = (FireIndicator) findViewById(R.id.fire_indicator);
     }
+
+
 
     private class ClientHandler extends AsyncTask<String, Void, Socket> {
         private Socket socket;

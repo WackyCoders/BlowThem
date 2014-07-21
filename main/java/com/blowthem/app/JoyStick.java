@@ -1,145 +1,159 @@
 package com.blowthem.app;
 
-import android.content.*;
-import android.content.res.*;
-import android.graphics.*;
-import android.util.*;
-import android.view.*;
+import android.content.Context;
+import android.content.res.TypedArray;
+import android.graphics.Canvas;
+import android.graphics.Color;
+import android.graphics.DashPathEffect;
+import android.graphics.Paint;
+import android.graphics.RectF;
+import android.util.AttributeSet;
+import android.view.MotionEvent;
+import android.view.View;
+import android.view.ViewGroup;
 
 /**
- * Created by walter on 19.07.14.
+ * Created by walter on 20.07.14.
  */
 public class JoyStick extends View {
+
     private float circleCenterX;
     private float circleCenterY;
     private int roadColor;
-    private float roadStrokeWidth;
     private float roadRadius;
-    private int roadInnerCircleColor;
-    private float roadInnerCircleStrokeWidth;
-    private float roadInnerCircleRadius;
     private int roadOuterCircleColor;
     private float roadOuterCircleStrokeWidth;
     private float roadOuterCircleRadius;
-    private int arcLoadingColor;
-    private float arcLoadingStrokeWidth;
-    private float arcLoadingDashLength;
-    private float arcLoadingDistanceBetweenDashes;
-    private float arcLoadingStartAngle;
+    private boolean touch_state = false;
+    private int stickRadius = 0; //make it 10 times less than main view
+    private int position_x = 0, position_y = 0, min_distance = 0;
+    private float distance = 0, angle = 0;
+    private int OFFSET = 0;
+    private float X, Y; // don't forget to give them initial coordinates view view being created
+    private float joystickCenterX, joystickCenterY;
+    private float localCenterX, localCenterY;
+    protected int TANK_X, TANK_Y;
 
-    private int CenterX;
-    private int CenterY;
-    private int arcScrolled = 0;
+    public void setOFFSET(int OFFSET) {
+        this.OFFSET = OFFSET;
+    }
 
-    private int rotateAngle;
+    public void setX(float x) {
+        X = x;
+    }
 
-    private ProthoTank tank;
+    public void setY(float y) {
+        Y = y;
+    }
+
+    public JoyStick(Context context){
+        super(context);
+        init();
+    }
 
     public JoyStick(Context context, AttributeSet attrs) {
         super(context, attrs);
-        initializeAttributes(context, attrs);
+        init();
     }
 
-    public void setRoadRadius(float roadRadius) {
-        this.roadRadius = roadRadius;
-    }
-
-    public void setRoadInnerCircleRadius(float roadInnerCircleRadius) {
-        this.roadInnerCircleRadius = roadInnerCircleRadius;
-    }
-
-    public void setRoadOuterCircleRadius(float roadOuterCircleRadius) {
-        this.roadOuterCircleRadius = roadOuterCircleRadius;
-    }
-
-    @Override
-    protected void onSizeChanged(int w, int h, int oldw, int oldh) {
-        super.onSizeChanged(w, h, oldw, oldh);
-        circleCenterX = w / 2;
-        circleCenterY = h / 2;
-
-        int paddingInContainer = 3;
-        roadRadius = (w / 2) - (roadStrokeWidth / 2) - paddingInContainer;
-
-        int innerCirclesPadding = 3;
-        roadOuterCircleRadius = (w / 2) - paddingInContainer -
-                (roadOuterCircleStrokeWidth / 2) - innerCirclesPadding;
-
-        roadInnerCircleRadius = roadRadius - (roadStrokeWidth / 2)
-                + (roadInnerCircleStrokeWidth / 2) + innerCirclesPadding;
+    public void init(){
+        this.X = getWidth() / 2;
+        this.Y = getHeight() / 2;
     }
 
     @Override
     public void onDraw(Canvas canvas) {
         super.onDraw(canvas);
-        Paint paint = new Paint(Paint.FILTER_BITMAP_FLAG |
-                Paint.DITHER_FLAG |
-                Paint.ANTI_ALIAS_FLAG);
+        Paint paint = new Paint();
+        this.roadRadius = getWidth() / 2 * 9 / 10;
+        this.circleCenterX = getWidth() / 2;
+        this.circleCenterY = getHeight() / 2;
+        this.roadColor = Color.RED;
+        this.roadOuterCircleColor = Color.YELLOW;
+        this.roadOuterCircleStrokeWidth = 7.0f;
+        this.roadOuterCircleRadius = this.roadRadius + 2;
 
-        drawRoad(paint, canvas);
-        drawRoadInnerCircle(paint, canvas);
-        drawRoadOuterCircle(paint, canvas);
-        drawArcTouched(paint, canvas);
+
+        drawMainCircle(paint, canvas);
+        drawMainCircleOuterCircle(paint, canvas);
+        drawStick(paint, canvas, X, Y);
     }
 
-    private void initializeAttributes(Context context, AttributeSet attrs){
-        TypedArray ta = context.obtainStyledAttributes(attrs, R.styleable.CircleRoadProgressWidget);
-        circleCenterX = ta.getFloat(R.styleable.CircleRoadProgressWidget_circleCenterPointX, 54f);
-        circleCenterY = ta.getFloat(R.styleable.CircleRoadProgressWidget_circleCenterPointY, 54f);
-        roadColor = ta.getColor(R.styleable.CircleRoadProgressWidget_roadColor, Color.parseColor("#575757"));
-        roadStrokeWidth = ta.getFloat(R.styleable.CircleRoadProgressWidget_roadStrokeWidth, 20f);
-        roadRadius = ta.getFloat(R.styleable.CircleRoadProgressWidget_roadRadius, 42f);
-        roadInnerCircleColor = ta.getColor(R.styleable.CircleRoadProgressWidget_roadInnerCircleColor, Color.parseColor("#ffffff"));
-        roadInnerCircleStrokeWidth = ta.getFloat(R.styleable.CircleRoadProgressWidget_roadInnerCircleStrokeWidth, 1f);
-        roadInnerCircleRadius = ta.getFloat(R.styleable.CircleRoadProgressWidget_roadInnerCircleRadius, 42f);
-        roadOuterCircleColor = ta.getColor(R.styleable.CircleRoadProgressWidget_roadOuterCircleColor, Color.parseColor("#ffffff"));
-        roadOuterCircleStrokeWidth = ta.getFloat(R.styleable.CircleRoadProgressWidget_roadOuterCircleStrokeWidth, 1f);
-        roadOuterCircleRadius = ta.getFloat(R.styleable.CircleRoadProgressWidget_roadOuterCircleRadius, 42f);
-        arcLoadingColor = ta.getColor(R.styleable.CircleRoadProgressWidget_arcLoadingColor, Color.parseColor("#f5d600"));
-        arcLoadingStrokeWidth = roadStrokeWidth;//ta.getFloat(R.styleable.CircleRoadProgressWidget_arcLoadingStrokeWidth, 3f);
-        arcLoadingDashLength = ta.getFloat(R.styleable.CircleRoadProgressWidget_arcLoadingDashLength, 1f);
-        arcLoadingDistanceBetweenDashes = 0;//ta.getFloat(R.styleable.CircleRoadProgressWidget_arcLoadingDistanceBetweenDashes, 5f);
-        arcLoadingStartAngle = ta.getFloat(R.styleable.CircleRoadProgressWidget_arcLoadingStartAngle, 90f);
-        ta.recycle();
-
-    }
-
-    private void drawRoad(Paint paint, Canvas canvas){
-        paint.setDither(true);
+    private void drawMainCircle(Paint paint, Canvas canvas){
         paint.setColor(roadColor);
-        paint.setStyle(Paint.Style.STROKE);
-        paint.setStrokeWidth(roadStrokeWidth);
-        canvas.drawCircle(circleCenterX, circleCenterY, roadRadius, paint);
+        paint.setStyle(Paint.Style.FILL);
+        canvas.drawCircle(circleCenterX, circleCenterY, this.roadRadius, paint);
     }
 
-    private void drawRoadInnerCircle(Paint paint, Canvas canvas){
-        paint.setDither(true);
-        paint.setColor(roadInnerCircleColor);
-        paint.setStyle(Paint.Style.STROKE);
-        paint.setStrokeWidth(roadInnerCircleStrokeWidth);
-        canvas.drawCircle(circleCenterX, circleCenterY, roadInnerCircleRadius, paint);
-    }
-
-    private void drawRoadOuterCircle(Paint paint, Canvas canvas){
-        paint.setDither(true);
+    private void drawMainCircleOuterCircle(Paint paint, Canvas canvas){
         paint.setColor(roadOuterCircleColor);
         paint.setStyle(Paint.Style.STROKE);
         paint.setStrokeWidth(roadOuterCircleStrokeWidth);
         canvas.drawCircle(circleCenterX, circleCenterY, roadOuterCircleRadius, paint);
     }
 
-    private void drawArcTouched(Paint paint, Canvas canvas){
-        paint.setColor(arcLoadingColor);
-        paint.setStrokeWidth(arcLoadingStrokeWidth);
-        paint.setPathEffect(new DashPathEffect(new float[] {arcLoadingDashLength, arcLoadingDistanceBetweenDashes}, 0));
-        float delta = circleCenterX - roadRadius;
-        float arcSize = (circleCenterX - (delta / 2f)) * 2f;
-        RectF box = new RectF(delta, delta, arcSize, arcSize);
-        //System.out.println("Angle : " + arcScrolled);
-        float sweep = this.arcScrolled * 0.01f;
-        canvas.drawArc(box, arcLoadingStartAngle + 90, this.arcScrolled, false, paint);
-        rotateAngle = arcScrolled;
-        //tank.turnTank(rotateAngle);
+    private void drawStick(Paint paint, Canvas canvas, float coordinateX, float coordinateY){
+        paint.setColor(Color.GRAY);
+        paint.setStyle(Paint.Style.FILL);
+        canvas.drawCircle(coordinateX, coordinateY, this.stickRadius, paint);
+    }
+
+    public void drawStick(MotionEvent arg1) {
+        this.TANK_X = (int)arg1.getRawX();
+        this.TANK_Y = (int)arg1.getRawY();
+
+        position_x = (int) (arg1.getX() - (getWidth() / 2));
+        position_y = (int) (arg1.getY() - (getHeight() / 2));
+        distance = (float) Math.sqrt(Math.pow(position_x, 2) + Math.pow(position_y, 2));
+        angle = (float) cal_angle(position_x, position_y);
+        if(arg1.getAction() == MotionEvent.ACTION_DOWN) {
+            if(distance <= (getWidth() / 2) - OFFSET) {
+                this.X = arg1.getX();
+                this.Y = arg1.getY();
+                int[] coordinates = new int[2];
+                getLocationInWindow(coordinates);
+                localCenterX = getWidth() / 2;
+                localCenterY = getHeight() / 2;
+                joystickCenterX = coordinates[0] + getWidth() / 2;
+                joystickCenterY = coordinates[1] + getHeight() / 2;
+                invalidate();
+                touch_state = true;
+            }
+
+        } else if(arg1.getAction() == MotionEvent.ACTION_MOVE && touch_state) {
+            int[] coordinates = new int[2];
+            getLocationInWindow(coordinates);
+            localCenterX = getWidth() / 2;
+            localCenterY = getHeight() / 2;
+            joystickCenterX = coordinates[0] + getWidth() / 2;
+            joystickCenterY = coordinates[1] + getHeight() / 2;
+            if(distance <= (getWidth() / 2) - OFFSET) {
+                this.X = arg1.getX();
+                this.Y = arg1.getY();
+                invalidate();
+            } else if(distance > (getWidth() / 2) - OFFSET){
+                float x = (float) (Math.cos(Math.toRadians(cal_angle(position_x, position_y))) * ((getWidth() / 2) - OFFSET));
+                float y = (float) (Math.sin(Math.toRadians(cal_angle(position_x, position_y))) * ((getHeight() / 2) - OFFSET));
+                x += (getWidth() / 2);
+                y += (getHeight() / 2);
+                this.X = x;
+                this.Y = y;
+                invalidate();
+            } else {
+                //mLayout.removeView(draw);
+            }
+        } else if(arg1.getAction() == MotionEvent.ACTION_UP) {
+            this.X = getWidth() / 2;
+            this.Y = getHeight() / 2;
+            int[] coordinates = new int[2];
+            getLocationInWindow(coordinates);
+            localCenterX = getWidth() / 2;
+            localCenterY = getHeight() / 2;
+            joystickCenterX = coordinates[0] + getWidth() / 2;
+            joystickCenterY = coordinates[1] + getHeight() / 2;
+            invalidate();
+            touch_state = false;
+        }
     }
 
     private double cal_angle(float x, float y) {
@@ -156,43 +170,20 @@ public class JoyStick extends View {
 
     @Override
     public boolean onTouchEvent(MotionEvent event) {
-        switch(event.getAction()){
-            case MotionEvent.ACTION_DOWN:
-                //System.out.println("Center : ( " + event.getX() + " , " + event.getY() + " );");
-                int[] coordinates = new int[2];
-                ViewGroup.LayoutParams params = getLayoutParams();
-                this.getLocationInWindow(coordinates);
-                CenterX = params.width / 2 * 10 / 21;
-                CenterY = params.height / 2 * 10 / 21;
-
-                this.arcScrolled = (int) cal_angle(event.getX() - CenterX, event.getY() - CenterX);
-                //System.out.println("new center : ( " + CenterX + " , " + CenterY + " );");
-                invalidate();
-                break;
-
-            case MotionEvent.ACTION_MOVE:
-                coordinates = new int[2];
-                params = getLayoutParams();
-                this.getLocationInWindow(coordinates);
-                CenterX = params.width / 2 * 10 / 21;
-                CenterY = params.height / 2 * 10 / 21;
-                this.arcScrolled = (int) cal_angle(event.getX() - CenterX, event.getY() - CenterY);
-                invalidate();
-                break;
-
-            case MotionEvent.ACTION_UP:
-                this.arcScrolled = 0;//(int)cal_angle(this.getWidth() - circleCenterX, this.getHeight() - circleCenterY);
-                invalidate();
-                break;
-        }
+        drawStick(event);
         return true;
     }
 
-    public int getRotateAngle() {
-        return rotateAngle;
+    public float getJoystickCenterX() {
+        return joystickCenterX;
     }
 
-    public void setTank(ProthoTank tank) {
-        this.tank = tank;
+    public float getJoystickCenterY() {
+        return joystickCenterY;
+    }
+
+    public void setStickRadius(int stickRadius) {
+        this.stickRadius = stickRadius;
     }
 }
+

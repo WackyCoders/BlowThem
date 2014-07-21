@@ -16,9 +16,6 @@ import items.TankCore;
  */
 public class StickSpace extends RelativeLayout {
 
-    private ProthoTank tank;
-    private JoyStickClass js;
-
     public StickSpace(Context context){
         super(context);
     }
@@ -31,11 +28,4 @@ public class StickSpace extends RelativeLayout {
         super(context, attrs, defStyle);
     }
 
-    public void setTank(ProthoTank tank) {
-        this.tank = tank;
-    }
-
-    public void setJs(JoyStickClass js) {
-        this.js = js;
-    }
 }

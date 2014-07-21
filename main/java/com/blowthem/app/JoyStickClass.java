@@ -7,6 +7,8 @@ import android.view.*;
 
 import items.TankCore;
 
+
+//previous joystick version, now it is totally replaced by JoyStick
 public class JoyStickClass {
 	public static final int STICK_NONE = 0;
 	public static final int STICK_UP = 1;

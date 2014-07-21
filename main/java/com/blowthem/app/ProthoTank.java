@@ -24,7 +24,6 @@ public class ProthoTank extends TankCore{
     private float angle = 0;
     private float angle1 = 0; // created to approve the rotation of the bitmap
     private int tankWidth, tankHeight;
-    private int stickSize;
     protected FireBullet bullet;
 
     private Display display;
@@ -35,11 +34,11 @@ public class ProthoTank extends TankCore{
     public float observableWidth;
     public float observableHeight;
 
-    private JoyStickClass joystick;
+    private JoyStick joystick;
 
     //public TankCore tank = new TankCore();
 
-    public ProthoTank(Context context, ViewGroup layout, JoyStickClass joystick, int protho_tank_id, int stickSize, int tank_gun_id){
+    public ProthoTank(Context context, ViewGroup layout, JoyStick joystick, int protho_tank_id){
         mContext = context;
         protho_tank = BitmapFactory.decodeResource(mContext.getResources(), protho_tank_id);
 
@@ -47,7 +46,6 @@ public class ProthoTank extends TankCore{
         paint = new Paint();
         mLayout = layout;
         params = mLayout.getLayoutParams();
-        this.stickSize = stickSize;
         display = ((WindowManager) mContext.getSystemService(Context.WINDOW_SERVICE)).getDefaultDisplay();
         width = display.getWidth();
         height = display.getHeight();
@@ -59,11 +57,6 @@ public class ProthoTank extends TankCore{
         //System.out.println(localMetrics);
         this.observableWidth = draw.getWidth();
         this.observableHeight = context.getResources().getDisplayMetrics().heightPixels;
-        //System.out.println(" X : " + observableWidth + "\n" + " Y : " + observableHeight);
-
-        //this.observableWidth *= 0.8;
-        //this.observableHeight *= 0.8;
-
     }
 
     @Override
@@ -75,8 +68,8 @@ public class ProthoTank extends TankCore{
         angle = (float) cal_angle((float)(X - joystick.getJoystickCenterX()) / observableWidth, (float)(Y - joystick.getJoystickCenterY()) / observableHeight);
         angle1 = (float) Math.toDegrees(cal_angle((X - joystick.getJoystickCenterX()), (Y - joystick.getJoystickCenterY())));
         turn(angle);
-        setStartX(-(protho_tank.getWidth() * 5/10) / observableWidth);
-        setStratY(-(protho_tank.getHeight() * 5/10) / observableHeight);
+        //setStartX(-(protho_tank.getWidth() * 5/10) / observableWidth);
+        //setStratY(-(protho_tank.getHeight() * 5/10) / observableHeight);
 
         step(observableWidth, observableHeight, 0.01f);
         angle = (float) Math.toDegrees(angle);
@@ -148,9 +141,9 @@ public class ProthoTank extends TankCore{
         @Override
         protected void onDraw(Canvas canvas) {
             //System.out.println(" X : " + canvas.getWidth() + " Y : " + canvas.getHeight());
-            observableWidth = canvas.getWidth() - (0.5f * protho_tank.getWidth());
-            observableHeight = canvas.getHeight() - (0.5f * protho_tank.getHeight());
-            canvas.drawBitmap(rotateBitmap(protho_tank, angle1), x, y, paint);
+            observableWidth = canvas.getWidth(); //+ (0.5f * protho_tank.getWidth());
+            observableHeight = canvas.getHeight(); //+ (0.5f * protho_tank.getHeight());
+            canvas.drawBitmap(rotateBitmap(protho_tank, angle1), x - (0.5f * protho_tank.getWidth()), y - (0.5f * protho_tank.getHeight()), paint);
             //canvas.drawBitmap(protho_tank, x, y, paint);
         }
 

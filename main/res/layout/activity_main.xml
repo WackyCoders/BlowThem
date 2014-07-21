@@ -41,15 +41,14 @@
             android:layout_centerInParent="true" />
     </RelativeLayout>
 
-    <com.blowthem.app.StickSpace
+    <com.blowthem.app.JoyStick
         android:id="@+id/layout_joystick"
         android:layout_width="100dp"
         android:layout_height="100dp"
-        android:background="@drawable/stick_total_space"
         android:gravity="bottom"
         android:layout_alignParentBottom="true"
         android:layout_alignParentLeft="true">
-    </com.blowthem.app.StickSpace>
+    </com.blowthem.app.JoyStick>
 
 
 </RelativeLayout>
