@@ -4,7 +4,7 @@ import android.content.*;
 import android.graphics.*;
 import android.util.DisplayMetrics;
 import android.util.Log;
-import android.view.*;
+import android.view.*; 
 import android.widget.ImageView;
 
 import items.TankCore;
@@ -66,20 +66,6 @@ public class ProthoTank{
     }
 
     public void drawTank(int X, int Y){
-<<<<<<< HEAD
-        angle = (float) cal_angle((float)(X - joystick.getJoystickCenterX()) / observableWidth, (float)(Y - joystick.getJoystickCenterY()) / observableHeight);
-        angle1 = (float) Math.toDegrees(cal_angle((X - joystick.getJoystickCenterX()), (Y - joystick.getJoystickCenterY())));
-        turn(angle);
-        //setStartX(-(protho_tank.getWidth() * 5/10) / observableWidth);
-        //setStratY(-(protho_tank.getHeight() * 5/10) / observableHeight);
-
-        step(observableWidth, observableHeight, 0.01f);
-        angle = (float) Math.toDegrees(angle);
-        draw.setAngle(angle);
-        draw.setX(getPosition().get(0) * observableWidth);
-        draw.setY(getPosition().get(1) * observableHeight);
-=======
-
         float x = X - joystick.getJoystickCenterX(), y = Y - joystick.getJoystickCenterY();
         coreAngle = (float) cal_angle(x / observableWidth, y / observableHeight);
         bitmapAngle = (float) Math.toDegrees(cal_angle(x, y));
@@ -92,8 +78,6 @@ public class ProthoTank{
         draw.setAngle(coreAngle);
         draw.setX(core.getX() * observableWidth);
         draw.setY(core.getY() * observableHeight);
-
->>>>>>> 41d1482b6ab3c3eadf8d1b7fa0e1b8470e935c95
         drawTank();
     }
 
@@ -159,15 +143,9 @@ public class ProthoTank{
         @Override
         protected void onDraw(Canvas canvas) {
             //System.out.println(" X : " + canvas.getWidth() + " Y : " + canvas.getHeight());
-<<<<<<< HEAD
-            observableWidth = canvas.getWidth(); //+ (0.5f * protho_tank.getWidth());
-            observableHeight = canvas.getHeight(); //+ (0.5f * protho_tank.getHeight());
-            canvas.drawBitmap(rotateBitmap(protho_tank, angle1), x - (0.5f * protho_tank.getWidth()), y - (0.5f * protho_tank.getHeight()), paint);
-=======
             observableWidth = canvas.getWidth() - (0.5f * protho_tank.getWidth());
             observableHeight = canvas.getHeight() - (0.5f * protho_tank.getHeight());
             canvas.drawBitmap(rotateBitmap(protho_tank, bitmapAngle), x, y, paint);
->>>>>>> 41d1482b6ab3c3eadf8d1b7fa0e1b8470e935c95
             //canvas.drawBitmap(protho_tank, x, y, paint);
         }
 

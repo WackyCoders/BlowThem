@@ -1,7 +1,7 @@
 package com.blowthem.app;
 
 import android.content.*;
-import android.graphics.*; 
+import android.graphics.*;  
 import android.util.Log;
 import android.view.*; 
 
@@ -19,12 +19,8 @@ public class FireBullet extends View {
     protected float height;
     private int edge_width, edge_height;;
     private int STROKE;
-<<<<<<< HEAD
     protected float explodeX, explodeY;
-    BulletCore bullet;
-=======
     BulletCore core;
->>>>>>> 41d1482b6ab3c3eadf8d1b7fa0e1b8470e935c95
 
     public FireBullet(Context context, ProthoTank tank){
         super(context);
@@ -44,27 +40,15 @@ public class FireBullet extends View {
     @Override
     protected void onDraw(Canvas canvas) {
         paint.setStrokeWidth(STROKE);
-
-<<<<<<< HEAD
-        if(bullet.getFlagOfFireRate()) {
-            width = bullet.getX() * tank.width; //+ tank.getTankWidth() / 2 ;
-            height = bullet.getY() * tank.height; // + tank.getTankHeight() / 2;
-            canvas.drawCircle(width, height, 5, paint);
-            bullet.bulletStep(tank.width, tank.height, 0.03f); //? observable??
-
-        } else {
-           // bullet.setFlagOfFireRate(false);
-            explodeX = this.width;
-            explodeY = this.height;
-        }
-=======
         if(core.getAlive()) {
             canvas.drawCircle(width, height, 5, paint);
             core.step();
             width = core.getX() * tank.observableWidth + tank.getTankWidth() / 2;
             height = core.getY() * tank.observableHeight + tank.getTankHeight() / 2;
->>>>>>> 41d1482b6ab3c3eadf8d1b7fa0e1b8470e935c95
-
+        }else {
+            // bullet.setFlagOfFireRate(false);
+            explodeX = this.width;
+            explodeY = this.height;
         }
     }
 
