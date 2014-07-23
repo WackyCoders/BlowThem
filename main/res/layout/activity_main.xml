@@ -50,5 +50,10 @@
         android:layout_alignParentLeft="true">
     </com.blowthem.app.JoyStick>
 
+    <ImageView
+        android:layout_width="100dp"
+        android:layout_height="100dp"
+        android:id="@+id/animation_field"/>
+
 
 </RelativeLayout>

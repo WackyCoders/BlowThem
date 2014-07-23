@@ -15,8 +15,7 @@ import poor2D.Vector;
 public class FireBullet extends View {
     private Paint paint;
     private ProthoTank tank;
-    protected float width;
-    protected float height;
+    protected float width, height;
     private int edge_width, edge_height;;
     private int STROKE;
     protected float explodeX, explodeY;
@@ -43,8 +42,8 @@ public class FireBullet extends View {
         if(core.getAlive()) {
             canvas.drawCircle(width, height, 5, paint);
             core.step();
-            width = core.getX() * tank.observableWidth + tank.getTankWidth() / 2;
-            height = core.getY() * tank.observableHeight + tank.getTankHeight() / 2;
+            width = core.getX() * tank.observableWidth; //+ tank.getTankWidth() / 2;
+            height = core.getY() * tank.observableHeight; //+ tank.getTankHeight() / 2;
         }else {
             // bullet.setFlagOfFireRate(false);
             explodeX = this.width;

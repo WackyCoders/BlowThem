@@ -7,9 +7,8 @@ import android.media.*;
 import android.os.*;
 import android.support.v7.app.*;
 import android.view.*;
+import android.view.animation.*;
 import android.widget.*;
-
-import com.blowthem.app.animation.ExplodeView;
 
 import java.io.*;
 import java.net.*;
@@ -24,6 +23,9 @@ public class MainActivity extends ActionBarActivity {
     private ProthoTank tank;
     private FireIndicator circleProgress;
     private Point size;
+    private ImageView imageView;
+    private static int[] animation_array = {R.drawable.fire_1, R.drawable.fire_2, R.drawable.fire_3, R.drawable.fire_4, R.drawable.fire_5,
+            R.drawable.fire_6, R.drawable.fire_7, R.drawable.fire_8, R.drawable.fire_9, R.drawable.fire_10, R.drawable.fire_11, R.drawable.fire_12};
 
     private MotionEvent fireEvent;
     private MotionEvent event1;
@@ -87,6 +89,14 @@ public class MainActivity extends ActionBarActivity {
         }
     };
 
+    private Handler animateExplode = new Handler();
+    private Runnable animateExplodeTask = new Runnable() {
+        @Override
+        public void run() {
+            animate(imageView, animation_array, 0, true);
+        }
+    };
+
     private Handler bulletThreadHandler = new Handler();
     private Runnable bulletThreadTask = new Runnable() {
         @Override
@@ -96,10 +106,21 @@ public class MainActivity extends ActionBarActivity {
             if(tank.bullet.isAlive()) {
                 bulletThreadHandler.postDelayed(this, 0);
             } else {
-                //ExplodeView explode = new ExplodeView(getApplicationContext());
-                //explode.setX(tank.bullet.explodeX);
-                //explode.setY(tank.bullet.explodeY);
-                //main_frame.addView(explode);
+                RelativeLayout.LayoutParams params = new RelativeLayout.LayoutParams(RelativeLayout.LayoutParams.WRAP_CONTENT, RelativeLayout.LayoutParams.WRAP_CONTENT);
+                if(tank.bullet.height >= 0 && tank.bullet.width >= 0) {
+                    params.setMargins((int) tank.bullet.width - tank.getTankWidth(), (int) tank.bullet.height - tank.getTankHeight(), 0, 0);
+                } else if(tank.bullet.height < 0 && tank.bullet.width > 0){
+                    params.setMargins((int) tank.bullet.width - (int)0.5 * tank.getTankWidth(), (int) tank.bullet.height + (int)0.5 *tank.getTankHeight(), 0, 0);
+                } else if(tank.bullet.height > 0 && tank.bullet.width < 0){
+                    params.setMargins((int) tank.bullet.width + (int)0.5 * tank.getTankWidth(), (int) tank.bullet.height - (int)0.5 * tank.getTankHeight(), 0, 0);
+                } else if(tank.bullet.height < 0 && tank.bullet.width < 0){
+                    params.setMargins((int) tank.bullet.width + tank.getTankWidth(), (int) tank.bullet.height + tank.getTankHeight(), 0, 0);
+                }
+                System.out.println("explode X : " + (int)tank.bullet.width + " explode Y : " + (int)tank.bullet.height);
+                imageView.setLayoutParams(params);
+                //animate(imageView, animation_array, 0, true);
+                animateExplode.removeCallbacks(animateExplodeTask);
+                animateExplode.postDelayed(animateExplodeTask, 0);
 
                 if (sound != null) {
                     sound.release();
@@ -244,8 +265,18 @@ public class MainActivity extends ActionBarActivity {
         fire_button.setOnClickListener(fireButtonListener);
 
         circleProgress = (FireIndicator) findViewById(R.id.fire_indicator);
-    }
 
+        imageView = (ImageView) findViewById(R.id.animation_field);
+        observer.addOnGlobalLayoutListener(new ViewTreeObserver.OnGlobalLayoutListener() {
+            @Override
+            public void onGlobalLayout() {
+                ViewGroup.LayoutParams params = imageView.getLayoutParams();
+                params.width = size.x / 17;
+                params.height = size.y / 17;
+                imageView.setLayoutParams(params);
+            }
+        });
+    }
 
 
     private class ClientHandler extends AsyncTask<String, Void, Socket> {
@@ -287,5 +318,54 @@ public class MainActivity extends ActionBarActivity {
                         Toast.LENGTH_LONG).show();
             }
         }
+    }
+
+
+    //Animation probe
+    private void animate(final ImageView imageView, final int images[], final int imageIndex, final boolean forever){
+        int preDuration = 50;
+        int slideDuration = 50;
+        int postDuration = 50;
+
+        imageView.setVisibility(View.INVISIBLE);
+        imageView.setImageResource(images[imageIndex]);
+
+        Animation fadeIn = new AlphaAnimation(0, 1);
+        fadeIn.setInterpolator(new DecelerateInterpolator());
+        fadeIn.setDuration(preDuration);
+
+        Animation fadeOut = new AlphaAnimation(1, 0);
+        fadeOut.setInterpolator(new AccelerateInterpolator());
+        fadeOut.setStartOffset(preDuration + slideDuration);
+        fadeOut.setDuration(postDuration);
+
+        AnimationSet animation = new AnimationSet(false);
+        animation.addAnimation(fadeIn);
+        animation.addAnimation(fadeOut);
+        animation.setRepeatCount(1);
+        imageView.setAnimation(animation);
+
+        animation.setAnimationListener(new Animation.AnimationListener() {
+
+            @Override
+            public void onAnimationEnd(Animation animation) {
+                if(images.length - 1 > imageIndex){
+                    animate(imageView, images, imageIndex + 1, forever);
+                }
+                else{
+                    if(forever == false){
+                        animate(imageView, images, 0, forever);
+                    }
+                }
+            }
+
+            @Override
+            public void onAnimationRepeat(Animation animation) {
+            }
+
+            @Override
+            public void onAnimationStart(Animation animation) {
+            }
+        });
     }
 }

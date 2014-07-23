@@ -76,8 +76,8 @@ public class ProthoTank{
         coreAngle = (float) Math.toDegrees(coreAngle);
 
         draw.setAngle(coreAngle);
-        draw.setX(core.getX() * observableWidth);
-        draw.setY(core.getY() * observableHeight);
+        draw.setX(core.getX() * observableWidth - 0.5f * protho_tank.getWidth());
+        draw.setY(core.getY() * observableHeight - 0.5f * protho_tank.getHeight());
         drawTank();
     }
 
@@ -142,11 +142,9 @@ public class ProthoTank{
 
         @Override
         protected void onDraw(Canvas canvas) {
-            //System.out.println(" X : " + canvas.getWidth() + " Y : " + canvas.getHeight());
-            observableWidth = canvas.getWidth() - (0.5f * protho_tank.getWidth());
-            observableHeight = canvas.getHeight() - (0.5f * protho_tank.getHeight());
+            observableWidth = canvas.getWidth(); //- (0.5f * protho_tank.getWidth());
+            observableHeight = canvas.getHeight(); //- (0.5f * protho_tank.getHeight());
             canvas.drawBitmap(rotateBitmap(protho_tank, bitmapAngle), x, y, paint);
-            //canvas.drawBitmap(protho_tank, x, y, paint);
         }
 
         public Bitmap rotateBitmap(Bitmap source, float angle){
