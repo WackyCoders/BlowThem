@@ -32,7 +32,8 @@ public class MainActivity extends ActionBarActivity {
 
     private MediaPlayer sound;
     private int bullet_stroke;
-    private static String SERVER_IP = "192.168.1.6";//192.168.56.1
+    private static String SERVER_IP = "178.124.206.95"; // internet
+    //"192.168.1.6";//localwifi
     private RelativeLayout fire_indificator, main_frame;
 
     private FireButton fire_button;
@@ -46,6 +47,8 @@ public class MainActivity extends ActionBarActivity {
             //android.os.Process.setThreadPriority(android.os.Process.THREAD_PRIORITY_BACKGROUND);
             synchronized (tank) {
                 tank.drawFire(fireEvent);
+                new BulletClientHandler(MainActivity.this).execute(String.valueOf(3) + "\n", messageToSend,
+                        String.valueOf(tank.bullet.core.getX()) + "\n", String.valueOf(tank.bullet.core.getY()) + "\n");
             }
         }
     };
@@ -139,15 +142,9 @@ public class MainActivity extends ActionBarActivity {
             synchronized (tank) {
                 //tank.drawTank(event1);
                 tank.drawTank(js.TANK_X, js.TANK_Y);
+                new TankClientHandler(MainActivity.this).execute(String.valueOf(2) + "\n",
+                        String.valueOf(tank.core.getX()) + "\n", String.valueOf(tank.core.getY()) + "\n");
             }
-        }
-    };
-
-    private Handler serverHandler = new Handler();
-    private Runnable serverTask = new Runnable(){
-        public void run(){
-            //new ClientHandler(MainActivity.this).execute(messageToSend);
-
         }
     };
 
@@ -183,9 +180,7 @@ public class MainActivity extends ActionBarActivity {
         public void onClick(View v) {
         if(isClicked && flagEnablesToFire) {
             flagEnablesToFire = false;
-            messageToSend = "clicked";//server message
-            //serverHandler.removeCallbacks(serverTask);
-            //serverHandler.post(serverTask);
+            messageToSend = "clicked\n";//server message
 
             indicatorHandler.removeCallbacks(indicatorTask);
             indicatorHandler.postDelayed(indicatorTask, 30);
@@ -238,12 +233,6 @@ public class MainActivity extends ActionBarActivity {
                 js.init();
             }
         });
-        //js.setStickSize(size.x / 25, size.x / 25);
-        //js.setLayoutSize(size.x / 6, size.x / 6);
-        //js.setLayoutAlpha(250);
-        //js.setStickAlpha(240);
-        //js.setOffset(90);
-        //js.setMinimumDistance(30);
 
         tank = new ProthoTank(getApplicationContext(), main_frame, js, R.drawable.protho_tank);
         tank.setTankSize(size.x / 17, size.x / 17);
@@ -278,15 +267,42 @@ public class MainActivity extends ActionBarActivity {
         });
     }
 
+    private class TankClientHandler extends AsyncTask<String, Void, Socket> {
+        private Socket socket;
+        private Context context;
+        private BufferedWriter out;
 
-    private class ClientHandler extends AsyncTask<String, Void, Socket> {
+        public TankClientHandler(Context context){
+            this.context = context;
+            socket = null;
+            out = null;
+        }
+
+        @Override
+        protected Socket doInBackground(String... params) {
+            try {
+                socket = new Socket(SERVER_IP, 8060);
+                out = new BufferedWriter(new OutputStreamWriter(socket.getOutputStream()));
+                out.write(params[0]);
+                out.write(params[1]);
+                out.write(params[2]);
+                out.flush();
+                return socket;
+            } catch (IOException e){
+                e.printStackTrace();
+            }
+            return socket;
+        }
+    }
+
+    private class BulletClientHandler extends AsyncTask<String, Void, Socket> {
         private Socket socket;
         private String answer;
         private Context context;
         private BufferedWriter out;
         private BufferedReader in;
 
-        public ClientHandler(Context context) {
+        public BulletClientHandler(Context context) {
             this.context = context;
             socket = null;
             out = null;
@@ -299,9 +315,12 @@ public class MainActivity extends ActionBarActivity {
                 socket = new Socket(SERVER_IP, 8060);
                 out = new BufferedWriter(new OutputStreamWriter(socket.getOutputStream()));
                 in = new BufferedReader(new InputStreamReader(socket.getInputStream()));
-                out.write(params[0]);
+                out.write(params[0]);//send number of parameters
+                out.write(params[1]);
+                out.write(params[2]);
+                out.write(params[3]);
                 out.flush();
-                answer = in.readLine() + System.getProperty("line.separator");
+                answer = in.readLine();
                 return socket;
             } catch (IOException e) {
                 e.printStackTrace();
@@ -312,7 +331,7 @@ public class MainActivity extends ActionBarActivity {
         @Override
         protected void onPostExecute(Socket socket) {
             if (socket != null) {
-                Toast.makeText(context, answer, Toast.LENGTH_LONG).show();
+                //Toast.makeText(context, answer, Toast.LENGTH_LONG).show();
             } else {
                 Toast.makeText(context, "Can't connect to server!",
                         Toast.LENGTH_LONG).show();
@@ -323,9 +342,9 @@ public class MainActivity extends ActionBarActivity {
 
     //Animation probe
     private void animate(final ImageView imageView, final int images[], final int imageIndex, final boolean forever){
-        int preDuration = 50;
-        int slideDuration = 50;
-        int postDuration = 50;
+        int preDuration = 20;
+        int slideDuration = 20;
+        int postDuration = 20;
 
         imageView.setVisibility(View.INVISIBLE);
         imageView.setImageResource(images[imageIndex]);
