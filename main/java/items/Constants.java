@@ -9,8 +9,6 @@ class Constants {
 
     private Constants(){}
 
-    public final static int BULLETS = 5;
-
     /*
     An abstract screen is of size 1.0x1.0
      */
@@ -19,6 +17,7 @@ class Constants {
 
     public final static Vector HORIZONTAL_VECTOR = new Vector(1.0f, 0.0f);
     public final static float EPSILON = 0.005f;
+    public final static float TANK_RADIUS = 0.05f;
 
 
 }

@@ -51,11 +51,14 @@ public class BulletCore {
         return (Vector) target.clone();
     }
 
-    public void step() {
-        if (position.get(0) < SCREEN_END && position.get(1) < SCREEN_END && position.get(0) > SCREEN_START && position.get(1) > SCREEN_START)
-            position = Operations.add(position, Operations.multiply(speedFactor, target));
-        else
-            isAlive = false;
+    public void step(Vector enemyTankPosition) {
+        if (position.get(0) < SCREEN_END && position.get(1) < SCREEN_END && position.get(0) > SCREEN_START && position.get(1) > SCREEN_START){
+            if (Math.sqrt(Math.pow(position.get(0) - enemyTankPosition.get(0), 2.0) + Math.pow(position.get(1) - enemyTankPosition.get(1), 2.0)) < TANK_RADIUS)
+                isAlive = false;
+            else
+                position = Operations.add(position, Operations.multiply(speedFactor, target));
+        }
+        else isAlive = false;
     }
 
     @Override

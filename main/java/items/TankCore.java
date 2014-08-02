@@ -13,7 +13,7 @@ import static items.Constants.*;
 public class TankCore {
 
     private Vector position = new Vector(0.0f, 0.0f);
-    private Vector target = new Vector(1.0f, 0.0f);
+    private Vector target = HORIZONTAL_VECTOR;
 
     private float speedFactor = 0.01f;
 
