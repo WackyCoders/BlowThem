@@ -13,6 +13,8 @@ import android.widget.*;
 import java.io.*;
 import java.net.*;
 
+import poor2D.Vector;
+
 
 public class MainActivity extends ActionBarActivity {
 
@@ -21,6 +23,7 @@ public class MainActivity extends ActionBarActivity {
     //private JoyStickClass js;
     private JoyStick js;
     private ProthoTank tank;
+    private ProthoTank enemy;
     private FireIndicator circleProgress;
     private Point size;
     private ImageView imageView;
@@ -108,6 +111,11 @@ public class MainActivity extends ActionBarActivity {
             mFire.removeCallbacks(mFireTask);
             mFire.post(mFireTask);
             if(tank.bullet.isAlive()) {
+
+                ///////////////////////
+                tank.bullet.enemyPosition = (Vector) enemy.core.getPosition().clone();
+                ///////////////////////
+
                 bulletThreadHandler.postDelayed(this, 0);
             } else {
                 RelativeLayout.LayoutParams params = new RelativeLayout.LayoutParams(RelativeLayout.LayoutParams.WRAP_CONTENT, RelativeLayout.LayoutParams.WRAP_CONTENT);
@@ -143,6 +151,12 @@ public class MainActivity extends ActionBarActivity {
             synchronized (tank) {
                 //tank.drawTank(event1);
                 tank.drawTank(js.TANK_X, js.TANK_Y);
+
+                /////////////////////////
+                enemy.core.setPosition(new Vector(0.5f, 0.5f));
+                enemy.drawTank(js.TANK_X, js.TANK_Y);
+                /////////////////////////
+
                 new TankClientHandler(MainActivity.this).execute(String.valueOf(2) + "\n",
                         String.valueOf(tank.core.getX()) + "\n", String.valueOf(tank.core.getY()) + "\n");
             }
@@ -238,6 +252,14 @@ public class MainActivity extends ActionBarActivity {
         tank = new ProthoTank(getApplicationContext(), main_frame, js, R.drawable.protho_tank);
         tank.setTankSize(size.x / 17, size.x / 17);
         tank.drawTank();
+
+        /////////////////////
+        enemy = new ProthoTank(getApplicationContext(), main_frame, js, R.drawable.protho_tank);
+        enemy.setTankSize(size.x / 17, size.x / 17);
+        enemy.drawTank();
+        ////////////////////
+
+
         tank.bullet.init();
         bullet_stroke = size.x / 100;
 
