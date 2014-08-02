@@ -32,8 +32,9 @@ public class MainActivity extends ActionBarActivity {
 
     private MediaPlayer sound;
     private int bullet_stroke;
-    private static String SERVER_IP = "178.124.206.95"; // internet
-    //"192.168.1.6";//localwifi
+    private static String SERVER_IP = "86.57.196.182"; // internet ---->86.57.195.176
+    //"192.168.1.2";//localwifi
+    private final static Integer SERVER_PORT = 20100;
     private RelativeLayout fire_indificator, main_frame;
 
     private FireButton fire_button;
@@ -281,7 +282,7 @@ public class MainActivity extends ActionBarActivity {
         @Override
         protected Socket doInBackground(String... params) {
             try {
-                socket = new Socket(SERVER_IP, 8060);
+                socket = new Socket(SERVER_IP, SERVER_PORT);
                 out = new BufferedWriter(new OutputStreamWriter(socket.getOutputStream()));
                 out.write(params[0]);
                 out.write(params[1]);
@@ -312,7 +313,7 @@ public class MainActivity extends ActionBarActivity {
         @Override
         protected Socket doInBackground(String... params) {
             try {
-                socket = new Socket(SERVER_IP, 8060);
+                socket = new Socket(SERVER_IP, SERVER_PORT);
                 out = new BufferedWriter(new OutputStreamWriter(socket.getOutputStream()));
                 in = new BufferedReader(new InputStreamReader(socket.getInputStream()));
                 out.write(params[0]);//send number of parameters
@@ -332,10 +333,10 @@ public class MainActivity extends ActionBarActivity {
         protected void onPostExecute(Socket socket) {
             if (socket != null) {
                 //Toast.makeText(context, answer, Toast.LENGTH_LONG).show();
-            } else {
+            }/* else {
                 Toast.makeText(context, "Can't connect to server!",
                         Toast.LENGTH_LONG).show();
-            }
+            }*/
         }
     }
 
