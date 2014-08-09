@@ -14,7 +14,7 @@ import java.io.*;
 import java.net.*;
 
 import poor2D.Vector;
-
+ 
 
 public class MainActivity extends ActionBarActivity {
 
@@ -35,9 +35,9 @@ public class MainActivity extends ActionBarActivity {
 
     private MediaPlayer sound;
     private int bullet_stroke;
-    private static String SERVER_IP = "86.57.196.182"; // internet ---->86.57.195.176
+    private static String SERVER_IP = "192.168.1.4"; // internet ----> 86.57.195.176
     //"192.168.1.2";//localwifi
-    private final static Integer SERVER_PORT = 20100;
+    private final static Integer SERVER_PORT = 8080;
     private RelativeLayout fire_indificator, main_frame;
 
     private FireButton fire_button;
@@ -157,8 +157,8 @@ public class MainActivity extends ActionBarActivity {
                 enemy.drawTank(js.TANK_X, js.TANK_Y);
                 /////////////////////////
 
-                new TankClientHandler(MainActivity.this).execute(String.valueOf(2) + "\n",
-                        String.valueOf(tank.core.getX()) + "\n", String.valueOf(tank.core.getY()) + "\n");
+                new TankClientHandler(MainActivity.this).execute("$motion$",
+                        String.valueOf(tank.core.getX()), String.valueOf(tank.core.getY()));
             }
         }
     };
@@ -221,6 +221,11 @@ public class MainActivity extends ActionBarActivity {
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
+
+        UserRegistration reg = new UserRegistration(MainActivity.this);
+        reg.execute("$login$", "walter", "777");
+
+
         getActionBar().hide();
         setContentView(R.layout.activity_main);
         setRequestedOrientation(ActivityInfo.SCREEN_ORIENTATION_LANDSCAPE);
@@ -293,7 +298,7 @@ public class MainActivity extends ActionBarActivity {
     private class TankClientHandler extends AsyncTask<String, Void, Socket> {
         private Socket socket;
         private Context context;
-        private BufferedWriter out;
+        private DataOutputStream out;
 
         public TankClientHandler(Context context){
             this.context = context;
@@ -305,10 +310,12 @@ public class MainActivity extends ActionBarActivity {
         protected Socket doInBackground(String... params) {
             try {
                 socket = new Socket(SERVER_IP, SERVER_PORT);
-                out = new BufferedWriter(new OutputStreamWriter(socket.getOutputStream()));
-                out.write(params[0]);
-                out.write(params[1]);
-                out.write(params[2]);
+                out = new DataOutputStream(socket.getOutputStream());
+                //in = new DataInputStream(socket.getInputStream());
+                //out = new BufferedWriter(new OutputStreamWriter(socket.getOutputStream()));
+                out.writeUTF(params[0]);
+                out.writeUTF(params[1]);
+                out.writeUTF(params[2]);
                 out.flush();
                 return socket;
             } catch (IOException e){
@@ -359,6 +366,49 @@ public class MainActivity extends ActionBarActivity {
                 Toast.makeText(context, "Can't connect to server!",
                         Toast.LENGTH_LONG).show();
             }*/
+        }
+    }
+
+    private class UserRegistration extends AsyncTask<String, Void, Socket> {
+        private Socket socket;
+        private String answer;
+        private Context context;
+        private DataOutputStream out;
+        private DataInputStream in;
+
+        public UserRegistration(Context context) {
+            this.context = context;
+            socket = null;
+            out = null;
+            in = null;
+        }
+
+        @Override
+        protected Socket doInBackground(String... params) {
+            try {
+                socket = new Socket(SERVER_IP, SERVER_PORT);
+                out = new DataOutputStream(socket.getOutputStream());
+                in = new DataInputStream(socket.getInputStream());
+                //out = new BufferedWriter(new OutputStreamWriter(socket.getOutputStream()));
+                //in = new BufferedReader(new InputStreamReader(socket.getInputStream()));
+                out.writeUTF(params[0]);//send number of parameters
+                out.writeUTF(params[1]);
+                out.writeUTF(params[2]);
+                //out.write(params[3]);
+                answer = in.readUTF();
+                out.flush();
+                return socket;
+            } catch (IOException e) {
+                e.printStackTrace();
+            }
+            return socket;
+        }
+
+        @Override
+        protected void onPostExecute(Socket socket) {
+            if (socket != null) {
+                Toast.makeText(context, answer, Toast.LENGTH_SHORT).show();
+            }
         }
     }
 
