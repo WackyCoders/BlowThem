@@ -28,7 +28,7 @@ public class Vector implements Cloneable{
             e.printStackTrace();
         }
         copy.array = array.clone();
-        return copy;
+        return (Vector) copy;
     }
 
     @Override
@@ -43,4 +43,16 @@ public class Vector implements Cloneable{
     public float get(int i){
         return array[i];
     }
+
+    public float length(){
+        return (float) Math.sqrt(array[0]*array[0] + array[1]*array[1]);
+    }
+
+    public Vector normalized(){
+        float length = length();
+
+        return new Vector(array[0] /= length, array[1] /= length);
+    }
+
+
 }

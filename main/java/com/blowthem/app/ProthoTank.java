@@ -1,13 +1,13 @@
 package com.blowthem.app;
 
 import android.content.*;
-import android.graphics.*;
+import android.graphics.*;;
 import android.util.DisplayMetrics;
-import android.util.Log;
-import android.view.*; 
-import android.widget.ImageView;
+import android.view.*;
 
+import items.Constants;
 import items.TankCore;
+import poor2D.Operations;
 import poor2D.Vector;
 
 /**
@@ -26,9 +26,9 @@ public class ProthoTank{
     private int tankWidth, tankHeight;
     protected FireBullet bullet;
 
-    private Display display;
     public int width;
     public int height;
+
 
     private DisplayMetrics localMetrics;
     public float observableWidth;
@@ -38,7 +38,7 @@ public class ProthoTank{
 
     TankCore core = new TankCore();
 
-    public ProthoTank(Context context, ViewGroup layout, JoyStick joystick, int protho_tank_id){
+    public ProthoTank(Context context, ViewGroup layout, JoyStick joystick, int protho_tank_id, Point size){
         mContext = context;
         protho_tank = BitmapFactory.decodeResource(mContext.getResources(), protho_tank_id);
 
@@ -46,29 +46,24 @@ public class ProthoTank{
         paint = new Paint();
         mLayout = layout;
         params = mLayout.getLayoutParams();
-        display = ((WindowManager) mContext.getSystemService(Context.WINDOW_SERVICE)).getDefaultDisplay();
-        width = display.getWidth();
-        height = display.getHeight();
+        width = size.x;
+        height = size.y;
         bullet = new FireBullet(mContext, this);
         this.joystick = joystick;
 
         localMetrics = new DisplayMetrics();
         ((WindowManager) mContext.getSystemService(Context.WINDOW_SERVICE)).getDefaultDisplay().getMetrics(localMetrics);
-        //System.out.println(localMetrics);
 
-        /**
-         * !!!!!!!!!!!!!
-         * Предлагаю вынести observable* вне танка, т.к. это не часть
-         * танка, а скорее общая инфа
-         */
         this.observableWidth = draw.getWidth();
         this.observableHeight = context.getResources().getDisplayMetrics().heightPixels;
     }
 
-    public void drawTank(int X, int Y){
-        float x = X - joystick.getJoystickCenterX(), y = Y - joystick.getJoystickCenterY();
-        coreAngle = (float) cal_angle(x / observableWidth, y / observableHeight);
-        bitmapAngle = (float) Math.toDegrees(cal_angle(x, y));
+    /**
+     * Joystick data
+     */
+    public void drawTank(float x, float y){
+        coreAngle = (float) calculateAngleForTan(x / observableWidth, y / observableHeight);
+        bitmapAngle = (float) Math.toDegrees(calculateAngleForTan(x, y));
 
         core.turn(coreAngle);
         core.step();
@@ -81,7 +76,33 @@ public class ProthoTank{
         drawTank();
     }
 
-    private double cal_angle(float x, float y){
+    /**
+     * Base data (the core isn't used)
+     */
+    public void drawTank(Vector position, Vector target){
+
+        Vector operable = new Vector(target.get(0) * observableWidth, target.get(1) * observableHeight).normalized();
+
+        bitmapAngle = (float) (operable.get(1) > 0.0f ?
+                Math.toDegrees(Math.acos(Operations.scalarProduct(operable, Constants.HORIZONTAL_VECTOR))) :
+                -Math.toDegrees(Math.acos(Operations.scalarProduct(operable, Constants.HORIZONTAL_VECTOR))));
+
+        draw.setX(position.get(0) * observableWidth - 0.5f * protho_tank.getWidth());
+        draw.setY(position.get(1) * observableHeight - 0.5f * protho_tank.getHeight());
+        drawTank();
+    }
+
+    /**
+     * The preferable one (because the angle is already calculated in the enemy's core)
+     */
+    public void drawTank(Vector position, float bitmapAngle){
+        this.bitmapAngle = bitmapAngle;
+        draw.setX(position.get(0) * observableWidth - 0.5f * protho_tank.getWidth());
+        draw.setY(position.get(1) * observableHeight - 0.5f * protho_tank.getHeight());
+        drawTank();
+    }
+
+    private double calculateAngleForTan(float x, float y){
         if(x >= 0 && y >= 0)
             return Math.atan(y / x);
         else if(x < 0 && y >= 0)
@@ -92,6 +113,7 @@ public class ProthoTank{
             return Math.atan(y / x) + 2.0f * Math.PI;
         return 0;
     }
+
 
 
     public void setTankSize(int width, int height) {
@@ -137,13 +159,12 @@ public class ProthoTank{
 
         private DrawCanvas(Context context){
             super(context);
-            //setBackgroundColor(Color.WHITE);
         }
 
         @Override
         protected void onDraw(Canvas canvas) {
-            observableWidth = canvas.getWidth(); //- (0.5f * protho_tank.getWidth());
-            observableHeight = canvas.getHeight(); //- (0.5f * protho_tank.getHeight());
+            observableWidth = canvas.getWidth();
+            observableHeight = canvas.getHeight();
             canvas.drawBitmap(rotateBitmap(protho_tank, bitmapAngle), x, y, paint);
         }
 

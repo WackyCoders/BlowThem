@@ -5,7 +5,7 @@ import poor2D.Vector;
 /**
  * Created by alex on 7/17/14.
  */ 
-class Constants {
+public class Constants {
 
     private Constants(){}
 

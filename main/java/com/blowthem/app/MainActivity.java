@@ -113,6 +113,7 @@ public class MainActivity extends ActionBarActivity {
             if(tank.bullet.isAlive()) {
 
                 ///////////////////////
+                ////////////////////// The right side are the coords of enemy vector (core)
                 tank.bullet.enemyPosition = (Vector) enemy.core.getPosition().clone();
                 ///////////////////////
 
@@ -149,13 +150,10 @@ public class MainActivity extends ActionBarActivity {
     private Runnable mUpdateTask = new Runnable(){
         public void run(){
             synchronized (tank) {
-                //tank.drawTank(event1);
-                tank.drawTank(js.TANK_X, js.TANK_Y);
+                tank.drawTank(js.getNormalX(), js.getNormalY());
 
-                /////////////////////////
-                enemy.core.setPosition(new Vector(0.5f, 0.5f));
-                enemy.drawTank(js.TANK_X, js.TANK_Y);
-                /////////////////////////
+
+                enemy.drawTank(new Vector(0.5f, 0.5f), new Vector(-0.1f, 0.1f));
 
                 new TankClientHandler(MainActivity.this).execute("$motion$",
                         String.valueOf(tank.core.getX()), String.valueOf(tank.core.getY()));
@@ -254,12 +252,12 @@ public class MainActivity extends ActionBarActivity {
             }
         });
 
-        tank = new ProthoTank(getApplicationContext(), main_frame, js, R.drawable.protho_tank);
+        tank = new ProthoTank(getApplicationContext(), main_frame, js, R.drawable.protho_tank, size);
         tank.setTankSize(size.x / 17, size.x / 17);
         tank.drawTank();
 
         /////////////////////
-        enemy = new ProthoTank(getApplicationContext(), main_frame, js, R.drawable.protho_tank);
+        enemy = new ProthoTank(getApplicationContext(), main_frame, js, R.drawable.protho_tank, size);
         enemy.setTankSize(size.x / 17, size.x / 17);
         enemy.drawTank();
         ////////////////////
