@@ -32,7 +32,7 @@ public class JoyStick extends View {
     private float X, Y; // don't forget to give them initial coordinates view view being created
     private float joystickCenterX, joystickCenterY;
     private float localCenterX, localCenterY;
-    protected int TANK_X, TANK_Y;
+    private int TANK_X, TANK_Y;
 
     public void setOFFSET(int OFFSET) {
         this.OFFSET = OFFSET;
@@ -172,6 +172,14 @@ public class JoyStick extends View {
     public boolean onTouchEvent(MotionEvent event) {
         drawStick(event);
         return true;
+    }
+
+    public float getNormalX(){
+        return TANK_X - getJoystickCenterX();
+    }
+
+    public float getNormalY() {
+        return TANK_Y - getJoystickCenterY();
     }
 
     public float getJoystickCenterX() {

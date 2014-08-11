@@ -15,14 +15,14 @@ public class TankCore {
     private Vector position = new Vector(0.0f, 0.0f);
     private Vector target = HORIZONTAL_VECTOR;
 
-    private float speedFactor = 0.01f;
+    private float speedFactor = 0.005f;
 
     public TankCore() {
     }
 
     public TankCore(Vector position, Vector target) {
-        this.position = position;
-        this.target = target;
+        this.position = (Vector) position.clone();
+        this.target = (Vector) target.clone();
     }
 
     public void setPosition(Vector position) {

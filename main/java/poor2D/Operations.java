@@ -36,4 +36,12 @@ public class Operations {
         }
         return result;
     }
+
+    public static double scalarProduct(Vector a, Vector b) {
+        double result = 0;
+        for (int i = 0; i < DIMENSION; ++i) {
+            result += a.get(i) * b.get(i);
+        }
+        return result;
+    }
 }

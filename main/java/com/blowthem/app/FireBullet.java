@@ -21,7 +21,6 @@ public class FireBullet extends View {
     protected float explodeX, explodeY;
     BulletCore core;
 
-    ///////////////
     public Vector enemyPosition;
 
     public FireBullet(Context context, ProthoTank tank){
@@ -45,10 +44,9 @@ public class FireBullet extends View {
         if(core.getAlive()) {
             canvas.drawCircle(width, height, 5, paint);
             core.step(enemyPosition);
-            width = core.getX() * tank.observableWidth; //+ tank.getTankWidth() / 2;
-            height = core.getY() * tank.observableHeight; //+ tank.getTankHeight() / 2;
+            width = core.getX() * tank.observableWidth;
+            height = core.getY() * tank.observableHeight;
         }else {
-            // bullet.setFlagOfFireRate(false);
             explodeX = this.width;
             explodeY = this.height;
         }
