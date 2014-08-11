@@ -35,7 +35,7 @@ public class MainActivity extends ActionBarActivity {
 
     private MediaPlayer sound;
     private int bullet_stroke;
-    private static String SERVER_IP = "192.168.1.4"; // internet ----> 86.57.195.176
+    private static String SERVER_IP = "192.168.43.194"; // internet ----> 86.57.195.176
     //"192.168.1.2";//localwifi
     private final static Integer SERVER_PORT = 8080;
     private RelativeLayout fire_indificator, main_frame;
@@ -51,8 +51,8 @@ public class MainActivity extends ActionBarActivity {
             //android.os.Process.setThreadPriority(android.os.Process.THREAD_PRIORITY_BACKGROUND);
             synchronized (tank) {
                 tank.drawFire(fireEvent);
-                new BulletClientHandler(MainActivity.this).execute(String.valueOf(3) + "\n", messageToSend,
-                        String.valueOf(tank.bullet.core.getX()) + "\n", String.valueOf(tank.bullet.core.getY()) + "\n");
+                //new BulletClientHandler(MainActivity.this).execute(String.valueOf(3) + "\n", messageToSend,
+                //        String.valueOf(tank.bullet.core.getX()) + "\n", String.valueOf(tank.bullet.core.getY()) + "\n");
             }
         }
     };
@@ -103,6 +103,19 @@ public class MainActivity extends ActionBarActivity {
             animate(imageView, animation_array, 0, true);
         }
     };
+
+    //********** CLIENT STUFF **********
+    private Socket socket;
+    private DataOutputStream out;
+    private DataInputStream in;
+
+    {
+        try {
+            socket = new Socket(SERVER_IP, SERVER_PORT);
+            out = new DataOutputStream(socket.getOutputStream());
+            in = new DataInputStream(socket.getInputStream());
+        } catch (IOException e){}
+    }
 
     private Handler bulletThreadHandler = new Handler();
     private Runnable bulletThreadTask = new Runnable() {
@@ -157,8 +170,8 @@ public class MainActivity extends ActionBarActivity {
                 enemy.drawTank(js.TANK_X, js.TANK_Y);
                 /////////////////////////
 
-                new TankClientHandler(MainActivity.this).execute("$motion$",
-                        String.valueOf(tank.core.getX()), String.valueOf(tank.core.getY()));
+                //new TankClientHandler(MainActivity.this).execute("$motion$",
+                //        String.valueOf(tank.core.getX()), String.valueOf(tank.core.getY()));
             }
         }
     };
@@ -193,28 +206,31 @@ public class MainActivity extends ActionBarActivity {
     private View.OnClickListener fireButtonListener = new View.OnClickListener() {
         @Override
         public void onClick(View v) {
-        if(isClicked && flagEnablesToFire) {
-            flagEnablesToFire = false;
-            messageToSend = "clicked\n";//server message
 
-            indicatorHandler.removeCallbacks(indicatorTask);
-            indicatorHandler.postDelayed(indicatorTask, 30);
+            new UserRegistration(MainActivity.this).execute("$login$", "walter", "777");
 
-            if(sound != null){
-                sound.release();
-                sound= null;
+            if(isClicked && flagEnablesToFire) {
+                flagEnablesToFire = false;
+                messageToSend = "clicked\n";//server message
+
+                indicatorHandler.removeCallbacks(indicatorTask);
+                indicatorHandler.postDelayed(indicatorTask, 30);
+
+                if(sound != null){
+                    sound.release();
+                    sound= null;
+                }
+                sound = MediaPlayer.create(getApplicationContext(), R.raw.laser_blaster);
+                sound.start();
+
+                isClicked = false;
+                tank.bullet = new FireBullet(getApplicationContext(), tank);
+                tank.bullet.setSTROKE(bullet_stroke);
+                mFire.removeCallbacks(mFireTask);
+                mFire.post(mFireTask);
+                bulletThreadHandler.removeCallbacks(bulletThreadTask);
+                bulletThreadHandler.postDelayed(bulletThreadTask, 0);
             }
-            sound = MediaPlayer.create(getApplicationContext(), R.raw.laser_blaster);
-            sound.start();
-
-            isClicked = false;
-            tank.bullet = new FireBullet(getApplicationContext(), tank);
-            tank.bullet.setSTROKE(bullet_stroke);
-            mFire.removeCallbacks(mFireTask);
-            mFire.post(mFireTask);
-            bulletThreadHandler.removeCallbacks(bulletThreadTask);
-            bulletThreadHandler.postDelayed(bulletThreadTask, 0);
-        }
         }
     };
 
@@ -222,8 +238,9 @@ public class MainActivity extends ActionBarActivity {
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
 
-        UserRegistration reg = new UserRegistration(MainActivity.this);
-        reg.execute("$login$", "walter", "777");
+        //UserRegistration reg = new UserRegistration(MainActivity.this);
+        //reg.execute("$login$", "walter", "777");
+        //new UserRegistration(this).execute("$login$", "walter", "777");
 
 
         getActionBar().hide();
@@ -298,7 +315,7 @@ public class MainActivity extends ActionBarActivity {
     private class TankClientHandler extends AsyncTask<String, Void, Socket> {
         private Socket socket;
         private Context context;
-        private DataOutputStream out;
+        private BufferedWriter out;
 
         public TankClientHandler(Context context){
             this.context = context;
@@ -310,12 +327,10 @@ public class MainActivity extends ActionBarActivity {
         protected Socket doInBackground(String... params) {
             try {
                 socket = new Socket(SERVER_IP, SERVER_PORT);
-                out = new DataOutputStream(socket.getOutputStream());
-                //in = new DataInputStream(socket.getInputStream());
-                //out = new BufferedWriter(new OutputStreamWriter(socket.getOutputStream()));
-                out.writeUTF(params[0]);
-                out.writeUTF(params[1]);
-                out.writeUTF(params[2]);
+                out = new BufferedWriter(new OutputStreamWriter(socket.getOutputStream()));
+                out.write(params[0]);
+                out.write(params[1]);
+                out.write(params[2]);
                 out.flush();
                 return socket;
             } catch (IOException e){
@@ -370,31 +385,21 @@ public class MainActivity extends ActionBarActivity {
     }
 
     private class UserRegistration extends AsyncTask<String, Void, Socket> {
-        private Socket socket;
         private String answer;
         private Context context;
-        private DataOutputStream out;
-        private DataInputStream in;
 
         public UserRegistration(Context context) {
             this.context = context;
-            socket = null;
-            out = null;
-            in = null;
         }
 
         @Override
         protected Socket doInBackground(String... params) {
             try {
-                socket = new Socket(SERVER_IP, SERVER_PORT);
-                out = new DataOutputStream(socket.getOutputStream());
-                in = new DataInputStream(socket.getInputStream());
                 //out = new BufferedWriter(new OutputStreamWriter(socket.getOutputStream()));
                 //in = new BufferedReader(new InputStreamReader(socket.getInputStream()));
                 out.writeUTF(params[0]);//send number of parameters
                 out.writeUTF(params[1]);
                 out.writeUTF(params[2]);
-                //out.write(params[3]);
                 answer = in.readUTF();
                 out.flush();
                 return socket;
