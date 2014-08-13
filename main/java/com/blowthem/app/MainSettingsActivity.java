@@ -13,9 +13,22 @@ import android.widget.*;
  */
 public class MainSettingsActivity extends ActionBarActivity {
 
+    private Intent clientIntent;
+    private Handler clientHandler = new Handler();
+    private Runnable clientRunnable = new Runnable() {
+        @Override
+        public void run() {
+            startService(clientIntent);
+        }
+    };
+
     @Override
     protected void onCreate(Bundle savedInstanceState) {
+
         super.onCreate(savedInstanceState);
+
+        clientIntent = new Intent(this, SocketService.class);
+
         getWindow().setFlags(WindowManager.LayoutParams.FLAG_FULLSCREEN, WindowManager.LayoutParams.FLAG_FULLSCREEN);
         setRequestedOrientation(ActivityInfo.SCREEN_ORIENTATION_LANDSCAPE);
         getActionBar().hide();
@@ -45,6 +58,8 @@ public class MainSettingsActivity extends ActionBarActivity {
         gamestart.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
+                clientIntent.putExtra("start", "$start$");
+                clientHandler.post(clientRunnable);
                 bridgeGame();
             }
         });

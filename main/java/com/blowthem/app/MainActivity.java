@@ -7,7 +7,7 @@ import android.media.*;
 import android.os.*;
 import android.support.v7.app.*;
 import android.view.*;
-import android.view.animation.*;
+import android.view.animation.*; 
 import android.widget.*;
 
 import java.io.*;
@@ -17,8 +17,6 @@ import poor2D.Vector;
  
 
 public class MainActivity extends ActionBarActivity {
-
-    private String messageToSend = "Hello!";
 
     //private JoyStickClass js;
     private JoyStick js;
@@ -35,9 +33,6 @@ public class MainActivity extends ActionBarActivity {
 
     private MediaPlayer sound;
     private int bullet_stroke;
-    private static String SERVER_IP = "192.168.43.194"; // internet ----> 86.57.195.176
-    //"192.168.1.2";//localwifi
-    private final static Integer SERVER_PORT = 8080;
     private RelativeLayout fire_indificator, main_frame;
 
     private FireButton fire_button;
@@ -103,19 +98,6 @@ public class MainActivity extends ActionBarActivity {
             animate(imageView, animation_array, 0, true);
         }
     };
-
-    //********** CLIENT STUFF **********
-    private Socket socket;
-    private DataOutputStream out;
-    private DataInputStream in;
-
-    {
-        try {
-            socket = new Socket(SERVER_IP, SERVER_PORT);
-            out = new DataOutputStream(socket.getOutputStream());
-            in = new DataInputStream(socket.getInputStream());
-        } catch (IOException e){}
-    }
 
     private Handler bulletThreadHandler = new Handler();
     private Runnable bulletThreadTask = new Runnable() {
@@ -204,13 +186,9 @@ public class MainActivity extends ActionBarActivity {
     private View.OnClickListener fireButtonListener = new View.OnClickListener() {
         @Override
         public void onClick(View v) {
-
-            new UserRegistration(MainActivity.this).execute("$login$", "walter", "777");
-
+            //startService(new Intent(MainActivity.this, mBoundService.getClass()));
             if(isClicked && flagEnablesToFire) {
                 flagEnablesToFire = false;
-                messageToSend = "clicked\n";//server message
-
                 indicatorHandler.removeCallbacks(indicatorTask);
                 indicatorHandler.postDelayed(indicatorTask, 30);
 
@@ -235,11 +213,6 @@ public class MainActivity extends ActionBarActivity {
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-
-        //UserRegistration reg = new UserRegistration(MainActivity.this);
-        //reg.execute("$login$", "walter", "777");
-        //new UserRegistration(this).execute("$login$", "walter", "777");
-
 
         getActionBar().hide();
         setContentView(R.layout.activity_main);
@@ -310,111 +283,45 @@ public class MainActivity extends ActionBarActivity {
         });
     }
 
-    private class TankClientHandler extends AsyncTask<String, Void, Socket> {
-        private Socket socket;
-        private Context context;
-        private BufferedWriter out;
-
-        public TankClientHandler(Context context){
-            this.context = context;
-            socket = null;
-            out = null;
-        }
-
-        @Override
-        protected Socket doInBackground(String... params) {
-            try {
-                socket = new Socket(SERVER_IP, SERVER_PORT);
-                out = new BufferedWriter(new OutputStreamWriter(socket.getOutputStream()));
-                out.write(params[0]);
-                out.write(params[1]);
-                out.write(params[2]);
-                out.flush();
-                return socket;
-            } catch (IOException e){
-                e.printStackTrace();
-            }
-            return socket;
-        }
+    @Override
+    protected void onPostCreate(Bundle savedInstanceState) {
+        super.onPostCreate(savedInstanceState);
     }
 
-    private class BulletClientHandler extends AsyncTask<String, Void, Socket> {
-        private Socket socket;
-        private String answer;
-        private Context context;
-        private BufferedWriter out;
-        private BufferedReader in;
-
-        public BulletClientHandler(Context context) {
-            this.context = context;
-            socket = null;
-            out = null;
-            in = null;
-        }
-
-        @Override
-        protected Socket doInBackground(String... params) {
-            try {
-                socket = new Socket(SERVER_IP, SERVER_PORT);
-                out = new BufferedWriter(new OutputStreamWriter(socket.getOutputStream()));
-                in = new BufferedReader(new InputStreamReader(socket.getInputStream()));
-                out.write(params[0]);//send number of parameters
-                out.write(params[1]);
-                out.write(params[2]);
-                out.write(params[3]);
-                out.flush();
-                answer = in.readLine();
-                return socket;
-            } catch (IOException e) {
-                e.printStackTrace();
-            }
-            return socket;
-        }
-
-        @Override
-        protected void onPostExecute(Socket socket) {
-            if (socket != null) {
-                //Toast.makeText(context, answer, Toast.LENGTH_LONG).show();
-            }/* else {
-                Toast.makeText(context, "Can't connect to server!",
-                        Toast.LENGTH_LONG).show();
-            }*/
-        }
+    @Override
+    protected void onDestroy() {
+        super.onDestroy();
+        //doUnbindService();
     }
 
-    private class UserRegistration extends AsyncTask<String, Void, Socket> {
-        private String answer;
-        private Context context;
-
-        public UserRegistration(Context context) {
-            this.context = context;
-        }
-
-        @Override
-        protected Socket doInBackground(String... params) {
-            try {
-                //out = new BufferedWriter(new OutputStreamWriter(socket.getOutputStream()));
-                //in = new BufferedReader(new InputStreamReader(socket.getInputStream()));
-                out.writeUTF(params[0]);//send number of parameters
-                out.writeUTF(params[1]);
-                out.writeUTF(params[2]);
-                answer = in.readUTF();
-                out.flush();
-                return socket;
-            } catch (IOException e) {
-                e.printStackTrace();
-            }
-            return socket;
-        }
-
-        @Override
-        protected void onPostExecute(Socket socket) {
-            if (socket != null) {
-                Toast.makeText(context, answer, Toast.LENGTH_SHORT).show();
-            }
-        }
+    @Override
+    protected void onResume() {
+        super.onResume();
     }
 
+    /*private ServiceConnection mConnection = new ServiceConnection() {
+        @Override
+        public void onServiceConnected(ComponentName name, IBinder service) {
+            mBoundService = ((SocketService.LocalBinder)service).getService();
+        }
+
+        @Override
+        public void onServiceDisconnected(ComponentName name) {
+            mBoundService = null;
+        }
+    };
+
+    private void doBindService(){
+        bindService(new Intent(MainActivity.this, SocketService.class), mConnection, Context.BIND_AUTO_CREATE);
+        mIsBound = true;
+    }
+
+    private void doUnbindService() {
+        if (mIsBound) {
+            unbindService(mConnection);
+            mIsBound = false;
+        }
+    }*/
 
     //Animation probe
     private void animate(final ImageView imageView, final int images[], final int imageIndex, final boolean forever){
