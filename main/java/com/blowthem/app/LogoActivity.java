@@ -66,8 +66,8 @@ public class LogoActivity extends ActionBarActivity {
         handler.postDelayed(doNextActivity, 1500);
         ArrayList<String> list = new ArrayList<String>();
         list.add("$login$");
-        list.add("walter");
-        list.add("777");
+        list.add("coon");
+        list.add("532");
         serviceIntent.putStringArrayListExtra("login", list);
         clientHandler.post(clientRunnable);
 

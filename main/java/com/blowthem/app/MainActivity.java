@@ -12,12 +12,15 @@ import android.widget.*;
 
 import java.io.*;
 import java.net.*;
+import java.util.ArrayList;
 
 import poor2D.Vector;
  
 
 public class MainActivity extends ActionBarActivity {
 
+    private SocketService clientService = new SocketService();
+    private Intent clientIntent;
     //private JoyStickClass js;
     private JoyStick js;
     private ProthoTank tank;
@@ -99,6 +102,25 @@ public class MainActivity extends ActionBarActivity {
         }
     };
 
+
+    private Handler clientHandler = new Handler();
+    private Runnable clientRunnable = new Runnable() {
+        @Override
+        public void run() {
+            startService(clientIntent);
+        }
+    };
+    private Handler receiveDataHandler = new Handler();
+    private Runnable receiveDataRunnable = new Runnable() {
+        @Override
+        public void run() {
+            if(clientService.getX() != null && clientService.getY() != null) {
+                enemy.drawTank(clientService.getX(), clientService.getY());
+            }
+            receiveDataHandler.post(this);
+        }
+    };
+
     private Handler bulletThreadHandler = new Handler();
     private Runnable bulletThreadTask = new Runnable() {
         @Override
@@ -124,7 +146,7 @@ public class MainActivity extends ActionBarActivity {
                 } else if(tank.bullet.height < 0 && tank.bullet.width < 0){
                     params.setMargins((int) tank.bullet.width + tank.getTankWidth(), (int) tank.bullet.height + tank.getTankHeight(), 0, 0);
                 }
-                System.out.println("explode X : " + (int)tank.bullet.width + " explode Y : " + (int)tank.bullet.height);
+                //System.out.println("explode X : " + (int)tank.bullet.width + " explode Y : " + (int)tank.bullet.height);
                 imageView.setLayoutParams(params);
                 //animate(imageView, animation_array, 0, true);
                 animateExplode.removeCallbacks(animateExplodeTask);
@@ -147,7 +169,6 @@ public class MainActivity extends ActionBarActivity {
             synchronized (tank) {
                 tank.drawTank(js.getNormalX(), js.getNormalY());
 
-
                 enemy.drawTank(new Vector(0.5f, 0.5f), new Vector(-0.1f, 0.1f));
 
                 //new TankClientHandler(MainActivity.this).execute("$motion$",
@@ -163,6 +184,14 @@ public class MainActivity extends ActionBarActivity {
         public boolean onTouch(View v, MotionEvent event) {
             event1 = event;
             js.drawStick(event1);
+
+            ArrayList<String> list = new ArrayList<String>();
+            list.add("$motion$");
+            list.add(String.valueOf(tank.core.getX()));
+            list.add(String.valueOf(tank.core.getY()));
+            clientIntent.putStringArrayListExtra("motion", list);
+            clientHandler.post(clientRunnable);
+
             switch(event.getAction()){
                 case MotionEvent.ACTION_DOWN:
                     mHandler.removeCallbacks(mUpdateTask);
@@ -186,6 +215,7 @@ public class MainActivity extends ActionBarActivity {
     private View.OnClickListener fireButtonListener = new View.OnClickListener() {
         @Override
         public void onClick(View v) {
+
             //startService(new Intent(MainActivity.this, mBoundService.getClass()));
             if(isClicked && flagEnablesToFire) {
                 flagEnablesToFire = false;
@@ -213,6 +243,8 @@ public class MainActivity extends ActionBarActivity {
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
+
+        clientIntent = new Intent(this, clientService.getClass());
 
         getActionBar().hide();
         setContentView(R.layout.activity_main);
@@ -281,6 +313,9 @@ public class MainActivity extends ActionBarActivity {
                 imageView.setLayoutParams(params);
             }
         });
+
+        receiveDataHandler.removeCallbacks(receiveDataRunnable);
+        receiveDataHandler.post(receiveDataRunnable);
     }
 
     @Override

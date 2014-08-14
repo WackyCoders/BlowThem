@@ -63,7 +63,6 @@ public class MainSettingsActivity extends ActionBarActivity {
                 bridgeGame();
             }
         });
-
     }
 
     private void bridgeGame(){
