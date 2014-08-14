@@ -13,14 +13,19 @@ import android.widget.*;
 import java.io.*;
 import java.net.*;
 import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.concurrent.BlockingQueue;
+import java.util.concurrent.LinkedBlockingDeque;
 
 import poor2D.Vector;
  
 
 public class MainActivity extends ActionBarActivity {
 
+    private BlockingQueue<Float> queue = new LinkedBlockingDeque<Float>();
     private SocketService clientService = new SocketService();
     private Intent clientIntent;
+    private UpdateReceiver updateReceiver = new UpdateReceiver();
     //private JoyStickClass js;
     private JoyStick js;
     private ProthoTank tank;
@@ -110,12 +115,20 @@ public class MainActivity extends ActionBarActivity {
             startService(clientIntent);
         }
     };
+
+    private ArrayList<String> list;
     private Handler receiveDataHandler = new Handler();
     private Runnable receiveDataRunnable = new Runnable() {
         @Override
         public void run() {
-            if(clientService.getX() != null && clientService.getY() != null) {
-                enemy.drawTank(clientService.getX(), clientService.getY());
+            //System.out.println("!!!LIST" + Arrays.deepToString(list.toArray()));
+
+            if(list != null) {
+                //System.out.println("X = " + Float.parseFloat(list.get(0)) + " ; " + Float.parseFloat(list.get(1)));
+                if(Float.parseFloat(list.get(0)) > 0.0f && Float.parseFloat(list.get(1)) > 0.0f){
+                    enemy.drawTankClient(Float.parseFloat(list.get(0)), Float.parseFloat(list.get(1)));
+                    list = null;
+                }
             }
             receiveDataHandler.post(this);
         }
@@ -168,8 +181,13 @@ public class MainActivity extends ActionBarActivity {
         public void run(){
             synchronized (tank) {
                 tank.drawTank(js.getNormalX(), js.getNormalY());
-
-                enemy.drawTank(new Vector(0.5f, 0.5f), new Vector(-0.1f, 0.1f));
+                ArrayList<String> list = new ArrayList<String>();
+                list.add("$motion$");
+                list.add(String.valueOf(tank.core.getX()));
+                list.add(String.valueOf(tank.core.getY()));
+                clientIntent.putStringArrayListExtra("motion", list);
+                clientHandler.post(clientRunnable);
+                //enemy.drawTank(new Vector(0.5f, 0.5f), new Vector(-0.1f, 0.1f));
 
                 //new TankClientHandler(MainActivity.this).execute("$motion$",
                 //        String.valueOf(tank.core.getX()), String.valueOf(tank.core.getY()));
@@ -184,13 +202,6 @@ public class MainActivity extends ActionBarActivity {
         public boolean onTouch(View v, MotionEvent event) {
             event1 = event;
             js.drawStick(event1);
-
-            ArrayList<String> list = new ArrayList<String>();
-            list.add("$motion$");
-            list.add(String.valueOf(tank.core.getX()));
-            list.add(String.valueOf(tank.core.getY()));
-            clientIntent.putStringArrayListExtra("motion", list);
-            clientHandler.post(clientRunnable);
 
             switch(event.getAction()){
                 case MotionEvent.ACTION_DOWN:
@@ -244,8 +255,6 @@ public class MainActivity extends ActionBarActivity {
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
 
-        clientIntent = new Intent(this, clientService.getClass());
-
         getActionBar().hide();
         setContentView(R.layout.activity_main);
         setRequestedOrientation(ActivityInfo.SCREEN_ORIENTATION_LANDSCAPE);
@@ -254,6 +263,8 @@ public class MainActivity extends ActionBarActivity {
         final Display currentDisplay  = getWindowManager().getDefaultDisplay();
         size = new Point();
         currentDisplay.getSize(size);
+
+        clientIntent = new Intent(MainActivity.this, SocketService.class);
 
         main_frame = (RelativeLayout) findViewById(R.id.main_frame);
 
@@ -314,8 +325,11 @@ public class MainActivity extends ActionBarActivity {
             }
         });
 
-        receiveDataHandler.removeCallbacks(receiveDataRunnable);
+        //receiveDataHandler.removeCallbacks(receiveDataRunnable);
         receiveDataHandler.post(receiveDataRunnable);
+        IntentFilter intentFilter = new IntentFilter();
+        intentFilter.addAction("myBroadcast");
+        registerReceiver(updateReceiver, intentFilter);
     }
 
     @Override
@@ -404,5 +418,21 @@ public class MainActivity extends ActionBarActivity {
             public void onAnimationStart(Animation animation) {
             }
         });
+    }
+
+    private class UpdateReceiver extends BroadcastReceiver {
+
+        @Override
+        public void onReceive(Context context, Intent intent) {
+            list = intent.getStringArrayListExtra("update");
+            //System.out.println("HEY!!!");
+            //System.out.println("Data received : " + Arrays.deepToString(list.toArray()));
+            queue.offer(Float.parseFloat(list.get(0)));
+            queue.offer(Float.parseFloat(list.get(1)));
+        }
+
+        public ArrayList<String> getList() {
+            return list;
+        }
     }
 }

@@ -7,7 +7,7 @@ import android.view.*;
 
 import items.Constants;
 import items.TankCore;
-import poor2D.Operations;
+import poor2D.Operations; 
 import poor2D.Vector;
 
 /**
@@ -56,6 +56,21 @@ public class ProthoTank{
 
         this.observableWidth = draw.getWidth();
         this.observableHeight = context.getResources().getDisplayMetrics().heightPixels;
+    }
+
+    public void drawTankClient(float x, float y){
+        coreAngle = (float) calculateAngleForTan(x, y);
+        bitmapAngle = (float) Math.toDegrees(calculateAngleForTan(x, y));
+
+        core.turn(coreAngle);
+        core.step();
+
+        coreAngle = (float) Math.toDegrees(coreAngle);
+
+        draw.setAngle(coreAngle);
+        draw.setX(x * observableWidth - 0.5f * protho_tank.getWidth());
+        draw.setY(y * observableHeight - 0.5f * protho_tank.getHeight());
+        drawTank();
     }
 
     /**
