@@ -27,7 +27,7 @@ import android.widget.Toast;
  */
 public class SocketService extends Service {
 
-    public static final String SERVERIP = /*"192.168.56.1";*/ "192.168.43.194"; //your computer IP address should be written here
+    public static final String SERVERIP = /*"192.168.56.1";*/ "192.168.1.6"; //your computer IP address should be written here
     public static final int SERVERPORT = 8080;
     private DataOutputStream out;
     private DataInputStream in;
@@ -60,7 +60,7 @@ public class SocketService extends Service {
         clientProccess.start();
 
         MotionData motionData = new MotionData();
-        motionData.start();
+        //motionData.start();
     }
 
     public synchronized void sendMessage(String message){
@@ -79,6 +79,7 @@ public class SocketService extends Service {
             try {
                 out.writeFloat(message);
                 out.flush();
+                //System.out.println("MOTION");
             } catch (IOException e){
                 e.printStackTrace();
             }
@@ -120,9 +121,11 @@ public class SocketService extends Service {
             try {
                 while(!Thread.interrupted()) {
                     String str = in.readUTF();
-                    if(str.equals("$motion$")){
+                    if (str.equals("$motion$")) {
                         X = Float.parseFloat(in.readUTF());
                         Y = Float.parseFloat(in.readUTF());
+
+                        //System.out.println("X = " + X + " ; Y = " + Y);
 
                         ArrayList<String> list = new ArrayList<String>();
                         list.add(String.valueOf(X));
@@ -132,6 +135,7 @@ public class SocketService extends Service {
                         intent.setAction("myBroadcast");
                         intent.putStringArrayListExtra("update", list);
                         sendBroadcast(intent);
+                        //}
                     }
                 }
             } catch (IOException e) {
@@ -155,6 +159,10 @@ public class SocketService extends Service {
                     while(!Thread.interrupted()){
                         String str = queue.take();
                         sendMessage(str);
+                        if(str.equals("$motion$")){
+                            sendMessage(valueQueue.take());
+                            sendMessage(valueQueue.take());
+                        }
                         //if(!valueQueue.isEmpty()){
                         //    Float msg = valueQueue.take();
                         //    System.out.println("!!! ---> msg : " + msg);
@@ -177,6 +185,7 @@ public class SocketService extends Service {
                 try {
                     Float msg = valueQueue.take();
                     sendMessage(msg);
+
                 } catch (InterruptedException e){
                     e.printStackTrace();
                 }

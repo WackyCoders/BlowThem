@@ -15,9 +15,8 @@ import java.net.*;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.concurrent.BlockingQueue;
-import java.util.concurrent.LinkedBlockingDeque;
+import java.util.concurrent.LinkedBlockingDeque; 
 
-import bt.BTServer;
 import poor2D.Vector;
  
 
@@ -127,6 +126,7 @@ public class MainActivity extends ActionBarActivity {
             if(list != null) {
                 //System.out.println("X = " + Float.parseFloat(list.get(0)) + " ; " + Float.parseFloat(list.get(1)));
                 if(Float.parseFloat(list.get(0)) > 0.0f && Float.parseFloat(list.get(1)) > 0.0f){
+                    //System.out.println("HEY!!!");
                     enemy.drawTankClient(Float.parseFloat(list.get(0)), Float.parseFloat(list.get(1)));
                     list = null;
                 }
@@ -187,7 +187,7 @@ public class MainActivity extends ActionBarActivity {
                 list.add(String.valueOf(tank.core.getX()));
                 list.add(String.valueOf(tank.core.getY()));
                 clientIntent.putStringArrayListExtra("motion", list);
-                clientHandler.post(clientRunnable);
+                clientHandler.postDelayed(clientRunnable, 0);
                 //enemy.drawTank(new Vector(0.5f, 0.5f), new Vector(-0.1f, 0.1f));
 
                 //new TankClientHandler(MainActivity.this).execute("$motion$",
@@ -232,7 +232,7 @@ public class MainActivity extends ActionBarActivity {
             if(isClicked && flagEnablesToFire) {
                 flagEnablesToFire = false;
                 indicatorHandler.removeCallbacks(indicatorTask);
-                indicatorHandler.postDelayed(indicatorTask, 30);
+                indicatorHandler.postDelayed(indicatorTask, 0);
 
                 if(sound != null){
                     sound.release();

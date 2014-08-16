@@ -83,6 +83,6 @@ public class LogoActivity extends ActionBarActivity {
     protected void onDestroy() {
         super.onDestroy();
         handler.removeCallbacks(doNextActivity);
-        clientHandler.removeCallbacks(clientRunnable);
+        //clientHandler.removeCallbacks(clientRunnable);
     }
 }
