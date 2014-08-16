@@ -127,7 +127,8 @@ public class MainActivity extends ActionBarActivity {
                 //System.out.println("X = " + Float.parseFloat(list.get(0)) + " ; " + Float.parseFloat(list.get(1)));
                 if(Float.parseFloat(list.get(0)) > 0.0f && Float.parseFloat(list.get(1)) > 0.0f){
                     //System.out.println("HEY!!!");
-                    enemy.drawTankClient(Float.parseFloat(list.get(0)), Float.parseFloat(list.get(1)));
+                    //enemy.drawTankClient(Float.parseFloat(list.get(0)), Float.parseFloat(list.get(1)), Float.parseFloat(list.get(2)));
+                    enemy.drawTank(new Vector(Float.parseFloat(list.get(0)), Float.parseFloat(list.get(1))), Float.parseFloat(list.get(2)));
                     list = null;
                 }
             }
@@ -184,8 +185,9 @@ public class MainActivity extends ActionBarActivity {
                 tank.drawTank(js.getNormalX(), js.getNormalY());
                 ArrayList<String> list = new ArrayList<String>();
                 list.add("$motion$");
-                list.add(String.valueOf(tank.core.getX()));
-                list.add(String.valueOf(tank.core.getY()));
+                list.add(String.valueOf(tank.core.getPosition().get(0)));
+                list.add(String.valueOf(tank.core.getPosition().get(1)));
+                list.add(String.valueOf(tank.getBitmapAngle()));
                 clientIntent.putStringArrayListExtra("motion", list);
                 clientHandler.postDelayed(clientRunnable, 0);
                 //enemy.drawTank(new Vector(0.5f, 0.5f), new Vector(-0.1f, 0.1f));
@@ -430,6 +432,7 @@ public class MainActivity extends ActionBarActivity {
             //System.out.println("Data received : " + Arrays.deepToString(list.toArray()));
             queue.offer(Float.parseFloat(list.get(0)));
             queue.offer(Float.parseFloat(list.get(1)));
+            queue.offer(Float.parseFloat(list.get(2)));
         }
 
         public ArrayList<String> getList() {

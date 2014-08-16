@@ -36,7 +36,7 @@ public class SocketService extends Service {
     protected ReceiveData receiveData;
     protected BlockingQueue<String> queue = new LinkedBlockingQueue<String>();
     protected BlockingQueue<Float> valueQueue = new LinkedBlockingQueue<Float>();
-    private Float X, Y;
+    private Float X, Y, bitmapAngle;
 
     @Override
     public IBinder onBind(Intent intent) {
@@ -106,6 +106,7 @@ public class SocketService extends Service {
             queue.offer(list.get(0));
             valueQueue.offer(Float.parseFloat(list.get(1)));
             valueQueue.offer(Float.parseFloat(list.get(2)));
+            valueQueue.offer(Float.parseFloat(list.get(3)));
         } else if((value = intent.getFloatExtra("X", 0.0f)) != null){
             valueQueue.offer(value);
         } else if((value = intent.getFloatExtra("Y", 0.0f)) != null){
@@ -124,12 +125,14 @@ public class SocketService extends Service {
                     if (str.equals("$motion$")) {
                         X = Float.parseFloat(in.readUTF());
                         Y = Float.parseFloat(in.readUTF());
+                        bitmapAngle = Float.parseFloat(in.readUTF());
 
                         //System.out.println("X = " + X + " ; Y = " + Y);
 
                         ArrayList<String> list = new ArrayList<String>();
                         list.add(String.valueOf(X));
                         list.add(String.valueOf(Y));
+                        list.add(String.valueOf(bitmapAngle));
 
                         Intent intent = new Intent();
                         intent.setAction("myBroadcast");
@@ -160,6 +163,7 @@ public class SocketService extends Service {
                         String str = queue.take();
                         sendMessage(str);
                         if(str.equals("$motion$")){
+                            sendMessage(valueQueue.take());
                             sendMessage(valueQueue.take());
                             sendMessage(valueQueue.take());
                         }

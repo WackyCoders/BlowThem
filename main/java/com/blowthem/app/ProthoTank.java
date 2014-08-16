@@ -58,16 +58,9 @@ public class ProthoTank{
         this.observableHeight = context.getResources().getDisplayMetrics().heightPixels;
     }
 
-    public void drawTankClient(float x, float y){
-        coreAngle = (float) calculateAngleForTan(x, y);
-        bitmapAngle = (float) Math.toDegrees(calculateAngleForTan(x, y));
-
-        core.turn(coreAngle);
-        core.step();
-
-        coreAngle = (float) Math.toDegrees(coreAngle);
-
-        draw.setAngle(coreAngle);
+    public void drawTankClient(float x, float y, float bitmapAngle){
+        //System.out.println("ANGLE = " + bitmapAngle);
+        draw.setAngle(bitmapAngle);
         draw.setX(x * observableWidth - 0.5f * protho_tank.getWidth());
         draw.setY(y * observableHeight - 0.5f * protho_tank.getHeight());
         drawTank();
@@ -168,6 +161,14 @@ public class ProthoTank{
         return tankWidth;
     }
 
+    public float getBitmapAngle() {
+        return bitmapAngle;
+    }
+
+    public float getCoreAngle() {
+        return coreAngle;
+    }
+
     protected class DrawCanvas extends View{
         private float x = 0, y = 0;
         private float angle = 0;
@@ -208,6 +209,8 @@ public class ProthoTank{
         public void setAngle(float angle) {
             this.angle = angle;
         }
+
+
     }
 }
 
