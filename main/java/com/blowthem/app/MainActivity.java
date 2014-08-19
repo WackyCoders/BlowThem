@@ -10,6 +10,8 @@ import android.view.*;
 import android.view.animation.*; 
 import android.widget.*;
 
+import com.blowthem.app.GameLoop.MainGamePanel;
+
 import java.io.*;
 import java.net.*;
 import java.util.ArrayList;
@@ -21,6 +23,9 @@ import poor2D.Vector;
  
 
 public class MainActivity extends ActionBarActivity {
+
+    //LOOPER
+    private MainGamePanel gameLooper;
 
     private BlockingQueue<Float> queue = new LinkedBlockingDeque<Float>();
     private SocketService clientService = new SocketService();
@@ -121,9 +126,10 @@ public class MainActivity extends ActionBarActivity {
     private Runnable receiveDataRunnable = new Runnable() {
         @Override
         public void run() {
-            //System.out.println("!!!LIST" + Arrays.deepToString(list.toArray()));
 
             if(list != null) {
+                //System.out.println("!!!LIST" + Arrays.deepToString(list.toArray()));
+
                 //System.out.println("X = " + Float.parseFloat(list.get(0)) + " ; " + Float.parseFloat(list.get(1)));
                 if(Float.parseFloat(list.get(0)) > 0.0f && Float.parseFloat(list.get(1)) > 0.0f){
                     //System.out.println("HEY!!!");
@@ -182,6 +188,7 @@ public class MainActivity extends ActionBarActivity {
     private Runnable mUpdateTask = new Runnable(){
         public void run(){
             synchronized (tank) {
+                clientHandler.removeCallbacks(clientRunnable);
                 tank.drawTank(js.getNormalX(), js.getNormalY());
                 ArrayList<String> list = new ArrayList<String>();
                 list.add("$motion$");
@@ -189,7 +196,8 @@ public class MainActivity extends ActionBarActivity {
                 list.add(String.valueOf(tank.core.getPosition().get(1)));
                 list.add(String.valueOf(tank.getBitmapAngle()));
                 clientIntent.putStringArrayListExtra("motion", list);
-                clientHandler.postDelayed(clientRunnable, 0);
+                clientHandler.post(clientRunnable);
+
                 //enemy.drawTank(new Vector(0.5f, 0.5f), new Vector(-0.1f, 0.1f));
 
                 //new TankClientHandler(MainActivity.this).execute("$motion$",
@@ -330,10 +338,20 @@ public class MainActivity extends ActionBarActivity {
 
         //receiveDataHandler.removeCallbacks(receiveDataRunnable);
         receiveDataHandler.post(receiveDataRunnable);
-        IntentFilter intentFilter = new IntentFilter();
-        intentFilter.addAction("myBroadcast");
-        registerReceiver(updateReceiver, intentFilter);
+        registerReceiverThread.start();
+
+        gameLooper = new MainGamePanel(this, tank, enemy);
+        gameLooper.onStart();
     }
+
+    private Thread registerReceiverThread = new Thread(new Runnable() {
+        @Override
+        public void run() {
+            IntentFilter intentFilter = new IntentFilter();
+            intentFilter.addAction("myBroadcast");
+            registerReceiver(updateReceiver, intentFilter);
+        }
+    });
 
     @Override
     protected void onPostCreate(Bundle savedInstanceState) {
@@ -343,6 +361,7 @@ public class MainActivity extends ActionBarActivity {
     @Override
     protected void onDestroy() {
         super.onDestroy();
+        unregisterReceiver(updateReceiver);
         //doUnbindService();
     }
 
@@ -350,30 +369,6 @@ public class MainActivity extends ActionBarActivity {
     protected void onResume() {
         super.onResume();
     }
-
-    /*private ServiceConnection mConnection = new ServiceConnection() {
-        @Override
-        public void onServiceConnected(ComponentName name, IBinder service) {
-            mBoundService = ((SocketService.LocalBinder)service).getService();
-        }
-
-        @Override
-        public void onServiceDisconnected(ComponentName name) {
-            mBoundService = null;
-        }
-    };
-
-    private void doBindService(){
-        bindService(new Intent(MainActivity.this, SocketService.class), mConnection, Context.BIND_AUTO_CREATE);
-        mIsBound = true;
-    }
-
-    private void doUnbindService() {
-        if (mIsBound) {
-            unbindService(mConnection);
-            mIsBound = false;
-        }
-    }*/
 
     //Animation probe
     private void animate(final ImageView imageView, final int images[], final int imageIndex, final boolean forever){
@@ -428,15 +423,6 @@ public class MainActivity extends ActionBarActivity {
         @Override
         public void onReceive(Context context, Intent intent) {
             list = intent.getStringArrayListExtra("update");
-            //System.out.println("HEY!!!");
-            //System.out.println("Data received : " + Arrays.deepToString(list.toArray()));
-            queue.offer(Float.parseFloat(list.get(0)));
-            queue.offer(Float.parseFloat(list.get(1)));
-            queue.offer(Float.parseFloat(list.get(2)));
-        }
-
-        public ArrayList<String> getList() {
-            return list;
         }
     }
 }

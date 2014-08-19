@@ -10,7 +10,7 @@ import android.os.Handler;
 import android.os.SystemClock;
 import android.support.v7.app.ActionBarActivity;
 import android.view.WindowManager;
-import android.widget.Toast;
+import android.widget.Toast; 
 
 import java.io.DataInputStream;
 import java.io.DataOutputStream;
@@ -66,17 +66,10 @@ public class LogoActivity extends ActionBarActivity {
         handler.postDelayed(doNextActivity, 1500);
         ArrayList<String> list = new ArrayList<String>();
         list.add("$login$");
-        list.add("san2");
-        list.add("2");
+        list.add("walter");
+        list.add("777");
         serviceIntent.putStringArrayListExtra("login", list);
         clientHandler.post(clientRunnable);
-
-        /*serviceIntent.putExtra("command", "$login$");
-        clientHandler.post(clientRunnable);
-        serviceIntent.putExtra("nickname", "walter");
-        clientHandler.post(clientRunnable);
-        serviceIntent.putExtra("password", "777");
-        clientHandler.post(clientRunnable);*/
     }
 
     @Override

@@ -14,6 +14,7 @@ import poor2D.Vector;
  * Created by walter on 08.07.14.
  */
 public class ProthoTank{
+
     private Bitmap protho_tank;
     private Paint paint;
     private Context mContext;
@@ -24,7 +25,7 @@ public class ProthoTank{
     private float coreAngle = 0;
     private float bitmapAngle = 0; // created to approve the rotation of the bitmap
     private int tankWidth, tankHeight;
-    protected FireBullet bullet;
+    public FireBullet bullet;
 
     public int width;
     public int height;
@@ -36,7 +37,11 @@ public class ProthoTank{
 
     private JoyStick joystick;
 
-    TankCore core = new TankCore();
+    public TankCore core = new TankCore();
+
+    public FireBullet getBullet() {
+        return bullet;
+    }
 
     public ProthoTank(Context context, ViewGroup layout, JoyStick joystick, int protho_tank_id, Point size){
         mContext = context;
@@ -56,14 +61,8 @@ public class ProthoTank{
 
         this.observableWidth = draw.getWidth();
         this.observableHeight = context.getResources().getDisplayMetrics().heightPixels;
-    }
 
-    public void drawTankClient(float x, float y, float bitmapAngle){
-        //System.out.println("ANGLE = " + bitmapAngle);
-        draw.setAngle(bitmapAngle);
-        draw.setX(x * observableWidth - 0.5f * protho_tank.getWidth());
-        draw.setY(y * observableHeight - 0.5f * protho_tank.getHeight());
-        drawTank();
+        mLayout.addView(draw);
     }
 
     /**
@@ -81,7 +80,7 @@ public class ProthoTank{
         draw.setAngle(coreAngle);
         draw.setX(core.getX() * observableWidth - 0.5f * protho_tank.getWidth());
         draw.setY(core.getY() * observableHeight - 0.5f * protho_tank.getHeight());
-        drawTank();
+        //drawTank();
     }
 
     /**
@@ -97,7 +96,7 @@ public class ProthoTank{
 
         draw.setX(position.get(0) * observableWidth - 0.5f * protho_tank.getWidth());
         draw.setY(position.get(1) * observableHeight - 0.5f * protho_tank.getHeight());
-        drawTank();
+        //drawTank();
     }
 
     /**
@@ -107,7 +106,7 @@ public class ProthoTank{
         this.bitmapAngle = bitmapAngle;
         draw.setX(position.get(0) * observableWidth - 0.5f * protho_tank.getWidth());
         draw.setY(position.get(1) * observableHeight - 0.5f * protho_tank.getHeight());
-        drawTank();
+        //drawTank();
     }
 
     private double calculateAngleForTan(float x, float y){
@@ -134,10 +133,11 @@ public class ProthoTank{
     }
 
     public void drawTank() {
-        try {
+        /*try {
             mLayout.removeView(draw);
         } catch (Exception e) {}
-        mLayout.addView(draw);
+        mLayout.addView(draw);*/
+        draw.invalidate();
     }
 
     public void drawFire(){
@@ -181,7 +181,13 @@ public class ProthoTank{
         protected void onDraw(Canvas canvas) {
             observableWidth = canvas.getWidth();
             observableHeight = canvas.getHeight();
-            canvas.drawBitmap(rotateBitmap(protho_tank, bitmapAngle), x, y, paint);
+
+            canvas.save();
+            canvas.rotate(bitmapAngle, x + (protho_tank.getWidth() / 2), y + (protho_tank.getHeight() / 2));
+            canvas.drawBitmap(protho_tank, x, y, paint);
+            canvas.restore();
+
+            //canvas.drawBitmap(rotateBitmap(protho_tank, bitmapAngle), x, y, paint);
         }
 
         public Bitmap rotateBitmap(Bitmap source, float angle){

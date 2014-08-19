@@ -11,7 +11,7 @@ import java.util.concurrent.BlockingQueue;
 import java.util.concurrent.LinkedBlockingQueue;
 
 import android.app.Service;
-import android.content.BroadcastReceiver;
+import android.content.BroadcastReceiver; 
 import android.content.Context;
 import android.content.Intent;
 import android.content.SharedPreferences;
@@ -27,7 +27,7 @@ import android.widget.Toast;
  */
 public class SocketService extends Service {
 
-    public static final String SERVERIP = /*"192.168.56.1";*/ "192.168.1.5"; //your computer IP address should be written here
+    public static final String SERVERIP = /*"192.168.56.1";*/ "192.168.1.6"; //your computer IP address should be written here
     public static final int SERVERPORT = 8080;
     private DataOutputStream out;
     private DataInputStream in;
@@ -89,11 +89,9 @@ public class SocketService extends Service {
     @Override
     public int onStartCommand(Intent intent,int flags, int startId){
         super.onStartCommand(intent, flags, startId);
-        //System.out.println("!!!!!!EASCXZ !!!!! " + Arrays.deepToString(queue.toArray()));
 
         String string;
         ArrayList<String> list;
-        Float value;
 
         if((string = intent.getStringExtra("start")) != null) {
             queue.offer(string);
@@ -107,10 +105,6 @@ public class SocketService extends Service {
             valueQueue.offer(Float.parseFloat(list.get(1)));
             valueQueue.offer(Float.parseFloat(list.get(2)));
             valueQueue.offer(Float.parseFloat(list.get(3)));
-        } else if((value = intent.getFloatExtra("X", 0.0f)) != null){
-            valueQueue.offer(value);
-        } else if((value = intent.getFloatExtra("Y", 0.0f)) != null){
-            valueQueue.offer(value);
         }
 
         return START_NOT_STICKY;
@@ -127,7 +121,7 @@ public class SocketService extends Service {
                         Y = Float.parseFloat(in.readUTF());
                         bitmapAngle = Float.parseFloat(in.readUTF());
 
-                        //System.out.println("X = " + X + " ; Y = " + Y);
+                        System.out.println("X = " + X + " ; Y = " + Y);
 
                         ArrayList<String> list = new ArrayList<String>();
                         list.add(String.valueOf(X));
@@ -167,11 +161,6 @@ public class SocketService extends Service {
                             sendMessage(valueQueue.take());
                             sendMessage(valueQueue.take());
                         }
-                        //if(!valueQueue.isEmpty()){
-                        //    Float msg = valueQueue.take();
-                        //    System.out.println("!!! ---> msg : " + msg);
-                        //    sendMessage(msg);
-                        //}
                     }
                 } catch (Exception e) {
                     Log.e("TCP", "S: Error", e);
