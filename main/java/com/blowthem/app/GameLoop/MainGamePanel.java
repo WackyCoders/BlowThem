@@ -19,6 +19,8 @@ public class MainGamePanel extends SurfaceView implements SurfaceHolder.Callback
     private ProthoTank tank;
     private ProthoTank enemy;
 
+    private boolean allowed = true; // motion allowed
+
     private static final String TAG = MainGamePanel.class.getSimpleName();
 
     private LoopThread thread;
@@ -73,12 +75,19 @@ public class MainGamePanel extends SurfaceView implements SurfaceHolder.Callback
     };
 
     public void render(Canvas canvas) {
-        //canvas.drawColor(Color.BLACK);
         drawTankHandler.removeCallbacks(drawTankRunnable);
         drawTankHandler.post(drawTankRunnable);
     }
 
     public void update() {
-        //droid.update();
+        //allowed = true;
+    }
+
+    public boolean isAllowed() {
+        return allowed;
+    }
+
+    public void setAllowed(boolean allowed) {
+        this.allowed = allowed;
     }
 }

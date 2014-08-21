@@ -56,16 +56,21 @@ public class LoopThread extends Thread {
                     sleepTime = (int)(FRAME_PERIOD - timeDiff);
 
                     if (sleepTime > 0) {
+                        this.gamePanel.setAllowed(false);
                         try {
                             Thread.sleep(sleepTime);
-                        } catch (InterruptedException e) {}
+                        } catch (InterruptedException e) {
+                            e.printStackTrace();
+                        }
                     }
 
                     while (sleepTime < 0 && framesSkipped < MAX_FRAME_SKIPS) {
+                        this.gamePanel.setAllowed(false);
                         this.gamePanel.update();
                         sleepTime += FRAME_PERIOD;
                         framesSkipped++;
                     }
+                    this.gamePanel.setAllowed(true);
                 }
             } finally {
                 if (canvas != null) {
@@ -74,5 +79,4 @@ public class LoopThread extends Thread {
             }
         }
     }
-
 }

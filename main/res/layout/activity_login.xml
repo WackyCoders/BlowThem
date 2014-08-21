@@ -1,0 +1,47 @@
+<?xml version="1.0" encoding="utf-8"?>
+
+<RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    android:orientation="vertical" android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    style="@style/MainMenu"
+    android:weightSum="1">
+
+    <TextView
+        android:layout_marginTop="30dp"
+        android:id="@+id/login_label"
+        android:text="@string/login"
+        style="@style/menu_label"/>
+
+    <EditText
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:inputType="textPersonName"
+        android:layout_marginTop="77dp"
+        android:text="Name"
+        android:ems="10"
+        android:id="@+id/nameText"
+        android:layout_below="@+id/login_label"
+        android:layout_alignParentLeft="true"
+        android:layout_alignParentStart="true" />
+
+    <EditText
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:inputType="textPassword"
+        android:ems="10"
+        android:id="@+id/passwordText"
+        android:layout_marginTop="20dp"
+        android:layout_gravity="center_horizontal"
+        android:layout_below="@+id/nameText"
+        android:layout_alignParentLeft="true"
+        android:layout_alignParentStart="true" />
+
+    <Button
+        android:id="@+id/login_button"
+        android:text="@string/login"
+        android:background="@drawable/main_menu_button"
+        android:layout_alignParentBottom="true"
+        style="@style/main_menu_text"/>
+
+
+</RelativeLayout>

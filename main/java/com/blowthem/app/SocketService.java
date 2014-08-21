@@ -17,6 +17,7 @@ import android.content.Intent;
 import android.content.SharedPreferences;
 import android.os.Binder;
 import android.os.Bundle;
+import android.os.Handler;
 import android.os.IBinder;
 import android.os.Looper;
 import android.util.Log;
@@ -27,7 +28,7 @@ import android.widget.Toast;
  */
 public class SocketService extends Service {
 
-    public static final String SERVERIP = /*"192.168.56.1";*/ "192.168.1.6"; //your computer IP address should be written here
+    public static final String SERVERIP = /*"192.168.56.1";*/ "192.168.1.5"; //your computer IP address should be written here
     public static final int SERVERPORT = 8080;
     private DataOutputStream out;
     private DataInputStream in;
@@ -37,6 +38,7 @@ public class SocketService extends Service {
     protected BlockingQueue<String> queue = new LinkedBlockingQueue<String>();
     protected BlockingQueue<Float> valueQueue = new LinkedBlockingQueue<Float>();
     private Float X, Y, bitmapAngle;
+    private Float xFire, yFire;
 
     @Override
     public IBinder onBind(Intent intent) {
@@ -52,6 +54,8 @@ public class SocketService extends Service {
 
         }
     }
+
+    private Handler toasthandler = new Handler();
 
     @Override
     public void onCreate() {
@@ -105,6 +109,10 @@ public class SocketService extends Service {
             valueQueue.offer(Float.parseFloat(list.get(1)));
             valueQueue.offer(Float.parseFloat(list.get(2)));
             valueQueue.offer(Float.parseFloat(list.get(3)));
+        } else if((list = intent.getStringArrayListExtra("fire")) != null){
+            queue.offer(list.get(0));
+            valueQueue.offer(Float.parseFloat(list.get(1)));
+            valueQueue.offer(Float.parseFloat(list.get(2)));
         }
 
         return START_NOT_STICKY;
@@ -116,12 +124,19 @@ public class SocketService extends Service {
             try {
                 while(!Thread.interrupted()) {
                     String str = in.readUTF();
+                    if(str.equals("$login_failed$")){
+                        toasthandler.post(new Runnable() {
+                            @Override
+                            public void run() {
+                                Toast.makeText(SocketService.this, "WRONG LOGIN ODER PASSWORD!", Toast.LENGTH_LONG).show();
+                            }
+                        });
+                    }
+
                     if (str.equals("$motion$")) {
                         X = Float.parseFloat(in.readUTF());
                         Y = Float.parseFloat(in.readUTF());
                         bitmapAngle = Float.parseFloat(in.readUTF());
-
-                        System.out.println("X = " + X + " ; Y = " + Y);
 
                         ArrayList<String> list = new ArrayList<String>();
                         list.add(String.valueOf(X));
@@ -133,6 +148,20 @@ public class SocketService extends Service {
                         intent.putStringArrayListExtra("update", list);
                         sendBroadcast(intent);
                         //}
+                    }
+
+                    if (str.equals("$fire$")){
+                        xFire = Float.parseFloat(in.readUTF());
+                        yFire = Float.parseFloat(in.readUTF());
+
+                        ArrayList<String> list = new ArrayList<String>();
+                        list.add(String.valueOf(xFire));
+                        list.add(String.valueOf(yFire));
+
+                        Intent intent = new Intent();
+                        intent.setAction("myBroadcast");
+                        intent.putStringArrayListExtra("fireUpdate", list);
+                        sendBroadcast(intent);
                     }
                 }
             } catch (IOException e) {
@@ -158,6 +187,9 @@ public class SocketService extends Service {
                         sendMessage(str);
                         if(str.equals("$motion$")){
                             sendMessage(valueQueue.take());
+                            sendMessage(valueQueue.take());
+                            sendMessage(valueQueue.take());
+                        } else if(str.equals("$fire$")){
                             sendMessage(valueQueue.take());
                             sendMessage(valueQueue.take());
                         }
