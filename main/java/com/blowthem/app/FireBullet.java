@@ -7,7 +7,7 @@ import android.view.*;
 
 import items.BulletCore;
 import poor2D.Operations;
-import poor2D.Vector;
+import poor2D.Vector; 
 
 /**
  * Created by walter on 11.07.14.
@@ -66,5 +66,13 @@ public class FireBullet extends View {
 
     public void setSTROKE(int STROKE) {
         this.STROKE = STROKE;
+    }
+
+    public float getWidthCore() {
+        return width;
+    }
+
+    public float getHeightCore() {
+        return height;
     }
 }

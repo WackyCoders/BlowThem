@@ -10,7 +10,7 @@ import android.os.Handler;
 import android.os.SystemClock;
 import android.support.v7.app.ActionBarActivity;
 import android.view.WindowManager;
-import android.widget.Toast;
+import android.widget.Toast; 
 
 import java.io.DataInputStream;
 import java.io.DataOutputStream;
@@ -25,26 +25,13 @@ import java.util.Arrays;
 
 public class LogoActivity extends ActionBarActivity {
 
-    private static String SERVER_IP = "192.168.43.194"; // internet ----> 86.57.195.176
-    //"192.168.1.2";//localwifi
-    private final static Integer SERVER_PORT = 8080;
-
     private Handler handler = new Handler();
-    private Intent intent, serviceIntent;
+    private Intent intent;
     private Runnable doNextActivity = new Runnable() {
         @Override
         public void run() {
             startActivity(intent);
             finish();
-        }
-    };
-    private SocketService socketService = new SocketService();
-
-    private Handler clientHandler = new Handler();
-    private Runnable clientRunnable = new Runnable() {
-        @Override
-        public void run() {
-            startService(serviceIntent);
         }
     };
 
@@ -56,33 +43,18 @@ public class LogoActivity extends ActionBarActivity {
         getActionBar().hide();
         setRequestedOrientation(ActivityInfo.SCREEN_ORIENTATION_LANDSCAPE);
         setContentView(R.layout.activity_logo);
-        intent = new Intent(this, MainSettingsActivity.class);
-        serviceIntent = new Intent(this, socketService.getClass());
+        intent = new Intent(this, SwitchLoginRegisterActivity.class);
     }
 
     @Override
     protected void onPostCreate(Bundle savedInstanceState) {
         super.onPostCreate(savedInstanceState);
         handler.postDelayed(doNextActivity, 1500);
-        ArrayList<String> list = new ArrayList<String>();
-        list.add("$login$");
-        list.add("san2");
-        list.add("2");
-        serviceIntent.putStringArrayListExtra("login", list);
-        clientHandler.post(clientRunnable);
-
-        /*serviceIntent.putExtra("command", "$login$");
-        clientHandler.post(clientRunnable);
-        serviceIntent.putExtra("nickname", "walter");
-        clientHandler.post(clientRunnable);
-        serviceIntent.putExtra("password", "777");
-        clientHandler.post(clientRunnable);*/
     }
 
     @Override
     protected void onDestroy() {
         super.onDestroy();
         handler.removeCallbacks(doNextActivity);
-        //clientHandler.removeCallbacks(clientRunnable);
     }
 }

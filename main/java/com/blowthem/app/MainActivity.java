@@ -10,10 +10,9 @@ import android.view.*;
 import android.view.animation.*; 
 import android.widget.*;
 
-import java.io.*;
-import java.net.*;
+import com.blowthem.app.GameLoop.MainGamePanel;
+
 import java.util.ArrayList;
-import java.util.Arrays;
 import java.util.concurrent.BlockingQueue;
 import java.util.concurrent.LinkedBlockingDeque; 
 
@@ -21,6 +20,9 @@ import poor2D.Vector;
  
 
 public class MainActivity extends ActionBarActivity {
+
+    //LOOPER
+    private MainGamePanel gameLooper;
 
     private BlockingQueue<Float> queue = new LinkedBlockingDeque<Float>();
     private SocketService clientService = new SocketService();
@@ -53,7 +55,17 @@ public class MainActivity extends ActionBarActivity {
         public void run(){
             //android.os.Process.setThreadPriority(android.os.Process.THREAD_PRIORITY_BACKGROUND);
             synchronized (tank) {
-                tank.drawFire(fireEvent);
+                clientHandler.removeCallbacks(clientRunnable);
+                if(gameLooper.isAllowed()) {
+                    tank.drawFire(fireEvent);
+                    ArrayList<String> list = new ArrayList<String>();
+                    list.add("$fire$");
+                    list.add(String.valueOf(tank.bullet.getWidthCore()));
+                    list.add(String.valueOf(tank.bullet.getHeightCore()));
+                    clientIntent.putStringArrayListExtra("fire", list);
+                    clientHandler.post(clientRunnable);
+                }
+
                 //new BulletClientHandler(MainActivity.this).execute(String.valueOf(3) + "\n", messageToSend,
                 //        String.valueOf(tank.bullet.core.getX()) + "\n", String.valueOf(tank.bullet.core.getY()) + "\n");
             }
@@ -116,23 +128,80 @@ public class MainActivity extends ActionBarActivity {
         }
     };
 
-    private ArrayList<String> list;
+    private ArrayList<String> listMotion, listFire;
     private Handler receiveDataHandler = new Handler();
     private Runnable receiveDataRunnable = new Runnable() {
         @Override
         public void run() {
-            //System.out.println("!!!LIST" + Arrays.deepToString(list.toArray()));
 
-            if(list != null) {
-                //System.out.println("X = " + Float.parseFloat(list.get(0)) + " ; " + Float.parseFloat(list.get(1)));
-                if(Float.parseFloat(list.get(0)) > 0.0f && Float.parseFloat(list.get(1)) > 0.0f){
+            if(listMotion != null) {
+                //System.out.println("!!!LIST" + Arrays.deepToString(listMotion.toArray()));
+
+                //System.out.println("X = " + Float.parseFloat(listMotion.get(0)) + " ; " + Float.parseFloat(listMotion.get(1)));
+                if(Float.parseFloat(listMotion.get(0)) > 0.0f && Float.parseFloat(listMotion.get(1)) > 0.0f){
                     //System.out.println("HEY!!!");
-                    //enemy.drawTankClient(Float.parseFloat(list.get(0)), Float.parseFloat(list.get(1)), Float.parseFloat(list.get(2)));
-                    enemy.drawTank(new Vector(Float.parseFloat(list.get(0)), Float.parseFloat(list.get(1))), Float.parseFloat(list.get(2)));
-                    list = null;
+                    //enemy.drawTankClient(Float.parseFloat(listMotion.get(0)), Float.parseFloat(listMotion.get(1)), Float.parseFloat(listMotion.get(2)));
+                    enemy.drawTank(new Vector(Float.parseFloat(listMotion.get(0)), Float.parseFloat(listMotion.get(1))), Float.parseFloat(listMotion.get(2)));
+                    listMotion = null;
+
                 }
             }
+
+            if(listFire != null){
+                enemyBulletThreadHandler.removeCallbacks(enemyBulletThreadTask);
+                enemyBulletThreadHandler.postDelayed(enemyBulletThreadTask, 0);
+
+            }
             receiveDataHandler.post(this);
+        }
+    };
+
+    private Handler eFire = new Handler();
+    private Runnable eFireTask = new Runnable(){
+        public void run(){
+            //android.os.Process.setThreadPriority(android.os.Process.THREAD_PRIORITY_BACKGROUND);
+            synchronized (tank) {
+                enemy.drawFire();
+                //new BulletClientHandler(MainActivity.this).execute(String.valueOf(3) + "\n", messageToSend,
+                //        String.valueOf(tank.bullet.core.getX()) + "\n", String.valueOf(tank.bullet.core.getY()) + "\n");
+            }
+        }
+    };
+
+    private Handler enemyBulletThreadHandler = new Handler();
+    private Runnable enemyBulletThreadTask = new Runnable() {
+        @Override
+        public void run() {
+            eFire.removeCallbacks(eFireTask);
+            eFire.post(eFireTask);
+            if(enemy.bullet.isAlive()){
+                enemy.bullet.enemyPosition = (Vector) tank.core.getPosition().clone();
+                enemyBulletThreadHandler.postDelayed(this, 0);
+            } else {
+                RelativeLayout.LayoutParams params = new RelativeLayout.LayoutParams(RelativeLayout.LayoutParams.WRAP_CONTENT, RelativeLayout.LayoutParams.WRAP_CONTENT);
+                if(enemy.bullet.height >= 0 && enemy.bullet.width >= 0) {
+                    params.setMargins((int) enemy.bullet.width - enemy.getTankWidth(), (int) enemy.bullet.height - enemy.getTankHeight(), 0, 0);
+                } else if(enemy.bullet.height < 0 && enemy.bullet.width > 0){
+                    params.setMargins((int) enemy.bullet.width - (int)0.5 * enemy.getTankWidth(), (int) enemy.bullet.height + (int)0.5 *enemy.getTankHeight(), 0, 0);
+                } else if(enemy.bullet.height > 0 && enemy.bullet.width < 0){
+                    params.setMargins((int) enemy.bullet.width + (int)0.5 * enemy.getTankWidth(), (int) enemy.bullet.height - (int)0.5 * enemy.getTankHeight(), 0, 0);
+                } else if(enemy.bullet.height < 0 && enemy.bullet.width < 0){
+                    params.setMargins((int) enemy.bullet.width + enemy.getTankWidth(), (int) enemy.bullet.height + enemy.getTankHeight(), 0, 0);
+                }
+                //System.out.println("explode X : " + (int)tank.bullet.width + " explode Y : " + (int)tank.bullet.height);
+                imageView.setLayoutParams(params);
+                //animate(imageView, animation_array, 0, true);
+                animateExplode.removeCallbacks(animateExplodeTask);
+                animateExplode.postDelayed(animateExplodeTask, 0);
+
+                if (sound != null) {
+                    sound.release();
+                    sound = null;
+                }
+                sound = MediaPlayer.create(getApplicationContext(), R.raw.bomb_exploding);
+                sound.start();
+                isClicked = true;
+            }
         }
     };
 
@@ -182,14 +251,18 @@ public class MainActivity extends ActionBarActivity {
     private Runnable mUpdateTask = new Runnable(){
         public void run(){
             synchronized (tank) {
-                tank.drawTank(js.getNormalX(), js.getNormalY());
-                ArrayList<String> list = new ArrayList<String>();
-                list.add("$motion$");
-                list.add(String.valueOf(tank.core.getPosition().get(0)));
-                list.add(String.valueOf(tank.core.getPosition().get(1)));
-                list.add(String.valueOf(tank.getBitmapAngle()));
-                clientIntent.putStringArrayListExtra("motion", list);
-                clientHandler.postDelayed(clientRunnable, 0);
+                clientHandler.removeCallbacks(clientRunnable);
+                if(gameLooper.isAllowed()) {
+                    tank.drawTank(js.getNormalX(), js.getNormalY());
+                    ArrayList<String> list = new ArrayList<String>();
+                    list.add("$motion$");
+                    list.add(String.valueOf(tank.core.getPosition().get(0)));
+                    list.add(String.valueOf(tank.core.getPosition().get(1)));
+                    list.add(String.valueOf(tank.getBitmapAngle()));
+                    clientIntent.putStringArrayListExtra("motion", list);
+                    clientHandler.post(clientRunnable);
+                }
+
                 //enemy.drawTank(new Vector(0.5f, 0.5f), new Vector(-0.1f, 0.1f));
 
                 //new TankClientHandler(MainActivity.this).execute("$motion$",
@@ -206,7 +279,7 @@ public class MainActivity extends ActionBarActivity {
             event1 = event;
             js.drawStick(event1);
 
-            switch(event.getAction()){
+            switch (event.getAction()) {
                 case MotionEvent.ACTION_DOWN:
                     mHandler.removeCallbacks(mUpdateTask);
                     mHandler.post(mUpdateTask);
@@ -330,10 +403,20 @@ public class MainActivity extends ActionBarActivity {
 
         //receiveDataHandler.removeCallbacks(receiveDataRunnable);
         receiveDataHandler.post(receiveDataRunnable);
-        IntentFilter intentFilter = new IntentFilter();
-        intentFilter.addAction("myBroadcast");
-        registerReceiver(updateReceiver, intentFilter);
+        registerReceiverThread.start();
+
+        gameLooper = new MainGamePanel(this, tank, enemy);
+        gameLooper.onStart();
     }
+
+    private Thread registerReceiverThread = new Thread(new Runnable() {
+        @Override
+        public void run() {
+            IntentFilter intentFilter = new IntentFilter();
+            intentFilter.addAction("myBroadcast");
+            registerReceiver(updateReceiver, intentFilter);
+        }
+    });
 
     @Override
     protected void onPostCreate(Bundle savedInstanceState) {
@@ -343,6 +426,7 @@ public class MainActivity extends ActionBarActivity {
     @Override
     protected void onDestroy() {
         super.onDestroy();
+        unregisterReceiver(updateReceiver);
         //doUnbindService();
     }
 
@@ -350,30 +434,6 @@ public class MainActivity extends ActionBarActivity {
     protected void onResume() {
         super.onResume();
     }
-
-    /*private ServiceConnection mConnection = new ServiceConnection() {
-        @Override
-        public void onServiceConnected(ComponentName name, IBinder service) {
-            mBoundService = ((SocketService.LocalBinder)service).getService();
-        }
-
-        @Override
-        public void onServiceDisconnected(ComponentName name) {
-            mBoundService = null;
-        }
-    };
-
-    private void doBindService(){
-        bindService(new Intent(MainActivity.this, SocketService.class), mConnection, Context.BIND_AUTO_CREATE);
-        mIsBound = true;
-    }
-
-    private void doUnbindService() {
-        if (mIsBound) {
-            unbindService(mConnection);
-            mIsBound = false;
-        }
-    }*/
 
     //Animation probe
     private void animate(final ImageView imageView, final int images[], final int imageIndex, final boolean forever){
@@ -427,16 +487,8 @@ public class MainActivity extends ActionBarActivity {
 
         @Override
         public void onReceive(Context context, Intent intent) {
-            list = intent.getStringArrayListExtra("update");
-            //System.out.println("HEY!!!");
-            //System.out.println("Data received : " + Arrays.deepToString(list.toArray()));
-            queue.offer(Float.parseFloat(list.get(0)));
-            queue.offer(Float.parseFloat(list.get(1)));
-            queue.offer(Float.parseFloat(list.get(2)));
-        }
-
-        public ArrayList<String> getList() {
-            return list;
+            listMotion = intent.getStringArrayListExtra("update");
+            listFire = intent.getStringArrayListExtra("fireUpdate");
         }
     }
 }
