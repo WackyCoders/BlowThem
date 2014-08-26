@@ -58,12 +58,12 @@ public class MainActivity extends ActionBarActivity {
                 clientHandler.removeCallbacks(clientRunnable);
                 if(gameLooper.isAllowed()) {
                     tank.drawFire(fireEvent);
-                    ArrayList<String> list = new ArrayList<String>();
-                    list.add("$fire$");
-                    list.add(String.valueOf(tank.bullet.getWidthCore()));
-                    list.add(String.valueOf(tank.bullet.getHeightCore()));
-                    clientIntent.putStringArrayListExtra("fire", list);
-                    clientHandler.post(clientRunnable);
+                   // ArrayList<String> list = new ArrayList<String>();
+                    //list.add("$fire$");
+                    //list.add(String.valueOf(tank.bullet.getWidthCore()));
+                    //list.add(String.valueOf(tank.bullet.getHeightCore()));
+                    //clientIntent.putStringArrayListExtra("fire", list);
+                    //clientHandler.post(clientRunnable);
                 }
 
                 //new BulletClientHandler(MainActivity.this).execute(String.valueOf(3) + "\n", messageToSend,

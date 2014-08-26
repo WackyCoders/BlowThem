@@ -3,12 +3,18 @@ package com.blowthem.app;
 import android.app.Activity;
 import android.content.Intent;
 import android.content.pm.ActivityInfo;
+import android.graphics.Point;
 import android.os.Bundle;
 import android.os.Handler;
 import android.support.v7.app.ActionBarActivity;
+import android.view.Display;
 import android.view.View;
+import android.view.ViewGroup;
 import android.view.WindowManager;
 import android.widget.Button;
+import android.widget.LinearLayout;
+import android.widget.RelativeLayout;
+import android.widget.TextView;
 
 import java.util.ArrayList;
 
@@ -18,7 +24,6 @@ import java.util.ArrayList;
 public class SwitchLoginRegisterActivity extends ActionBarActivity {
 
     private Intent localIntent, serviceIntent, registrationIntent, loginIntent;
-    private SocketService socketService = new SocketService();
 
     private Handler clientHandler = new Handler();
     private Runnable clientRunnable = new Runnable() {
@@ -29,6 +34,7 @@ public class SwitchLoginRegisterActivity extends ActionBarActivity {
     };
 
     private Button loginButton, registrationButton;
+    private TextView switchText;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -39,12 +45,12 @@ public class SwitchLoginRegisterActivity extends ActionBarActivity {
         setContentView(R.layout.activity_switch);
 
         localIntent = new Intent(this, MainSettingsActivity.class);
-        serviceIntent = new Intent(this, socketService.getClass());
         loginIntent = new Intent(this, LoginActivity.class);
-        System.out.println("ACTIVITY IS UPPED!!!");
+        registrationIntent = new Intent(this, RegistrationActivity.class);
 
         this.loginButton = (Button)findViewById(R.id.login);
         this.registrationButton = (Button)findViewById(R.id.registration);
+        this.switchText = (TextView) findViewById(R.id.menulabel);
 
         loginButton.setOnClickListener(new View.OnClickListener() {
             @Override
@@ -56,15 +62,30 @@ public class SwitchLoginRegisterActivity extends ActionBarActivity {
         registrationButton.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                /*clientHandler.removeCallbacks(clientRunnable);
-                ArrayList<String> list = new ArrayList<String>();
-                list.add("$registration$");
-                list.add("coon");
-                list.add("532");
-                serviceIntent.putStringArrayListExtra("login", list);
-                clientHandler.post(clientRunnable);*/
+                startActivity(registrationIntent);
             }
         });
+
+        Display currentDisplay = getWindowManager().getDefaultDisplay();
+        Point size = new Point();
+        currentDisplay.getSize(size);
+
+        ViewGroup.LayoutParams params = loginButton.getLayoutParams();
+        params.height = size.y / 10;
+        loginButton.setLayoutParams(params);
+
+        params = registrationButton.getLayoutParams();
+        params.height = size.y / 10;
+        registrationButton.setLayoutParams(params);
+
+        params = switchText.getLayoutParams();
+        params.height = size.y / 5;
+        switchText.setLayoutParams(params);
+
+        LinearLayout.LayoutParams marginParams =
+                new LinearLayout.LayoutParams(LinearLayout.LayoutParams.MATCH_PARENT, LinearLayout.LayoutParams.WRAP_CONTENT);
+        marginParams.setMargins(0, size.y / 3, 0, 0);
+        //loginButton.setLayoutParams(marginParams);
     }
 
     @Override

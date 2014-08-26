@@ -20,6 +20,7 @@ import android.os.Bundle;
 import android.os.Handler;
 import android.os.IBinder;
 import android.os.Looper;
+import android.preference.PreferenceManager;
 import android.util.Log;
 import android.widget.Toast;
 
@@ -28,7 +29,7 @@ import android.widget.Toast;
  */
 public class SocketService extends Service {
 
-    public static final String SERVERIP = /*"192.168.56.1";*/ "192.168.1.5"; //your computer IP address should be written here
+    public static final String SERVERIP = /*"192.168.56.1";*/ "192.168.1.4"; //your computer IP address should be written here
     public static final int SERVERPORT = 8080;
     private DataOutputStream out;
     private DataInputStream in;
@@ -39,6 +40,7 @@ public class SocketService extends Service {
     protected BlockingQueue<Float> valueQueue = new LinkedBlockingQueue<Float>();
     private Float X, Y, bitmapAngle;
     private Float xFire, yFire;
+    private Intent loginIntent;
 
     @Override
     public IBinder onBind(Intent intent) {
@@ -113,6 +115,10 @@ public class SocketService extends Service {
             queue.offer(list.get(0));
             valueQueue.offer(Float.parseFloat(list.get(1)));
             valueQueue.offer(Float.parseFloat(list.get(2)));
+        } else if((list = intent.getStringArrayListExtra("registration")) != null){
+            for(String str : list){
+                queue.offer(str);
+            }
         }
 
         return START_NOT_STICKY;
@@ -124,11 +130,28 @@ public class SocketService extends Service {
             try {
                 while(!Thread.interrupted()) {
                     String str = in.readUTF();
+                    if(str.equals("$login_success$")){
+                        LoginBridge.login = str;
+                    }
+
                     if(str.equals("$login_failed$")){
                         toasthandler.post(new Runnable() {
                             @Override
                             public void run() {
-                                Toast.makeText(SocketService.this, "WRONG LOGIN ODER PASSWORD!", Toast.LENGTH_LONG).show();
+                                Toast.makeText(SocketService.this, "WRONG LOGIN OR PASSWORD! PLEASE, TRY AGAIN...", Toast.LENGTH_LONG).show();
+                            }
+                        });
+                    }
+
+                    if(str.equals("$registration_success$")){
+                        LoginBridge.registration = str;
+                    }
+
+                    if(str.equals("$registration_exist$")){
+                        toasthandler.post(new Runnable() {
+                            @Override
+                            public void run() {
+                                Toast.makeText(SocketService.this, "SUCH USER ALREADY EXISTS! PLEASE, TRY AGAIN...", Toast.LENGTH_LONG).show();
                             }
                         });
                     }
@@ -237,3 +260,4 @@ public class SocketService extends Service {
         return Y;
     }
 }
+

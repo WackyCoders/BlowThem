@@ -35,6 +35,15 @@ public class LogoActivity extends ActionBarActivity {
         }
     };
 
+    private Intent mainActivityIntent, serviceIntent;
+    private Handler clientHandler = new Handler();
+    private Runnable clientRunnable = new Runnable() {
+        @Override
+        public void run() {
+            startService(serviceIntent);
+        }
+    };
+
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -43,7 +52,18 @@ public class LogoActivity extends ActionBarActivity {
         getActionBar().hide();
         setRequestedOrientation(ActivityInfo.SCREEN_ORIENTATION_LANDSCAPE);
         setContentView(R.layout.activity_logo);
+
         intent = new Intent(this, SwitchLoginRegisterActivity.class);
+
+        /*intent = new Intent(this, MainSettingsActivity.class);
+        this.serviceIntent = new Intent(this, SocketService.class);
+        clientHandler.removeCallbacks(clientRunnable);
+        ArrayList<String> list = new ArrayList<String>();
+        list.add("$login$");
+        list.add("walter");
+        list.add("777");
+        serviceIntent.putStringArrayListExtra("login", list);
+        clientHandler.post(clientRunnable);*/
     }
 
     @Override
