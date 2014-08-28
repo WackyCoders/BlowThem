@@ -8,4 +8,6 @@ public class LoginBridge {
     public static String login;
 
     public static String registration;
+
+    public static String battlePosition;
 }

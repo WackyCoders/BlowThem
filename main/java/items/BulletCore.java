@@ -10,7 +10,7 @@ import static items.Constants.*;
 public class BulletCore {
 
     private Vector position;
-    private Vector target;
+    private Vector target; 
 
     private boolean isAlive = true;
     private float speedFactor = 0.03f;

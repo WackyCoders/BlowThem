@@ -69,4 +69,9 @@ public class MainSettingsActivity extends ActionBarActivity {
         final Intent intent = new Intent(this, MainActivity.class);
         startActivity(intent);
     }
+
+    @Override
+    protected void onDestroy() {
+        super.onDestroy();
+    }
 }

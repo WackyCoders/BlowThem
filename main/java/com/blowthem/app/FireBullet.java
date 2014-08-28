@@ -46,7 +46,7 @@ public class FireBullet extends View {
             core.step(enemyPosition);
             width = core.getX() * tank.observableWidth;
             height = core.getY() * tank.observableHeight;
-        }else {
+        } else {
             explodeX = this.width;
             explodeY = this.height;
         }

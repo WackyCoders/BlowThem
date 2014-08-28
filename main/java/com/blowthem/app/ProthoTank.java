@@ -59,7 +59,8 @@ public class ProthoTank{
         localMetrics = new DisplayMetrics();
         ((WindowManager) mContext.getSystemService(Context.WINDOW_SERVICE)).getDefaultDisplay().getMetrics(localMetrics);
 
-        this.observableWidth = draw.getWidth();
+        //this.observableWidth = draw.getWidth();
+        this.observableWidth = context.getResources().getDisplayMetrics().widthPixels;
         this.observableHeight = context.getResources().getDisplayMetrics().heightPixels;
 
         mLayout.addView(draw);
@@ -102,10 +103,15 @@ public class ProthoTank{
     /**
      * The preferable one (because the angle is already calculated in the enemy's core)
      */
-    public void drawTank(Vector position, float bitmapAngle){
+    public void drawTank(Vector position, Vector target, float bitmapAngle){
         this.bitmapAngle = bitmapAngle;
+        //float coreAngle  = (float) calculateAngleForTan(position.get(0), position.get(1));
+        //core.turn(coreAngle);
+        core.setPosition(position);
+        core.setTarget(target);
         draw.setX(position.get(0) * observableWidth - 0.5f * protho_tank.getWidth());
         draw.setY(position.get(1) * observableHeight - 0.5f * protho_tank.getHeight());
+        //System.out.println("!!! TARGET = " + core.getTarget());
         //drawTank();
     }
 
@@ -132,11 +138,19 @@ public class ProthoTank{
         bullet.height = draw.getY() + height / 2;
     }
 
+    public void drawTankInit(){
+        draw.setX(core.getX() * observableWidth - 0.5f * protho_tank.getWidth());
+        draw.setY(core.getY() * observableHeight - 0.5f * protho_tank.getHeight());
+        draw.invalidate();
+    }
+
     public void drawTank() {
         /*try {
             mLayout.removeView(draw);
         } catch (Exception e) {}
         mLayout.addView(draw);*/
+        draw.setX(core.getX() * observableWidth - 0.5f * protho_tank.getWidth());
+        draw.setY(core.getY() * observableHeight - 0.5f * protho_tank.getHeight());
         draw.invalidate();
     }
 

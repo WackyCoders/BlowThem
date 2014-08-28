@@ -29,7 +29,7 @@ import android.widget.Toast;
  */
 public class SocketService extends Service {
 
-    public static final String SERVERIP = /*"192.168.56.1";*/ "192.168.1.4"; //your computer IP address should be written here
+    public static final String SERVERIP = /*"192.168.56.1";*/ "192.168.1.6"; //your computer IP address should be written here
     public static final int SERVERPORT = 8080;
     private DataOutputStream out;
     private DataInputStream in;
@@ -38,7 +38,7 @@ public class SocketService extends Service {
     protected ReceiveData receiveData;
     protected BlockingQueue<String> queue = new LinkedBlockingQueue<String>();
     protected BlockingQueue<Float> valueQueue = new LinkedBlockingQueue<Float>();
-    private Float X, Y, bitmapAngle;
+    private Float X, Y, bitmapAngle, targetX, targetY;
     private Float xFire, yFire;
     private Intent loginIntent;
 
@@ -101,24 +101,41 @@ public class SocketService extends Service {
 
         if((string = intent.getStringExtra("start")) != null) {
             queue.offer(string);
-        } else if((list = intent.getStringArrayListExtra("login")) != null){
+            intent.removeExtra("start");
+        }
+        if((list = intent.getStringArrayListExtra("login")) != null){
             list = intent.getStringArrayListExtra("login");
             for (String str : list) {
                 queue.offer(str);
             }
-        } else if((list = intent.getStringArrayListExtra("motion")) != null){
+            intent.removeExtra("login");
+        }
+        if((list = intent.getStringArrayListExtra("fire")) != null){
+            //System.out.println("LIST !!! : " + Arrays.deepToString(list.toArray()));
+            queue.offer(list.get(0));
+            valueQueue.offer(Float.parseFloat(list.get(1)));
+            valueQueue.offer(Float.parseFloat(list.get(2)));
+            intent.removeExtra("fire");
+            list = null;
+            intent.putStringArrayListExtra("fire", list);
+            //System.out.println("LIST !!! : " + Arrays.deepToString(list.toArray()));
+        }
+        if((list = intent.getStringArrayListExtra("motion")) != null){
             queue.offer(list.get(0));
             valueQueue.offer(Float.parseFloat(list.get(1)));
             valueQueue.offer(Float.parseFloat(list.get(2)));
             valueQueue.offer(Float.parseFloat(list.get(3)));
-        } else if((list = intent.getStringArrayListExtra("fire")) != null){
-            queue.offer(list.get(0));
-            valueQueue.offer(Float.parseFloat(list.get(1)));
-            valueQueue.offer(Float.parseFloat(list.get(2)));
-        } else if((list = intent.getStringArrayListExtra("registration")) != null){
+            valueQueue.offer(Float.parseFloat(list.get(4)));
+            valueQueue.offer(Float.parseFloat(list.get(5)));
+            intent.removeExtra("motion");
+            list = null;
+            intent.putStringArrayListExtra("motion", list);
+        }
+        if((list = intent.getStringArrayListExtra("registration")) != null){
             for(String str : list){
                 queue.offer(str);
             }
+            intent.removeExtra("registration");
         }
 
         return START_NOT_STICKY;
@@ -160,11 +177,15 @@ public class SocketService extends Service {
                         X = Float.parseFloat(in.readUTF());
                         Y = Float.parseFloat(in.readUTF());
                         bitmapAngle = Float.parseFloat(in.readUTF());
+                        targetX = Float.parseFloat(in.readUTF());
+                        targetY = Float.parseFloat(in.readUTF());
 
                         ArrayList<String> list = new ArrayList<String>();
                         list.add(String.valueOf(X));
                         list.add(String.valueOf(Y));
                         list.add(String.valueOf(bitmapAngle));
+                        list.add(String.valueOf(targetX));
+                        list.add(String.valueOf(targetY));
 
                         Intent intent = new Intent();
                         intent.setAction("myBroadcast");
@@ -185,6 +206,29 @@ public class SocketService extends Service {
                         intent.setAction("myBroadcast");
                         intent.putStringArrayListExtra("fireUpdate", list);
                         sendBroadcast(intent);
+                    }
+
+                    if(str.equals("$started$")){
+                        Intent intent = new Intent();
+                        intent.setAction("myBroadcast");
+                        intent.putExtra("battleStarted", str);
+                        sendBroadcast(intent);
+                    }
+
+                    if(str.equals("$first$")){
+                        LoginBridge.battlePosition = str;
+                        /*Intent intent = new Intent();
+                        intent.setAction("myBroadcast");
+                        intent.putExtra("currentBattlePosition", str);
+                        sendBroadcast(intent);*/
+                    }
+
+                    if(str.equals("$second$")){
+                        LoginBridge.battlePosition = str;
+                        /*Intent intent = new Intent();
+                        intent.setAction("myBroadcast");
+                        intent.putExtra("currentBattlePosition", str);
+                        sendBroadcast(intent);*/
                     }
                 }
             } catch (IOException e) {
@@ -208,11 +252,16 @@ public class SocketService extends Service {
                     while(!Thread.interrupted()){
                         String str = queue.take();
                         sendMessage(str);
+                        //System.out.println("!!!! : " + str);
                         if(str.equals("$motion$")){
                             sendMessage(valueQueue.take());
                             sendMessage(valueQueue.take());
                             sendMessage(valueQueue.take());
-                        } else if(str.equals("$fire$")){
+                            sendMessage(valueQueue.take());
+                            sendMessage(valueQueue.take());
+                        }
+                        if(str.equals("$fire$")){
+                            //System.out.println("!!!QUEUE : " + Arrays.deepToString(valueQueue.toArray()));
                             sendMessage(valueQueue.take());
                             sendMessage(valueQueue.take());
                         }

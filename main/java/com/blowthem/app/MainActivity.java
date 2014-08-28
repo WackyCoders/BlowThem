@@ -10,12 +10,15 @@ import android.view.*;
 import android.view.animation.*; 
 import android.widget.*;
 
+import com.blowthem.app.Dialogs.ExitDialog;
+import com.blowthem.app.Dialogs.WaitDialog;
 import com.blowthem.app.GameLoop.MainGamePanel;
 
 import java.util.ArrayList;
 import java.util.concurrent.BlockingQueue;
-import java.util.concurrent.LinkedBlockingDeque; 
+import java.util.concurrent.LinkedBlockingDeque;
 
+import items.Constants;
 import poor2D.Vector;
  
 
@@ -23,6 +26,11 @@ public class MainActivity extends ActionBarActivity {
 
     //LOOPER
     private MainGamePanel gameLooper;
+
+    private boolean weirdWayToAvoidOnBundleSave = true;
+
+    //Dialog, waiting everyone to start the battle
+    private WaitDialog waitDialog;
 
     private BlockingQueue<Float> queue = new LinkedBlockingDeque<Float>();
     private SocketService clientService = new SocketService();
@@ -53,21 +61,11 @@ public class MainActivity extends ActionBarActivity {
     private Handler mFire = new Handler();
     private Runnable mFireTask = new Runnable(){
         public void run(){
-            //android.os.Process.setThreadPriority(android.os.Process.THREAD_PRIORITY_BACKGROUND);
             synchronized (tank) {
                 clientHandler.removeCallbacks(clientRunnable);
                 if(gameLooper.isAllowed()) {
                     tank.drawFire(fireEvent);
-                   // ArrayList<String> list = new ArrayList<String>();
-                    //list.add("$fire$");
-                    //list.add(String.valueOf(tank.bullet.getWidthCore()));
-                    //list.add(String.valueOf(tank.bullet.getHeightCore()));
-                    //clientIntent.putStringArrayListExtra("fire", list);
-                    //clientHandler.post(clientRunnable);
                 }
-
-                //new BulletClientHandler(MainActivity.this).execute(String.valueOf(3) + "\n", messageToSend,
-                //        String.valueOf(tank.bullet.core.getX()) + "\n", String.valueOf(tank.bullet.core.getY()) + "\n");
             }
         }
     };
@@ -76,8 +74,6 @@ public class MainActivity extends ActionBarActivity {
     private Runnable timerRunnable = new Runnable() {
         @Override
         public void run() {
-            //final float X = event1.getX();
-            //final float Y = event1.getY();
             mHandler.removeCallbacks(mUpdateTask);
             mHandler.post(mUpdateTask);
             timerHandler.postDelayed(this, 0);
@@ -128,7 +124,9 @@ public class MainActivity extends ActionBarActivity {
         }
     };
 
+    //receivable data
     private ArrayList<String> listMotion, listFire;
+    private String startedBattle, battlePosition;
     private Handler receiveDataHandler = new Handler();
     private Runnable receiveDataRunnable = new Runnable() {
         @Override
@@ -141,17 +139,64 @@ public class MainActivity extends ActionBarActivity {
                 if(Float.parseFloat(listMotion.get(0)) > 0.0f && Float.parseFloat(listMotion.get(1)) > 0.0f){
                     //System.out.println("HEY!!!");
                     //enemy.drawTankClient(Float.parseFloat(listMotion.get(0)), Float.parseFloat(listMotion.get(1)), Float.parseFloat(listMotion.get(2)));
-                    enemy.drawTank(new Vector(Float.parseFloat(listMotion.get(0)), Float.parseFloat(listMotion.get(1))), Float.parseFloat(listMotion.get(2)));
+                    enemy.drawTank(new Vector(Float.parseFloat(listMotion.get(0)), Float.parseFloat(listMotion.get(1))),
+                            new Vector(Float.parseFloat(listMotion.get(3)), Float.parseFloat(listMotion.get(4))), Float.parseFloat(listMotion.get(2)));
                     listMotion = null;
 
                 }
             }
 
             if(listFire != null){
+                //enemyBulletThreadHandler.removeCallbacks(enemyBulletThreadTask);
+                //enemyBulletThreadHandler.postDelayed(enemyBulletThreadTask, 0);
+
+                enemy.bullet = new FireBullet(getApplicationContext(), enemy);
+                enemy.bullet.setSTROKE(bullet_stroke);
+
                 enemyBulletThreadHandler.removeCallbacks(enemyBulletThreadTask);
                 enemyBulletThreadHandler.postDelayed(enemyBulletThreadTask, 0);
+                listFire = null;
 
             }
+
+            if(startedBattle != null){
+                waitDialog.dismiss();
+                waitDialog = null;
+                startedBattle = null;
+            }
+
+            if(weirdWayToAvoidOnBundleSave) {
+                battlePosition = LoginBridge.battlePosition;
+            }
+            if(battlePosition != null){
+                //System.out.println("!!! " + battlePosition);
+                if(battlePosition.equals("$first$")){
+                    enemy.core.setPosition(new Vector(0.9f, 0.5f));
+                    enemy.core.setTarget(Constants.OPPOSIT_HORIZONTAL_VECTOR);
+
+                    tank.core.setPosition(new Vector(0.1f, 0.5f));
+
+                } else if(battlePosition.equals("$second$")){
+                    tank.core.setPosition(new Vector(0.9f, 0.5f));
+                    tank.core.setTarget(Constants.OPPOSIT_HORIZONTAL_VECTOR);
+
+                    enemy.core.setPosition(new Vector(0.1f, 0.5f));
+
+                    //System.out.println("!!! X = " + tank.draw.getX() + " ; Y = " + tank.draw.getY());
+                }
+
+                //System.out.println("!!! POSITION = " + tank.core.getPosition());
+                System.out.println("!!! X = " + tank.draw.getX() + " ; Y = " + tank.draw.getY());
+
+                battlePosition = null;
+                //LoginBridge.battlePosition = null;
+                tank.drawTankInit();
+                enemy.drawTankInit();
+                System.out.println("!!! X = " + tank.draw.getX() + " ; Y = " + tank.draw.getY());
+
+                weirdWayToAvoidOnBundleSave = false;
+           }
+
             receiveDataHandler.post(this);
         }
     };
@@ -159,11 +204,10 @@ public class MainActivity extends ActionBarActivity {
     private Handler eFire = new Handler();
     private Runnable eFireTask = new Runnable(){
         public void run(){
-            //android.os.Process.setThreadPriority(android.os.Process.THREAD_PRIORITY_BACKGROUND);
             synchronized (tank) {
-                enemy.drawFire();
-                //new BulletClientHandler(MainActivity.this).execute(String.valueOf(3) + "\n", messageToSend,
-                //        String.valueOf(tank.bullet.core.getX()) + "\n", String.valueOf(tank.bullet.core.getY()) + "\n");
+                if(gameLooper.isAllowed()) {
+                    enemy.drawFire();
+                }
             }
         }
     };
@@ -176,6 +220,7 @@ public class MainActivity extends ActionBarActivity {
             eFire.post(eFireTask);
             if(enemy.bullet.isAlive()){
                 enemy.bullet.enemyPosition = (Vector) tank.core.getPosition().clone();
+                //System.out.println("X = " + enemy.bullet.getWidthCore() + " ; Y = " + enemy.bullet.getHeightCore());
                 enemyBulletThreadHandler.postDelayed(this, 0);
             } else {
                 RelativeLayout.LayoutParams params = new RelativeLayout.LayoutParams(RelativeLayout.LayoutParams.WRAP_CONTENT, RelativeLayout.LayoutParams.WRAP_CONTENT);
@@ -188,19 +233,17 @@ public class MainActivity extends ActionBarActivity {
                 } else if(enemy.bullet.height < 0 && enemy.bullet.width < 0){
                     params.setMargins((int) enemy.bullet.width + enemy.getTankWidth(), (int) enemy.bullet.height + enemy.getTankHeight(), 0, 0);
                 }
-                //System.out.println("explode X : " + (int)tank.bullet.width + " explode Y : " + (int)tank.bullet.height);
+
                 imageView.setLayoutParams(params);
-                //animate(imageView, animation_array, 0, true);
                 animateExplode.removeCallbacks(animateExplodeTask);
                 animateExplode.postDelayed(animateExplodeTask, 0);
 
-                if (sound != null) {
+                /*if (sound != null) {
                     sound.release();
                     sound = null;
                 }
                 sound = MediaPlayer.create(getApplicationContext(), R.raw.bomb_exploding);
-                sound.start();
-                isClicked = true;
+                sound.start();*/
             }
         }
     };
@@ -217,7 +260,6 @@ public class MainActivity extends ActionBarActivity {
                 ////////////////////// The right side are the coords of enemy vector (core)
                 tank.bullet.enemyPosition = (Vector) enemy.core.getPosition().clone();
                 ///////////////////////
-
                 bulletThreadHandler.postDelayed(this, 0);
             } else {
                 RelativeLayout.LayoutParams params = new RelativeLayout.LayoutParams(RelativeLayout.LayoutParams.WRAP_CONTENT, RelativeLayout.LayoutParams.WRAP_CONTENT);
@@ -243,6 +285,7 @@ public class MainActivity extends ActionBarActivity {
                 sound = MediaPlayer.create(getApplicationContext(), R.raw.bomb_exploding);
                 sound.start();
                 isClicked = true;
+                clientIntent.removeExtra("fire");
             }
         }
     };
@@ -252,13 +295,16 @@ public class MainActivity extends ActionBarActivity {
         public void run(){
             synchronized (tank) {
                 clientHandler.removeCallbacks(clientRunnable);
-                if(gameLooper.isAllowed()) {
+                if(gameLooper.isAllowed() && isClicked) {
                     tank.drawTank(js.getNormalX(), js.getNormalY());
                     ArrayList<String> list = new ArrayList<String>();
                     list.add("$motion$");
                     list.add(String.valueOf(tank.core.getPosition().get(0)));
                     list.add(String.valueOf(tank.core.getPosition().get(1)));
                     list.add(String.valueOf(tank.getBitmapAngle()));
+                    //Target should be also sent, I hope
+                    list.add(String.valueOf(tank.core.getTarget().get(0)));
+                    list.add(String.valueOf(tank.core.getTarget().get(1)));
                     clientIntent.putStringArrayListExtra("motion", list);
                     clientHandler.post(clientRunnable);
                 }
@@ -305,6 +351,14 @@ public class MainActivity extends ActionBarActivity {
 
             //startService(new Intent(MainActivity.this, mBoundService.getClass()));
             if(isClicked && flagEnablesToFire) {
+                //fire coordinates are sent to the opponent
+                ArrayList<String> list = new ArrayList<String>();
+                list.add("$fire$");
+                list.add(String.valueOf(tank.core.getPosition().get(0)));
+                list.add(String.valueOf(tank.core.getPosition().get(1)));
+                clientIntent.putStringArrayListExtra("fire", list);
+                clientHandler.post(clientRunnable);
+
                 flagEnablesToFire = false;
                 indicatorHandler.removeCallbacks(indicatorTask);
                 indicatorHandler.postDelayed(indicatorTask, 0);
@@ -319,8 +373,7 @@ public class MainActivity extends ActionBarActivity {
                 isClicked = false;
                 tank.bullet = new FireBullet(getApplicationContext(), tank);
                 tank.bullet.setSTROKE(bullet_stroke);
-                mFire.removeCallbacks(mFireTask);
-                mFire.post(mFireTask);
+
                 bulletThreadHandler.removeCallbacks(bulletThreadTask);
                 bulletThreadHandler.postDelayed(bulletThreadTask, 0);
             }
@@ -330,83 +383,89 @@ public class MainActivity extends ActionBarActivity {
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
+            System.out.println("!!!ON CREATE CALLED");
 
-        getActionBar().hide();
-        setContentView(R.layout.activity_main);
-        setRequestedOrientation(ActivityInfo.SCREEN_ORIENTATION_LANDSCAPE);
-        getWindow().setFlags(WindowManager.LayoutParams.FLAG_FULLSCREEN, WindowManager.LayoutParams.FLAG_FULLSCREEN);
+            getActionBar().hide();
+            setContentView(R.layout.activity_main);
+            setRequestedOrientation(ActivityInfo.SCREEN_ORIENTATION_LANDSCAPE);
+            getWindow().setFlags(WindowManager.LayoutParams.FLAG_FULLSCREEN, WindowManager.LayoutParams.FLAG_FULLSCREEN);
 
-        final Display currentDisplay  = getWindowManager().getDefaultDisplay();
-        size = new Point();
-        currentDisplay.getSize(size);
+            final Display currentDisplay = getWindowManager().getDefaultDisplay();
+            size = new Point();
+            currentDisplay.getSize(size);
 
-        clientIntent = new Intent(MainActivity.this, SocketService.class);
+            clientIntent = new Intent(MainActivity.this, SocketService.class);
 
-        main_frame = (RelativeLayout) findViewById(R.id.main_frame);
+            main_frame = (RelativeLayout) findViewById(R.id.main_frame);
 
-        js = (JoyStick) findViewById(R.id.layout_joystick);
-        ViewGroup.LayoutParams params = js.getLayoutParams();
-        params.width = size.x / 6;
-        params.height = size.x / 6;
-        js.setLayoutParams(params);
-        js.setStickRadius(size.x / 55);
-        js.setOFFSET(size.x / 60);
-        js.setOnTouchListener(layout_stickListener);
-        ViewTreeObserver observer = js.getViewTreeObserver();
-        observer.addOnGlobalLayoutListener(new ViewTreeObserver.OnGlobalLayoutListener() {
-            @Override
-            public void onGlobalLayout() {
-                js.getViewTreeObserver().removeGlobalOnLayoutListener(this);
-                js.init();
-            }
-        });
+            js = (JoyStick) findViewById(R.id.layout_joystick);
+            ViewGroup.LayoutParams params = js.getLayoutParams();
+            params.width = size.x / 6;
+            params.height = size.x / 6;
+            js.setLayoutParams(params);
+            js.setStickRadius(size.x / 55);
+            js.setOFFSET(size.x / 60);
+            js.setOnTouchListener(layout_stickListener);
+            ViewTreeObserver observer = js.getViewTreeObserver();
+            observer.addOnGlobalLayoutListener(new ViewTreeObserver.OnGlobalLayoutListener() {
+                @Override
+                public void onGlobalLayout() {
+                    js.getViewTreeObserver().removeGlobalOnLayoutListener(this);
+                    js.init();
+                }
+            });
 
-        tank = new ProthoTank(getApplicationContext(), main_frame, js, R.drawable.protho_tank, size);
-        tank.setTankSize(size.x / 17, size.x / 17);
-        tank.drawTank();
-
-        /////////////////////
-        enemy = new ProthoTank(getApplicationContext(), main_frame, js, R.drawable.protho_tank, size);
-        enemy.setTankSize(size.x / 17, size.x / 17);
-        enemy.drawTank();
-        ////////////////////
+            tank = new ProthoTank(getApplicationContext(), main_frame, js, R.drawable.protho_tank, size);
+            tank.setTankSize(size.x / 17, size.x / 17);
+            //tank.drawTank();
 
 
-        tank.bullet.init();
-        bullet_stroke = size.x / 100;
+            /////////////////////
+            enemy = new ProthoTank(getApplicationContext(), main_frame, js, R.drawable.protho_tank, size);
+            enemy.setTankSize(size.x / 17, size.x / 17);
+            //enemy.drawTank();
+            ////////////////////
 
-        fire_indificator = (RelativeLayout) findViewById(R.id.fire_indificator_and_button);
-        params = fire_indificator.getLayoutParams();
-        params.width = size.x / 8;
-        params.height = size.x / 8;
-        fire_indificator.setLayoutParams(params);
 
-        fire_button = (FireButton) findViewById(R.id.fire_button);
-        params = fire_button.getLayoutParams();
-        params.width = size.x / 16;
-        params.height = size.x / 16;
-        fire_button.setLayoutParams(params);
-        fire_button.setOnClickListener(fireButtonListener);
+            //tank.bullet.init();
+            //enemy.bullet.init();
+            bullet_stroke = size.x / 100;
 
-        circleProgress = (FireIndicator) findViewById(R.id.fire_indicator);
+            fire_indificator = (RelativeLayout) findViewById(R.id.fire_indificator_and_button);
+            params = fire_indificator.getLayoutParams();
+            params.width = size.x / 8;
+            params.height = size.x / 8;
+            fire_indificator.setLayoutParams(params);
 
-        imageView = (ImageView) findViewById(R.id.animation_field);
-        observer.addOnGlobalLayoutListener(new ViewTreeObserver.OnGlobalLayoutListener() {
-            @Override
-            public void onGlobalLayout() {
-                ViewGroup.LayoutParams params = imageView.getLayoutParams();
-                params.width = size.x / 17;
-                params.height = size.y / 17;
-                imageView.setLayoutParams(params);
-            }
-        });
+            fire_button = (FireButton) findViewById(R.id.fire_button);
+            params = fire_button.getLayoutParams();
+            params.width = size.x / 16;
+            params.height = size.x / 16;
+            fire_button.setLayoutParams(params);
+            fire_button.setOnClickListener(fireButtonListener);
 
-        //receiveDataHandler.removeCallbacks(receiveDataRunnable);
-        receiveDataHandler.post(receiveDataRunnable);
-        registerReceiverThread.start();
+            circleProgress = (FireIndicator) findViewById(R.id.fire_indicator);
 
-        gameLooper = new MainGamePanel(this, tank, enemy);
-        gameLooper.onStart();
+            imageView = (ImageView) findViewById(R.id.animation_field);
+            observer.addOnGlobalLayoutListener(new ViewTreeObserver.OnGlobalLayoutListener() {
+                @Override
+                public void onGlobalLayout() {
+                    ViewGroup.LayoutParams params = imageView.getLayoutParams();
+                    params.width = size.x / 17;
+                    params.height = size.y / 17;
+                    imageView.setLayoutParams(params);
+                }
+            });
+
+            //receiveDataHandler.removeCallbacks(receiveDataRunnable);
+            receiveDataHandler.post(receiveDataRunnable);
+            registerReceiverThread.start();
+
+            gameLooper = new MainGamePanel(this, tank, enemy);
+            gameLooper.onStart();
+
+            waitDialog = new WaitDialog(MainActivity.this);
+            waitDialog.show();
     }
 
     private Thread registerReceiverThread = new Thread(new Runnable() {
@@ -421,6 +480,7 @@ public class MainActivity extends ActionBarActivity {
     @Override
     protected void onPostCreate(Bundle savedInstanceState) {
         super.onPostCreate(savedInstanceState);
+        //waitDialog.show();
     }
 
     @Override
@@ -428,11 +488,29 @@ public class MainActivity extends ActionBarActivity {
         super.onDestroy();
         unregisterReceiver(updateReceiver);
         //doUnbindService();
+        weirdWayToAvoidOnBundleSave = true;
+    }
+
+    @Override
+    public boolean onKeyDown(int keyCode, KeyEvent event) {
+        switch (keyCode){
+            case KeyEvent.KEYCODE_BACK:
+                ExitDialog exitDialog = new ExitDialog(MainActivity.this);
+                exitDialog.show();
+                return true;
+        }
+        return super.onKeyDown(keyCode, event);
     }
 
     @Override
     protected void onResume() {
         super.onResume();
+    }
+
+    @Override
+    protected void onPause() {
+        super.onPause();
+        //waitDialog.dismiss();
     }
 
     //Animation probe
@@ -489,6 +567,8 @@ public class MainActivity extends ActionBarActivity {
         public void onReceive(Context context, Intent intent) {
             listMotion = intent.getStringArrayListExtra("update");
             listFire = intent.getStringArrayListExtra("fireUpdate");
+            startedBattle = intent.getStringExtra("battleStarted");
+            //battlePosition = intent.getStringExtra("currentBattlePosition");
         }
     }
 }
