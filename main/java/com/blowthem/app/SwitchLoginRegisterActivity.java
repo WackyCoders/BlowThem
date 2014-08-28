@@ -18,12 +18,14 @@ import android.widget.TextView;
 
 import java.util.ArrayList;
 
+import p2p.P2pActivity;
+
 /**
  * Created by walter on 21.08.14.
  */
 public class SwitchLoginRegisterActivity extends ActionBarActivity {
 
-    private Intent localIntent, serviceIntent, registrationIntent, loginIntent;
+    private Intent localIntent, serviceIntent, registrationIntent, loginIntent, p2pIntent;
 
     private Handler clientHandler = new Handler();
     private Runnable clientRunnable = new Runnable() {
@@ -47,6 +49,7 @@ public class SwitchLoginRegisterActivity extends ActionBarActivity {
         localIntent = new Intent(this, MainSettingsActivity.class);
         loginIntent = new Intent(this, LoginActivity.class);
         registrationIntent = new Intent(this, RegistrationActivity.class);
+        p2pIntent = new Intent(this, P2pActivity.class);
 
         this.loginButton = (Button)findViewById(R.id.login);
         this.registrationButton = (Button)findViewById(R.id.registration);
@@ -91,6 +94,10 @@ public class SwitchLoginRegisterActivity extends ActionBarActivity {
     @Override
     protected void onPostCreate(Bundle savedInstanceState) {
         super.onPostCreate(savedInstanceState);
+    }
+
+    public void startP2p(View view){
+        startActivity(p2pIntent);
     }
 
     @Override

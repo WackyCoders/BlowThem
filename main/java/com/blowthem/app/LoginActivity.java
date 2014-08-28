@@ -21,6 +21,8 @@ import android.widget.TextView;
 
 import java.util.ArrayList;
 
+import p2p.P2pActivity;
+
 /**
  * Created by walter on 21.08.14.
  */

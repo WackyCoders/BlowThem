@@ -16,6 +16,7 @@
         android:background="@drawable/main_menu_button"
         style="@style/main_menu_text"/>
 
+
     <Button
         android:id="@+id/game_settings"
         android:text="@string/game_settings"

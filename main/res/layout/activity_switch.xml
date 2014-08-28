@@ -18,6 +18,13 @@
         style="@style/main_menu_text"/>
 
     <Button
+        android:id="@+id/p2p_button"
+        android:text="@string/p2p_button"
+        android:background="@drawable/main_menu_button"
+        android:onClick="startP2p"
+        style="@style/main_menu_text"/>
+
+    <Button
         android:id="@+id/registration"
         android:text="@string/registration"
         android:background="@drawable/main_menu_button"
