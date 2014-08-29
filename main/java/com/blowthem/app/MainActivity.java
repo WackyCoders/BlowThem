@@ -1,6 +1,5 @@
 package com.blowthem.app;
 
-import android.app.ProgressDialog;
 import android.content.*;
 import android.content.pm.*;
 import android.graphics.*;
@@ -454,14 +453,14 @@ public class MainActivity extends ActionBarActivity {
             }
         });
 
-        tank = new Tank_T34(getApplicationContext(), main_frame, js, R.drawable.protho_tank, size);
-        tank.setTankSize(size.x / 17, size.x / 17);
+        tank = new Tank_T34(getApplicationContext(), main_frame, js, R.drawable.t34, size);
+        tank.setTankSize(size.x / 13, size.x / 19);
         //tank.drawTank();
 
 
         /////////////////////
-        enemy = new Tank_T34(getApplicationContext(), main_frame, js, R.drawable.protho_tank, size);
-        enemy.setTankSize(size.x / 17, size.x / 17);
+        enemy = new Tank_T34(getApplicationContext(), main_frame, js, R.drawable.t34, size);
+        enemy.setTankSize(size.x / 13, size.x / 19);
         //enemy.drawTank();
         ////////////////////
 
