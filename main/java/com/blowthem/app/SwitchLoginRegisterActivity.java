@@ -8,7 +8,7 @@ import android.os.Bundle;
 import android.os.Handler;
 import android.support.v7.app.ActionBarActivity;
 import android.view.Display;
-import android.view.View;
+import android.view.View; 
 import android.view.ViewGroup;
 import android.view.WindowManager;
 import android.widget.Button;
@@ -18,7 +18,7 @@ import android.widget.TextView;
 
 import java.util.ArrayList;
 
-import p2p.P2pActivity;
+//import p2p.P2pActivity;
 
 /**
  * Created by walter on 21.08.14.
@@ -49,7 +49,7 @@ public class SwitchLoginRegisterActivity extends ActionBarActivity {
         localIntent = new Intent(this, MainSettingsActivity.class);
         loginIntent = new Intent(this, LoginActivity.class);
         registrationIntent = new Intent(this, RegistrationActivity.class);
-        p2pIntent = new Intent(this, P2pActivity.class);
+        //p2pIntent = new Intent(this, P2pActivity.class);
 
         this.loginButton = (Button)findViewById(R.id.login);
         this.registrationButton = (Button)findViewById(R.id.registration);
@@ -96,9 +96,9 @@ public class SwitchLoginRegisterActivity extends ActionBarActivity {
         super.onPostCreate(savedInstanceState);
     }
 
-    public void startP2p(View view){
+    /*public void startP2p(View view){
         startActivity(p2pIntent);
-    }
+    }*/
 
     @Override
     protected void onDestroy() {

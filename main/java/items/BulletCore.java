@@ -13,6 +13,7 @@ public class BulletCore {
     private Vector target; 
 
     private boolean isAlive = true;
+    private boolean hittedEnemy = false;
     private float speedFactor = 0.03f;
 
     public BulletCore(Vector position, Vector target) {
@@ -47,16 +48,22 @@ public class BulletCore {
         return position.get(1);
     }
 
+    public boolean isHittedEnemy() {
+        return hittedEnemy;
+    }
+
     public Vector getTarget() {
         return (Vector) target.clone();
     }
 
     public void step(Vector enemyTankPosition) {
         if (position.get(0) < SCREEN_END && position.get(1) < SCREEN_END && position.get(0) > SCREEN_START && position.get(1) > SCREEN_START){
-            if (Math.sqrt(Math.pow(position.get(0) - enemyTankPosition.get(0), 2.0) + Math.pow(position.get(1) - enemyTankPosition.get(1), 2.0)) < TANK_RADIUS)
+            if (Math.sqrt(Math.pow(position.get(0) - enemyTankPosition.get(0), 2.0) + Math.pow(position.get(1) - enemyTankPosition.get(1), 2.0)) < TANK_RADIUS) {
                 isAlive = false;
-            else
+                hittedEnemy = true;
+            } else {
                 position = Operations.add(position, Operations.multiply(speedFactor, target));
+            }
         }
         else isAlive = false;
     }

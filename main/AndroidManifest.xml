@@ -87,7 +87,7 @@
         </activity>
 
 
-        <activity
+        <!--<activity
             android:name="p2p.P2pActivity"
             android:label="@string/app_name"
             android:parentActivityName=".SwitchLoginRegisterActivity">
@@ -95,7 +95,7 @@
                 <action android:name="android.intent.action.VIEW" />
                 <category android:name="android.intent.category.DEFAULT" />
             </intent-filter>
-        </activity>
+        </activity> !-->
 
     </application>
 

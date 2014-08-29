@@ -21,7 +21,7 @@ import android.widget.TextView;
 
 import java.util.ArrayList;
 
-import p2p.P2pActivity;
+//import p2p.P2pActivity;
 
 /**
  * Created by walter on 21.08.14.
@@ -34,7 +34,7 @@ public class LoginActivity extends Activity {
     private Handler clientHandler = new Handler();
     private Runnable clientRunnable = new Runnable() {
         @Override
-        public void run() {
+        public void run() { 
             startService(serviceIntent);
         }
     };

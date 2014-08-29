@@ -1,5 +1,6 @@
 package com.blowthem.app;
 
+import android.app.ProgressDialog;
 import android.content.*;
 import android.content.pm.*;
 import android.graphics.*;
@@ -11,8 +12,11 @@ import android.view.animation.*;
 import android.widget.*;
 
 import com.blowthem.app.Dialogs.ExitDialog;
+import com.blowthem.app.Dialogs.LostDialog;
 import com.blowthem.app.Dialogs.WaitDialog;
+import com.blowthem.app.Dialogs.WonDialog;
 import com.blowthem.app.GameLoop.MainGamePanel;
+import com.blowthem.app.battle.Tank_T34;
 
 import java.util.ArrayList;
 import java.util.concurrent.BlockingQueue;
@@ -28,6 +32,11 @@ public class MainActivity extends ActionBarActivity {
     private MainGamePanel gameLooper;
 
     private boolean weirdWayToAvoidOnBundleSave = true;
+    private boolean anotherWeirdWayToAvoidOnBundleSave = true;
+
+    //myHp
+    private ProgressBar my_hp;
+    private boolean IamHitted = false;
 
     //Dialog, waiting everyone to start the battle
     private WaitDialog waitDialog;
@@ -38,8 +47,8 @@ public class MainActivity extends ActionBarActivity {
     private UpdateReceiver updateReceiver = new UpdateReceiver();
     //private JoyStickClass js;
     private JoyStick js;
-    private ProthoTank tank;
-    private ProthoTank enemy;
+    private Tank_T34 tank;
+    private Tank_T34 enemy;
     private FireIndicator circleProgress;
     private Point size;
     private ImageView imageView;
@@ -126,19 +135,14 @@ public class MainActivity extends ActionBarActivity {
 
     //receivable data
     private ArrayList<String> listMotion, listFire;
-    private String startedBattle, battlePosition;
+    private String startedBattle, battlePosition, won;
     private Handler receiveDataHandler = new Handler();
     private Runnable receiveDataRunnable = new Runnable() {
         @Override
         public void run() {
 
             if(listMotion != null) {
-                //System.out.println("!!!LIST" + Arrays.deepToString(listMotion.toArray()));
-
-                //System.out.println("X = " + Float.parseFloat(listMotion.get(0)) + " ; " + Float.parseFloat(listMotion.get(1)));
                 if(Float.parseFloat(listMotion.get(0)) > 0.0f && Float.parseFloat(listMotion.get(1)) > 0.0f){
-                    //System.out.println("HEY!!!");
-                    //enemy.drawTankClient(Float.parseFloat(listMotion.get(0)), Float.parseFloat(listMotion.get(1)), Float.parseFloat(listMotion.get(2)));
                     enemy.drawTank(new Vector(Float.parseFloat(listMotion.get(0)), Float.parseFloat(listMotion.get(1))),
                             new Vector(Float.parseFloat(listMotion.get(3)), Float.parseFloat(listMotion.get(4))), Float.parseFloat(listMotion.get(2)));
                     listMotion = null;
@@ -147,16 +151,12 @@ public class MainActivity extends ActionBarActivity {
             }
 
             if(listFire != null){
-                //enemyBulletThreadHandler.removeCallbacks(enemyBulletThreadTask);
-                //enemyBulletThreadHandler.postDelayed(enemyBulletThreadTask, 0);
-
                 enemy.bullet = new FireBullet(getApplicationContext(), enemy);
                 enemy.bullet.setSTROKE(bullet_stroke);
 
                 enemyBulletThreadHandler.removeCallbacks(enemyBulletThreadTask);
                 enemyBulletThreadHandler.postDelayed(enemyBulletThreadTask, 0);
                 listFire = null;
-
             }
 
             if(startedBattle != null){
@@ -181,21 +181,21 @@ public class MainActivity extends ActionBarActivity {
                     tank.core.setTarget(Constants.OPPOSIT_HORIZONTAL_VECTOR);
 
                     enemy.core.setPosition(new Vector(0.1f, 0.5f));
-
-                    //System.out.println("!!! X = " + tank.draw.getX() + " ; Y = " + tank.draw.getY());
                 }
-
-                //System.out.println("!!! POSITION = " + tank.core.getPosition());
-                System.out.println("!!! X = " + tank.draw.getX() + " ; Y = " + tank.draw.getY());
-
                 battlePosition = null;
                 //LoginBridge.battlePosition = null;
                 tank.drawTankInit();
                 enemy.drawTankInit();
-                System.out.println("!!! X = " + tank.draw.getX() + " ; Y = " + tank.draw.getY());
-
                 weirdWayToAvoidOnBundleSave = false;
-           }
+            }
+
+            if(won != null){
+                System.out.println("!!!!! : " + won);
+                WonDialog wonDialog = new WonDialog(MainActivity.this);
+                wonDialog.show();
+                //anotherWeirdWayToAvoidOnBundleSave = false;
+                won = null;
+            }
 
             receiveDataHandler.post(this);
         }
@@ -212,6 +212,36 @@ public class MainActivity extends ActionBarActivity {
         }
     };
 
+    private Handler hpHandler = new Handler();
+    private Runnable hpRunnable = new Runnable() {
+        @Override
+        public void run() {
+            if(IamHitted){
+                if(tank.getInitials().getHp() > 0){
+                    Float division = tank.getInitials().getHp() / tank.HP;
+                    my_hp.setProgress((int) (division * 100));
+                } else {
+                    //GameOver
+                    my_hp.setProgress(0);
+                    clientIntent.putExtra("lost", "$lost$");
+                    clientHandler.post(clientRunnable);
+                    Handler localHandler = new Handler();
+                    localHandler.postDelayed(new Runnable() {
+                        @Override
+                        public void run() {
+                            clientIntent.removeExtra("won");
+                        }
+                    }, 3000);
+                    isClicked = false;
+                    LostDialog lostDialog = new LostDialog(MainActivity.this);
+                    lostDialog.show();
+                }
+                IamHitted = false;
+            }
+            hpHandler.post(this);
+        }
+    };
+
     private Handler enemyBulletThreadHandler = new Handler();
     private Runnable enemyBulletThreadTask = new Runnable() {
         @Override
@@ -223,6 +253,11 @@ public class MainActivity extends ActionBarActivity {
                 //System.out.println("X = " + enemy.bullet.getWidthCore() + " ; Y = " + enemy.bullet.getHeightCore());
                 enemyBulletThreadHandler.postDelayed(this, 0);
             } else {
+                if(enemy.bullet.core.isHittedEnemy()){
+                    tank.getInitials().setHp(tank.getInitials().getHp() - enemy.getInitials().getDamage());
+                    IamHitted = true;
+                }
+
                 RelativeLayout.LayoutParams params = new RelativeLayout.LayoutParams(RelativeLayout.LayoutParams.WRAP_CONTENT, RelativeLayout.LayoutParams.WRAP_CONTENT);
                 if(enemy.bullet.height >= 0 && enemy.bullet.width >= 0) {
                     params.setMargins((int) enemy.bullet.width - enemy.getTankWidth(), (int) enemy.bullet.height - enemy.getTankHeight(), 0, 0);
@@ -262,6 +297,10 @@ public class MainActivity extends ActionBarActivity {
                 ///////////////////////
                 bulletThreadHandler.postDelayed(this, 0);
             } else {
+                if(tank.bullet.core.isHittedEnemy()){
+                    enemy.getInitials().setHp(enemy.getInitials().getHp() - tank.getInitials().getDamage());
+                }
+
                 RelativeLayout.LayoutParams params = new RelativeLayout.LayoutParams(RelativeLayout.LayoutParams.WRAP_CONTENT, RelativeLayout.LayoutParams.WRAP_CONTENT);
                 if(tank.bullet.height >= 0 && tank.bullet.width >= 0) {
                     params.setMargins((int) tank.bullet.width - tank.getTankWidth(), (int) tank.bullet.height - tank.getTankHeight(), 0, 0);
@@ -383,89 +422,104 @@ public class MainActivity extends ActionBarActivity {
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-            System.out.println("!!!ON CREATE CALLED");
+        //System.out.println("!!!ON CREATE CALLED");
 
-            getActionBar().hide();
-            setContentView(R.layout.activity_main);
-            setRequestedOrientation(ActivityInfo.SCREEN_ORIENTATION_LANDSCAPE);
-            getWindow().setFlags(WindowManager.LayoutParams.FLAG_FULLSCREEN, WindowManager.LayoutParams.FLAG_FULLSCREEN);
+        getActionBar().hide();
+        setContentView(R.layout.activity_main);
+        setRequestedOrientation(ActivityInfo.SCREEN_ORIENTATION_LANDSCAPE);
+        getWindow().setFlags(WindowManager.LayoutParams.FLAG_FULLSCREEN, WindowManager.LayoutParams.FLAG_FULLSCREEN);
 
-            final Display currentDisplay = getWindowManager().getDefaultDisplay();
-            size = new Point();
-            currentDisplay.getSize(size);
+        final Display currentDisplay = getWindowManager().getDefaultDisplay();
+        size = new Point();
+        currentDisplay.getSize(size);
 
-            clientIntent = new Intent(MainActivity.this, SocketService.class);
+        clientIntent = new Intent(MainActivity.this, SocketService.class);
 
-            main_frame = (RelativeLayout) findViewById(R.id.main_frame);
+        main_frame = (RelativeLayout) findViewById(R.id.main_frame);
 
-            js = (JoyStick) findViewById(R.id.layout_joystick);
-            ViewGroup.LayoutParams params = js.getLayoutParams();
-            params.width = size.x / 6;
-            params.height = size.x / 6;
-            js.setLayoutParams(params);
-            js.setStickRadius(size.x / 55);
-            js.setOFFSET(size.x / 60);
-            js.setOnTouchListener(layout_stickListener);
-            ViewTreeObserver observer = js.getViewTreeObserver();
-            observer.addOnGlobalLayoutListener(new ViewTreeObserver.OnGlobalLayoutListener() {
-                @Override
-                public void onGlobalLayout() {
-                    js.getViewTreeObserver().removeGlobalOnLayoutListener(this);
-                    js.init();
-                }
-            });
+        js = (JoyStick) findViewById(R.id.layout_joystick);
+        ViewGroup.LayoutParams params = js.getLayoutParams();
+        params.width = size.x / 6;
+        params.height = size.x / 6;
+        js.setLayoutParams(params);
+        js.setStickRadius(size.x / 55);
+        js.setOFFSET(size.x / 60);
+        js.setOnTouchListener(layout_stickListener);
+        ViewTreeObserver observer = js.getViewTreeObserver();
+        observer.addOnGlobalLayoutListener(new ViewTreeObserver.OnGlobalLayoutListener() {
+            @Override
+            public void onGlobalLayout() {
+                js.getViewTreeObserver().removeGlobalOnLayoutListener(this);
+                js.init();
+            }
+        });
 
-            tank = new ProthoTank(getApplicationContext(), main_frame, js, R.drawable.protho_tank, size);
-            tank.setTankSize(size.x / 17, size.x / 17);
-            //tank.drawTank();
-
-
-            /////////////////////
-            enemy = new ProthoTank(getApplicationContext(), main_frame, js, R.drawable.protho_tank, size);
-            enemy.setTankSize(size.x / 17, size.x / 17);
-            //enemy.drawTank();
-            ////////////////////
+        tank = new Tank_T34(getApplicationContext(), main_frame, js, R.drawable.protho_tank, size);
+        tank.setTankSize(size.x / 17, size.x / 17);
+        //tank.drawTank();
 
 
-            //tank.bullet.init();
-            //enemy.bullet.init();
-            bullet_stroke = size.x / 100;
+        /////////////////////
+        enemy = new Tank_T34(getApplicationContext(), main_frame, js, R.drawable.protho_tank, size);
+        enemy.setTankSize(size.x / 17, size.x / 17);
+        //enemy.drawTank();
+        ////////////////////
 
-            fire_indificator = (RelativeLayout) findViewById(R.id.fire_indificator_and_button);
-            params = fire_indificator.getLayoutParams();
-            params.width = size.x / 8;
-            params.height = size.x / 8;
-            fire_indificator.setLayoutParams(params);
 
-            fire_button = (FireButton) findViewById(R.id.fire_button);
-            params = fire_button.getLayoutParams();
-            params.width = size.x / 16;
-            params.height = size.x / 16;
-            fire_button.setLayoutParams(params);
-            fire_button.setOnClickListener(fireButtonListener);
+        //tank.bullet.init();
+        //enemy.bullet.init();
+        bullet_stroke = size.x / 100;
 
-            circleProgress = (FireIndicator) findViewById(R.id.fire_indicator);
+        this.my_hp = (ProgressBar) findViewById(R.id.my_hp);
+        //my_hp.setCancelable(true);
+        //my_hp.setMessage("File downloading ...");
+        //my_hp.setProgressStyle(ProgressDialog.STYLE_HORIZONTAL);
 
-            imageView = (ImageView) findViewById(R.id.animation_field);
-            observer.addOnGlobalLayoutListener(new ViewTreeObserver.OnGlobalLayoutListener() {
-                @Override
-                public void onGlobalLayout() {
-                    ViewGroup.LayoutParams params = imageView.getLayoutParams();
-                    params.width = size.x / 17;
-                    params.height = size.y / 17;
-                    imageView.setLayoutParams(params);
-                }
-            });
+        my_hp.setProgress(100);
+        my_hp.setMax(100);
 
-            //receiveDataHandler.removeCallbacks(receiveDataRunnable);
-            receiveDataHandler.post(receiveDataRunnable);
-            registerReceiverThread.start();
+        params = my_hp.getLayoutParams();
+        params.width = size.x / 7;
+        params.height = size.y / 15;
+        my_hp.setLayoutParams(params);
 
-            gameLooper = new MainGamePanel(this, tank, enemy);
-            gameLooper.onStart();
+        fire_indificator = (RelativeLayout) findViewById(R.id.fire_indificator_and_button);
+        params = fire_indificator.getLayoutParams();
+        params.width = size.x / 8;
+        params.height = size.x / 8;
+        fire_indificator.setLayoutParams(params);
 
-            waitDialog = new WaitDialog(MainActivity.this);
-            waitDialog.show();
+        fire_button = (FireButton) findViewById(R.id.fire_button);
+        params = fire_button.getLayoutParams();
+        params.width = size.x / 16;
+        params.height = size.x / 16;
+        fire_button.setLayoutParams(params);
+        fire_button.setOnClickListener(fireButtonListener);
+
+        circleProgress = (FireIndicator) findViewById(R.id.fire_indicator);
+
+        imageView = (ImageView) findViewById(R.id.animation_field);
+        observer.addOnGlobalLayoutListener(new ViewTreeObserver.OnGlobalLayoutListener() {
+            @Override
+            public void onGlobalLayout() {
+                ViewGroup.LayoutParams params = imageView.getLayoutParams();
+                params.width = size.x / 17;
+                params.height = size.y / 17;
+                imageView.setLayoutParams(params);
+            }
+        });
+
+        //receiveDataHandler.removeCallbacks(receiveDataRunnable);
+        receiveDataHandler.post(receiveDataRunnable);
+        registerReceiverThread.start();
+
+        gameLooper = new MainGamePanel(this, tank, enemy);
+        gameLooper.onStart();
+
+        waitDialog = new WaitDialog(MainActivity.this);
+        waitDialog.show();
+
+        hpHandler.post(hpRunnable);
     }
 
     private Thread registerReceiverThread = new Thread(new Runnable() {
@@ -489,6 +543,7 @@ public class MainActivity extends ActionBarActivity {
         unregisterReceiver(updateReceiver);
         //doUnbindService();
         weirdWayToAvoidOnBundleSave = true;
+        anotherWeirdWayToAvoidOnBundleSave = true;
     }
 
     @Override
@@ -568,6 +623,7 @@ public class MainActivity extends ActionBarActivity {
             listMotion = intent.getStringArrayListExtra("update");
             listFire = intent.getStringArrayListExtra("fireUpdate");
             startedBattle = intent.getStringExtra("battleStarted");
+            won = intent.getStringExtra("won");
             //battlePosition = intent.getStringExtra("currentBattlePosition");
         }
     }

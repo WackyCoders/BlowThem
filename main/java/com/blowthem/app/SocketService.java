@@ -99,6 +99,9 @@ public class SocketService extends Service {
         String string;
         ArrayList<String> list;
 
+        if((string = intent.getStringExtra("lost")) != null){
+            queue.offer(string);
+        }
         if((string = intent.getStringExtra("start")) != null) {
             queue.offer(string);
             intent.removeExtra("start");
@@ -149,6 +152,15 @@ public class SocketService extends Service {
                     String str = in.readUTF();
                     if(str.equals("$login_success$")){
                         LoginBridge.login = str;
+                    }
+
+                    if(str.equals("$victory$")){
+                        //LoginBridge.won = str;
+                        System.out.println("!!! victory accepted !!!");
+                        Intent intent = new Intent();
+                        intent.setAction("myBroadcast");
+                        intent.putExtra("won", str);
+                        sendBroadcast(intent);
                     }
 
                     if(str.equals("$login_failed$")){

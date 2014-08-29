@@ -10,4 +10,6 @@ public class LoginBridge {
     public static String registration;
 
     public static String battlePosition;
+
+    public static String won;
 }
