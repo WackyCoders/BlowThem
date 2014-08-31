@@ -6,7 +6,7 @@
     </style>
 
     <style name="MainFrame">
-        <item name="android:background">@drawable/sandy</item>
+        <item name="android:background">@drawable/clear_snow</item>
     </style>
 
     <style name="MainMenu">
@@ -14,6 +14,7 @@
     </style>
 
     <style name="main_menu_text">
+        <item name="android:background">#91A297</item>
         <item name="android:layout_width">fill_parent</item>
         <item name="android:layout_height">wrap_content</item>
         <item name="android:textColor">#ffffff</item>
@@ -30,7 +31,7 @@
     <style name="menu_label">
         <item name="android:layout_width">fill_parent</item>
         <item name="android:layout_height">wrap_content</item>
-        <item name="android:textColor">#ff630103</item>
+        <item name="android:textColor">#ff000000</item>
         <item name="android:gravity">center</item>
         <item name="android:textSize">30dp</item>
         <item name="android:textStyle">bold</item>
@@ -40,7 +41,7 @@
     <style name="common_label">
         <item name="android:layout_width">fill_parent</item>
         <item name="android:layout_height">wrap_content</item>
-        <item name="android:textColor">#ff630103</item>
+        <item name="android:textColor">#ff000000</item>
         <item name="android:gravity">left</item>
         <item name="android:textSize">15dp</item>
         <item name="android:textStyle">bold</item>

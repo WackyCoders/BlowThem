@@ -4,6 +4,7 @@ import android.app.Activity;
 import android.content.Intent;
 import android.content.pm.ActivityInfo;
 import android.graphics.Point;
+import android.graphics.PorterDuff;
 import android.os.Bundle;
 import android.os.Handler;
 import android.support.v7.app.ActionBarActivity;
@@ -12,6 +13,7 @@ import android.view.View;
 import android.view.ViewGroup;
 import android.view.WindowManager;
 import android.widget.Button;
+import android.widget.ImageView;
 import android.widget.LinearLayout;
 import android.widget.RelativeLayout;
 import android.widget.TextView;
@@ -35,8 +37,9 @@ public class SwitchLoginRegisterActivity extends ActionBarActivity {
         }
     };
 
-    private Button loginButton, registrationButton;
+    private Button loginButton, registrationButton, p2pbutton;
     private TextView switchText;
+    private ImageView text_logo;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -53,7 +56,8 @@ public class SwitchLoginRegisterActivity extends ActionBarActivity {
 
         this.loginButton = (Button)findViewById(R.id.login);
         this.registrationButton = (Button)findViewById(R.id.registration);
-        this.switchText = (TextView) findViewById(R.id.menulabel);
+        this.p2pbutton = (Button)findViewById(R.id.p2p_button);
+        //this.switchText = (TextView) findViewById(R.id.menulabel);
 
         loginButton.setOnClickListener(new View.OnClickListener() {
             @Override
@@ -75,20 +79,32 @@ public class SwitchLoginRegisterActivity extends ActionBarActivity {
 
         ViewGroup.LayoutParams params = loginButton.getLayoutParams();
         params.height = size.y / 10;
+        params.width = size.x / 3;
         loginButton.setLayoutParams(params);
 
         params = registrationButton.getLayoutParams();
         params.height = size.y / 10;
+        params.width = size.x / 3;
         registrationButton.setLayoutParams(params);
 
-        params = switchText.getLayoutParams();
-        params.height = size.y / 5;
-        switchText.setLayoutParams(params);
+        params = p2pbutton.getLayoutParams();
+        params.height = size.y / 10;
+        params.width = size.x / 3;
+        p2pbutton.setLayoutParams(params);
 
-        LinearLayout.LayoutParams marginParams =
-                new LinearLayout.LayoutParams(LinearLayout.LayoutParams.MATCH_PARENT, LinearLayout.LayoutParams.WRAP_CONTENT);
-        marginParams.setMargins(0, size.y / 3, 0, 0);
-        //loginButton.setLayoutParams(marginParams);
+        this.text_logo = (ImageView)findViewById(R.id.text_logo);
+
+        RelativeLayout.LayoutParams marginParams =
+                new RelativeLayout.LayoutParams(RelativeLayout.LayoutParams.MATCH_PARENT, RelativeLayout.LayoutParams.WRAP_CONTENT);
+        marginParams.setMargins(size.x / 10, size.y / 10, 0, 0);
+        marginParams.height = size.y / 5;
+        marginParams.width = size.x / 2;
+        text_logo.setLayoutParams(marginParams);
+
+        /*params = switchText.getLayoutParams();
+        params.height = size.y / 10;
+        params.width = size.x / 3;
+        switchText.setLayoutParams(params);*/
     }
 
     @Override

@@ -4,7 +4,8 @@
     android:orientation="vertical" android:layout_width="match_parent"
     android:layout_height="match_parent"
     style="@style/MainMenu"
-    android:weightSum="1">
+    android:weightSum="1"
+    android:background="@drawable/snow_camoufl">
 
     <TextView
         android:layout_marginTop="30dp"
@@ -21,6 +22,7 @@
         style="@style/common_label"/>
 
     <EditText
+        android:background="#91A297"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:inputType="textPersonName"
@@ -41,6 +43,7 @@
         style="@style/common_label"/>
 
     <EditText
+        android:background="#91A297"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:inputType="textPassword"
@@ -61,6 +64,7 @@
         style="@style/common_label"/>
 
     <EditText
+        android:background="#91A297"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:inputType="textPersonName"

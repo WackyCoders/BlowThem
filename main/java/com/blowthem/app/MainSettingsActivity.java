@@ -21,6 +21,7 @@ public class MainSettingsActivity extends ActionBarActivity {
             startService(clientIntent);
         }
     };
+    private ImageView text_logo;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -36,7 +37,6 @@ public class MainSettingsActivity extends ActionBarActivity {
 
         Button gamestart = (Button) findViewById(R.id.game_start);
         Button gamesettings = (Button) findViewById(R.id.game_settings);
-        TextView menulabel = (TextView) findViewById(R.id.menulabel);
 
         Display currentDisplay = getWindowManager().getDefaultDisplay();
         Point size = new Point();
@@ -44,16 +44,22 @@ public class MainSettingsActivity extends ActionBarActivity {
 
         ViewGroup.LayoutParams params = gamestart.getLayoutParams();
         params.height = size.y / 10;
+        params.width = size.x / 3;
         gamestart.setLayoutParams(params);
 
         params = gamesettings.getLayoutParams();
         params.height = size.y / 10;
+        params.width = size.x / 3;
         gamesettings.setLayoutParams(params);
 
-        LinearLayout.LayoutParams marginParams =
-                new LinearLayout.LayoutParams(LinearLayout.LayoutParams.MATCH_PARENT, LinearLayout.LayoutParams.WRAP_CONTENT);
-        marginParams.setMargins(0, size.y / 3, 0, 0);
-        menulabel.setLayoutParams(marginParams);
+        this.text_logo = (ImageView)findViewById(R.id.text_logo);
+
+        RelativeLayout.LayoutParams marginParams =
+                new RelativeLayout.LayoutParams(RelativeLayout.LayoutParams.MATCH_PARENT, RelativeLayout.LayoutParams.WRAP_CONTENT);
+        marginParams.setMargins(size.x / 10, size.y / 10, 0, 0);
+        marginParams.height = size.y / 5;
+        marginParams.width = size.x / 2;
+        text_logo.setLayoutParams(marginParams);
 
         gamestart.setOnClickListener(new View.OnClickListener() {
             @Override

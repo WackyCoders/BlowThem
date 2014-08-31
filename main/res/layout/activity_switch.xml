@@ -1,33 +1,46 @@
 <?xml version="1.0" encoding="utf-8"?>
 
-<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+<RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
     android:orientation="vertical" android:layout_width="match_parent"
     android:layout_height="match_parent"
-    style="@style/MainMenu">
+    style="@style/MainMenu"
+    android:background="@drawable/blow_them">
 
-    <TextView
+    <ImageView
+        android:id="@+id/text_logo"
+        android:layout_width="100dp"
+        android:layout_height="100dp"
+        android:background="@drawable/blow_them_text_logo"/>
+
+    <!--<TextView
         android:layout_marginTop="50dp"
+        android:layout_alignParentLeft="true"
         android:id="@+id/menulabel"
         android:text="@string/menu"
-        style="@style/menu_label"/>
+        style="@style/menu_label"/>!-->
 
     <Button
         android:id="@+id/login"
         android:text="@string/login"
         android:background="@drawable/main_menu_button"
-        style="@style/main_menu_text"/>
+        android:layout_alignParentRight="true"
+        style="@style/main_menu_text"
+        android:layout_below="@+id/p2p_button"/>
 
     <Button
         android:id="@+id/p2p_button"
         android:text="@string/p2p_button"
         android:background="@drawable/main_menu_button"
-        android:onClick="startP2p"
-        style="@style/main_menu_text"/>
+        style="@style/main_menu_text"
+        android:layout_alignParentRight="true"
+        android:layout_centerVertical="true"/>
 
     <Button
         android:id="@+id/registration"
         android:text="@string/registration"
         android:background="@drawable/main_menu_button"
-        style="@style/main_menu_text"/>
+        style="@style/main_menu_text"
+        android:layout_alignParentRight="true"
+        android:layout_below="@+id/login"/>
 
-</LinearLayout>
+</RelativeLayout>

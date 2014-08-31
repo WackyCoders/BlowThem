@@ -53,17 +53,7 @@ public class LogoActivity extends ActionBarActivity {
         setRequestedOrientation(ActivityInfo.SCREEN_ORIENTATION_LANDSCAPE);
         setContentView(R.layout.activity_logo);
 
-        intent = new Intent(this, SwitchLoginRegisterActivity.class);
-
-        /*intent = new Intent(this, MainSettingsActivity.class);
-        this.serviceIntent = new Intent(this, SocketService.class);
-        clientHandler.removeCallbacks(clientRunnable);
-        ArrayList<String> list = new ArrayList<String>();
-        list.add("$login$");
-        list.add("walter");
-        list.add("777");
-        serviceIntent.putStringArrayListExtra("login", list);
-        clientHandler.post(clientRunnable);*/
+        intent = new Intent(this, GameLogoActivity.class);
     }
 
     @Override
