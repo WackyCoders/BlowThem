@@ -14,7 +14,7 @@ public class Tank_T34 extends ProthoTank {
 
     private final Integer type;
     private final StaticInitials initials;
-    public final Float HP = 210.0f;
+    public final Float HP = 100.0f;
     public final Float DAMAGE = 24.0f;
 
     public Tank_T34(Context context, ViewGroup layout, JoyStick joystick, int tank_id, Point size){

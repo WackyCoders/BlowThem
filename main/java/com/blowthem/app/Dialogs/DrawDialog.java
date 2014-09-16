@@ -11,14 +11,14 @@ import android.widget.Button;
 import com.blowthem.app.R;
 
 /**
- * Created by walter on 29.08.14.
+ * Created by walter on 10.09.14.
  */
-public class WonDialog extends Dialog implements android.view.View.OnClickListener {
+public class DrawDialog extends Dialog implements android.view.View.OnClickListener {
 
     public Activity c;
     public Button btn_super;
 
-    public WonDialog(Activity activity) {
+    public DrawDialog(Activity activity) {
         super(activity);
         this.c = activity;
         setCanceledOnTouchOutside(false);
@@ -28,7 +28,7 @@ public class WonDialog extends Dialog implements android.view.View.OnClickListen
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         requestWindowFeature(Window.FEATURE_NO_TITLE);
-        setContentView(R.layout.dialog_won);
+        setContentView(R.layout.dialog_draw);
         btn_super = (Button) findViewById(R.id.super_button);
         btn_super.setOnClickListener(this);
     }

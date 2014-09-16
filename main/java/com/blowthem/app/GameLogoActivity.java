@@ -1,5 +1,6 @@
 package com.blowthem.app;
 
+import android.app.Activity;
 import android.content.Intent;
 import android.content.pm.ActivityInfo;
 import android.graphics.Point;
@@ -7,6 +8,7 @@ import android.os.Bundle;
 import android.os.Handler;
 import android.support.v7.app.ActionBarActivity;
 import android.view.Display;
+import android.view.View;
 import android.view.ViewGroup;
 import android.view.WindowManager;
 import android.view.animation.AlphaAnimation;
@@ -16,7 +18,7 @@ import android.widget.LinearLayout;
 /**
  * Created by walter on 31.08.14.
  */
-public class GameLogoActivity extends ActionBarActivity {
+public class GameLogoActivity extends Activity {
 
     private Handler handler = new Handler();
     private Intent intent;
@@ -37,6 +39,7 @@ public class GameLogoActivity extends ActionBarActivity {
         }
     };
     private ImageView text_logo;
+    private LinearLayout main_frame;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -60,20 +63,24 @@ public class GameLogoActivity extends ActionBarActivity {
         marginParams.width = size.x / 2;
         text_logo.setLayoutParams(marginParams);
 
-        AlphaAnimation alpha = new AlphaAnimation(0.0f, 1.0f);
-        alpha.setDuration(3000);
-        alpha.setFillAfter(true);
-        text_logo.startAnimation(alpha);
+        main_frame = (LinearLayout) findViewById(R.id.main_frame);
 
-        /*animationHandler.post(new Runnable() {
+        text_logo.setVisibility(View.INVISIBLE);
+        AlphaAnimation alpha = new AlphaAnimation(0.0f, 1.0f);
+        alpha.setDuration(1000);
+        alpha.setFillAfter(true);
+        main_frame.startAnimation(alpha);
+
+        new Handler().postDelayed(new Runnable() {
             @Override
             public void run() {
-                AlphaAnimation alpha = new AlphaAnimation(animationFrom, animationTo);
-                alpha.setDuration(0);
+                text_logo.setVisibility(View.VISIBLE);
+                AlphaAnimation alpha = new AlphaAnimation(0.0f, 1.0f);
+                alpha.setDuration(1500);
                 alpha.setFillAfter(true);
                 text_logo.startAnimation(alpha);
             }
-        });*/
+        }, 1000);
 
         intent = new Intent(this, SwitchLoginRegisterActivity.class);
     }

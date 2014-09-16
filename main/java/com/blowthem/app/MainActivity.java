@@ -10,11 +10,13 @@ import android.view.*;
 import android.view.animation.*; 
 import android.widget.*;
 
+import com.blowthem.app.Dialogs.DrawDialog;
 import com.blowthem.app.Dialogs.ExitDialog;
 import com.blowthem.app.Dialogs.LostDialog;
 import com.blowthem.app.Dialogs.WaitDialog;
 import com.blowthem.app.Dialogs.WonDialog;
 import com.blowthem.app.GameLoop.MainGamePanel;
+import com.blowthem.app.battle.Panzerwagen_Tiger_1;
 import com.blowthem.app.battle.Tank_T34;
 
 import java.util.ArrayList;
@@ -39,6 +41,39 @@ public class MainActivity extends ActionBarActivity {
 
     //Dialog, waiting everyone to start the battle
     private WaitDialog waitDialog;
+    private LostDialog lostDialog;
+    private WonDialog wonDialog;
+
+    //Timing Timer View
+    private TextView timerView;
+
+    private boolean mIsBound= false;
+    //private UpdateReceiver updateReceiver = new UpdateReceiver();
+
+    private MusicService musicService;
+    private ServiceConnection serviceConnection = new ServiceConnection() {
+        @Override
+        public void onServiceConnected(ComponentName name, IBinder binder) {
+            musicService = ((MusicService.ServiceBinder) binder).getService();
+        }
+
+        @Override
+        public void onServiceDisconnected(ComponentName name) {
+            musicService = null;
+        }
+    };
+
+    public void doBindService(){
+        bindService(new Intent(this, MusicService.class), serviceConnection, Context.BIND_AUTO_CREATE);
+        mIsBound = true;
+    }
+
+    public void doUnbindService(){
+        if(mIsBound){
+            unbindService(serviceConnection);
+            mIsBound = false;
+        }
+    }
 
     private BlockingQueue<Float> queue = new LinkedBlockingDeque<Float>();
     private SocketService clientService = new SocketService();
@@ -74,6 +109,23 @@ public class MainActivity extends ActionBarActivity {
                 if(gameLooper.isAllowed()) {
                     tank.drawFire(fireEvent);
                 }
+            }
+        }
+    };
+
+    private int timerCountdown = 90;
+
+    private Handler timerTiming = new Handler();
+    private Runnable timingRunnable = new Runnable() {
+        @Override
+        public void run() {
+            if(timerCountdown >= 0){
+                timerView.setText(String.valueOf(timerCountdown));
+                timerCountdown--;
+                timerTiming.postDelayed(this, 1000);
+            } else {
+                DrawDialog drawDialog = new DrawDialog(MainActivity.this);
+                drawDialog.show();
             }
         }
     };
@@ -159,6 +211,7 @@ public class MainActivity extends ActionBarActivity {
             }
 
             if(startedBattle != null){
+                timerTiming.post(timingRunnable);
                 waitDialog.dismiss();
                 waitDialog = null;
                 startedBattle = null;
@@ -189,8 +242,8 @@ public class MainActivity extends ActionBarActivity {
             }
 
             if(won != null){
-                System.out.println("!!!!! : " + won);
-                WonDialog wonDialog = new WonDialog(MainActivity.this);
+                //System.out.println("!!!!! : " + won);
+                wonDialog = new WonDialog(MainActivity.this);
                 wonDialog.show();
                 //anotherWeirdWayToAvoidOnBundleSave = false;
                 won = null;
@@ -232,7 +285,7 @@ public class MainActivity extends ActionBarActivity {
                         }
                     }, 3000);
                     isClicked = false;
-                    LostDialog lostDialog = new LostDialog(MainActivity.this);
+                    lostDialog = new LostDialog(MainActivity.this);
                     lostDialog.show();
                 }
                 IamHitted = false;
@@ -328,6 +381,7 @@ public class MainActivity extends ActionBarActivity {
         }
     };
 
+    int localMotionCounter = 0;
     private Handler mHandler = new Handler();
     private Runnable mUpdateTask = new Runnable(){
         public void run(){
@@ -345,6 +399,7 @@ public class MainActivity extends ActionBarActivity {
                     list.add(String.valueOf(tank.core.getTarget().get(1)));
                     clientIntent.putStringArrayListExtra("motion", list);
                     clientHandler.post(clientRunnable);
+                    //System.out.println("!!!! " + localMotionCounter++);
                 }
 
                 //enemy.drawTank(new Vector(0.5f, 0.5f), new Vector(-0.1f, 0.1f));
@@ -423,6 +478,8 @@ public class MainActivity extends ActionBarActivity {
         super.onCreate(savedInstanceState);
         //System.out.println("!!!ON CREATE CALLED");
 
+        doBindService();
+
         getActionBar().hide();
         setContentView(R.layout.activity_main);
         setRequestedOrientation(ActivityInfo.SCREEN_ORIENTATION_LANDSCAPE);
@@ -496,6 +553,7 @@ public class MainActivity extends ActionBarActivity {
         fire_button.setOnClickListener(fireButtonListener);
 
         circleProgress = (FireIndicator) findViewById(R.id.fire_indicator);
+        circleProgress.setOnClickListener(fireButtonListener);
 
         imageView = (ImageView) findViewById(R.id.animation_field);
         observer.addOnGlobalLayoutListener(new ViewTreeObserver.OnGlobalLayoutListener() {
@@ -508,6 +566,14 @@ public class MainActivity extends ActionBarActivity {
             }
         });
 
+        timerView = (TextView)findViewById(R.id.timer);
+        params = timerView.getLayoutParams();
+        params.width = size.x / 8;
+        params.height = size.x / 8;
+        timerView.setLayoutParams(params);
+        timerView.setText(new String("90"));
+        timerView.setTextSize(params.width / 8);
+
         //receiveDataHandler.removeCallbacks(receiveDataRunnable);
         receiveDataHandler.post(receiveDataRunnable);
         registerReceiverThread.start();
@@ -519,6 +585,36 @@ public class MainActivity extends ActionBarActivity {
         waitDialog.show();
 
         hpHandler.post(hpRunnable);
+
+        final Button musicButton = (Button) findViewById(R.id.music);
+        params = musicButton.getLayoutParams();
+        params.width = size.x / 20;
+        params.height = size.x / 20;
+        musicButton.setLayoutParams(params);
+
+        musicButton.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                if(musicButton.getBackground().getConstantState().equals(getResources().getDrawable(R.drawable.music).getConstantState())) {
+                    musicButton.setBackgroundResource(R.drawable.none_music);
+                    musicService.pauseMusic();
+                } else if(musicButton.getBackground().getConstantState().equals(getResources().getDrawable(R.drawable.none_music).getConstantState())){
+                    musicButton.setBackgroundResource(R.drawable.music);
+                    musicService.resumeMusic();
+                }
+            }
+        });
+
+        new Handler().post(new Runnable() {
+            @Override
+            public void run() {
+                if(musicService.mediaPlayer.isPlaying()){
+                    musicButton.setBackgroundResource(R.drawable.music);
+                } else {
+                    musicButton.setBackgroundResource(R.drawable.none_music);
+                }
+            }
+        });
     }
 
     private Thread registerReceiverThread = new Thread(new Runnable() {
@@ -540,7 +636,8 @@ public class MainActivity extends ActionBarActivity {
     protected void onDestroy() {
         super.onDestroy();
         unregisterReceiver(updateReceiver);
-        //doUnbindService();
+        doUnbindService();
+        timerTiming.removeCallbacks(timingRunnable);
         weirdWayToAvoidOnBundleSave = true;
         anotherWeirdWayToAvoidOnBundleSave = true;
     }

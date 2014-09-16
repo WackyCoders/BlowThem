@@ -5,46 +5,53 @@
     android:layout_height="match_parent"
     style="@style/MainMenu"
     android:weightSum="1"
-    android:background="@drawable/snow_camoufl">
+    android:background="@drawable/login_logo">
 
-    <TextView
-        android:layout_marginTop="30dp"
-        android:id="@+id/login_label"
-        android:text="@string/login"
-        style="@style/menu_label"/>
+    <ImageView
+        android:layout_width="100dp"
+        android:layout_height="100dp"
+        android:background="@drawable/login_text_blow_them"
+        android:id="@+id/login_label"/>
 
     <EditText
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:inputType="textPersonName"
         android:layout_marginTop="77dp"
-        android:text="Name"
+        android:hint="Name"
         android:ems="10"
         android:id="@+id/nameText"
         android:layout_below="@+id/login_label"
-        android:layout_alignParentLeft="true"
-        android:layout_alignParentStart="true"
+        android:layout_centerInParent="true"
         android:background="#91A297"/>
 
     <EditText
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:inputType="textPassword"
+        android:layout_marginTop="1dp"
         android:ems="10"
         android:id="@+id/passwordText"
-        android:layout_marginTop="20dp"
         android:layout_gravity="center_horizontal"
         android:layout_below="@+id/nameText"
-        android:layout_alignParentLeft="true"
-        android:layout_alignParentStart="true"
+        android:layout_centerInParent="true"
         android:background="#91A297"/>
 
     <Button
         android:id="@+id/login_button"
         android:text="@string/login"
         android:background="@drawable/main_menu_button"
-        android:layout_alignParentBottom="true"
+        android:layout_below="@+id/passwordText"
+        android:layout_centerInParent="true"
         style="@style/main_menu_text"/>
+
+    <Button
+        android:id="@+id/music"
+        android:layout_width="20dp"
+        android:layout_height="20dp"
+        android:background="@drawable/music"
+        android:layout_alignParentTop="true"
+        android:layout_alignParentLeft="true"/>
 
 
 </RelativeLayout>

@@ -16,7 +16,7 @@ public class Constants {
     public final static float SCREEN_END = 1.0f;
 
     public final static Vector HORIZONTAL_VECTOR = new Vector(1.0f, 0.0f);
-    public final static Vector OPPOSIT_HORIZONTAL_VECTOR = new Vector(0.0f, 0.0f);
+    public final static Vector OPPOSIT_HORIZONTAL_VECTOR = new Vector(-1.0f, 0.0f);
     public final static float EPSILON = 0.005f;
     public final static float TANK_RADIUS = 0.05f;
 

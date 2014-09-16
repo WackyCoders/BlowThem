@@ -3,6 +3,7 @@ package com.blowthem.app.Dialogs;
 import android.app.Activity;
 import android.app.Dialog;
 import android.os.Bundle;
+import android.view.KeyEvent;
 import android.view.View;
 import android.view.Window;
 import android.widget.Button;
@@ -34,6 +35,16 @@ public class ExitDialog extends Dialog implements
         yes.setOnClickListener(this);
         no.setOnClickListener(this);
 
+    }
+
+    @Override
+    public boolean onKeyDown(int keyCode, KeyEvent event) {
+        switch (keyCode){
+            case KeyEvent.KEYCODE_BACK:
+                //show();
+                return true;
+        }
+        return super.onKeyDown(keyCode, event);
     }
 
     @Override

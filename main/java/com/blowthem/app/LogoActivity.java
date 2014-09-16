@@ -4,13 +4,17 @@ import android.app.Activity;
 import android.content.Context;
 import android.content.Intent;
 import android.content.pm.ActivityInfo;
+import android.graphics.Color;
 import android.os.AsyncTask;
 import android.os.Bundle;
 import android.os.Handler;
 import android.os.SystemClock;
 import android.support.v7.app.ActionBarActivity;
 import android.view.WindowManager;
-import android.widget.Toast; 
+import android.view.animation.AlphaAnimation;
+import android.widget.LinearLayout;
+import android.widget.RelativeLayout;
+import android.widget.Toast;
 
 import java.io.DataInputStream;
 import java.io.DataOutputStream;
@@ -23,7 +27,7 @@ import java.util.Arrays;
  * Created by walter on 27.06.14.
  */
 
-public class LogoActivity extends ActionBarActivity {
+public class LogoActivity extends Activity {
 
     private Handler handler = new Handler();
     private Intent intent;
@@ -43,6 +47,7 @@ public class LogoActivity extends ActionBarActivity {
             startService(serviceIntent);
         }
     };
+    private LinearLayout main_frame;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -53,13 +58,32 @@ public class LogoActivity extends ActionBarActivity {
         setRequestedOrientation(ActivityInfo.SCREEN_ORIENTATION_LANDSCAPE);
         setContentView(R.layout.activity_logo);
 
+        main_frame = (LinearLayout)findViewById(R.id.main_frame);
+
+        AlphaAnimation alpha = new AlphaAnimation(0.0f, 1.0f);
+        alpha.setDuration(1000);
+        alpha.setFillAfter(true);
+        main_frame.startAnimation(alpha);
+
+        new Handler().postDelayed(new Runnable() {
+            @Override
+            public void run() {
+                AlphaAnimation alpha1 = new AlphaAnimation(1.0f, 0.0f);
+                //alpha.setBackgroundColor(Color.BLACK);
+                //main_frame.setBackgroundColor(Color.BLACK);
+                alpha1.setDuration(1000);
+                alpha1.setFillAfter(true);
+                main_frame.startAnimation(alpha1);
+            }
+        }, 1000);
+
         intent = new Intent(this, GameLogoActivity.class);
     }
 
     @Override
     protected void onPostCreate(Bundle savedInstanceState) {
         super.onPostCreate(savedInstanceState);
-        handler.postDelayed(doNextActivity, 1500);
+        handler.postDelayed(doNextActivity, 2000);
     }
 
     @Override

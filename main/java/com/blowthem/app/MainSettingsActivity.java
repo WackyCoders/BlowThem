@@ -1,6 +1,9 @@
 package com.blowthem.app;
 
+import android.content.ComponentName;
+import android.content.Context;
 import android.content.Intent;
+import android.content.ServiceConnection;
 import android.content.pm.ActivityInfo;
 import android.graphics.Point;
 import android.os.*;
@@ -23,11 +26,40 @@ public class MainSettingsActivity extends ActionBarActivity {
     };
     private ImageView text_logo;
 
+    private boolean mIsBound= false;
+    //private UpdateReceiver updateReceiver = new UpdateReceiver();
+
+    private MusicService musicService;
+    private ServiceConnection serviceConnection = new ServiceConnection() {
+        @Override
+        public void onServiceConnected(ComponentName name, IBinder binder) {
+            musicService = ((MusicService.ServiceBinder) binder).getService();
+        }
+
+        @Override
+        public void onServiceDisconnected(ComponentName name) {
+            musicService = null;
+        }
+    };
+
+    public void doBindService(){
+        bindService(new Intent(this, MusicService.class), serviceConnection, Context.BIND_AUTO_CREATE);
+        mIsBound = true;
+    }
+
+    public void doUnbindService(){
+        if(mIsBound){
+            unbindService(serviceConnection);
+            mIsBound = false;
+        }
+    }
+
     @Override
     protected void onCreate(Bundle savedInstanceState) {
 
         super.onCreate(savedInstanceState);
 
+        doBindService();
         clientIntent = new Intent(this, SocketService.class);
 
         getWindow().setFlags(WindowManager.LayoutParams.FLAG_FULLSCREEN, WindowManager.LayoutParams.FLAG_FULLSCREEN);
@@ -69,6 +101,36 @@ public class MainSettingsActivity extends ActionBarActivity {
                 bridgeGame();
             }
         });
+
+        final Button musicButton = (Button) findViewById(R.id.music);
+        params = musicButton.getLayoutParams();
+        params.width = size.x / 20;
+        params.height = size.x / 20;
+        musicButton.setLayoutParams(params);
+
+        musicButton.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                if(musicButton.getBackground().getConstantState().equals(getResources().getDrawable(R.drawable.music).getConstantState())) {
+                    musicButton.setBackgroundResource(R.drawable.none_music);
+                    musicService.pauseMusic();
+                } else if(musicButton.getBackground().getConstantState().equals(getResources().getDrawable(R.drawable.none_music).getConstantState())){
+                    musicButton.setBackgroundResource(R.drawable.music);
+                    musicService.resumeMusic();
+                }
+            }
+        });
+
+        new Handler().post(new Runnable() {
+            @Override
+            public void run() {
+                if(musicService.mediaPlayer.isPlaying()){
+                    musicButton.setBackgroundResource(R.drawable.music);
+                } else {
+                    musicButton.setBackgroundResource(R.drawable.none_music);
+                }
+            }
+        });
     }
 
     private void bridgeGame(){
@@ -79,5 +141,6 @@ public class MainSettingsActivity extends ActionBarActivity {
     @Override
     protected void onDestroy() {
         super.onDestroy();
+        doUnbindService();
     }
 }

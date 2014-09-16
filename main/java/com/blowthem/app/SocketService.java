@@ -29,7 +29,7 @@ import android.widget.Toast;
  */
 public class SocketService extends Service {
 
-    public static final String SERVERIP = /*"192.168.56.1";*/ "192.168.1.5"; //your computer IP address should be written here
+    public static final String SERVERIP = /*"192.168.56.1";*/ /*"192.168.1.5"*/ "10.160.20.15"; //your server IP address should be written here
     public static final int SERVERPORT = 8080;
     private DataOutputStream out;
     private DataInputStream in;
@@ -93,7 +93,7 @@ public class SocketService extends Service {
     }
 
     @Override
-    public int onStartCommand(Intent intent,int flags, int startId){
+    public int onStartCommand(Intent intent, int flags, int startId){
         super.onStartCommand(intent, flags, startId);
 
         String string;
@@ -124,16 +124,18 @@ public class SocketService extends Service {
             //System.out.println("LIST !!! : " + Arrays.deepToString(list.toArray()));
         }
         if((list = intent.getStringArrayListExtra("motion")) != null){
-            queue.offer(list.get(0));
+            queue.offer("m");
             valueQueue.offer(Float.parseFloat(list.get(1)));
             valueQueue.offer(Float.parseFloat(list.get(2)));
             valueQueue.offer(Float.parseFloat(list.get(3)));
             valueQueue.offer(Float.parseFloat(list.get(4)));
             valueQueue.offer(Float.parseFloat(list.get(5)));
+            //System.out.println("!!!! X = " + Float.parseFloat(list.get(1)) + " ; Y = " + Float.parseFloat(list.get(2)) + " ; angle = " + Float.parseFloat(list.get(3)) + " ; targetX = " + Float.parseFloat(list.get(4)));
             intent.removeExtra("motion");
             list = null;
             intent.putStringArrayListExtra("motion", list);
         }
+
         if((list = intent.getStringArrayListExtra("registration")) != null){
             for(String str : list){
                 queue.offer(str);
@@ -156,7 +158,7 @@ public class SocketService extends Service {
 
                     if(str.equals("$victory$")){
                         //LoginBridge.won = str;
-                        System.out.println("!!! victory accepted !!!");
+                        //System.out.println("!!! victory accepted !!!");
                         Intent intent = new Intent();
                         intent.setAction("myBroadcast");
                         intent.putExtra("won", str);
@@ -185,12 +187,21 @@ public class SocketService extends Service {
                         });
                     }
 
-                    if (str.equals("$motion$")) {
-                        X = Float.parseFloat(in.readUTF());
-                        Y = Float.parseFloat(in.readUTF());
-                        bitmapAngle = Float.parseFloat(in.readUTF());
-                        targetX = Float.parseFloat(in.readUTF());
-                        targetY = Float.parseFloat(in.readUTF());
+                    if (str.equals("m")) {
+                        X = in.readFloat();
+                        Y = in.readFloat();
+                        bitmapAngle = in.readFloat();
+                        targetX = in.readFloat();
+                        targetY = in.readFloat();
+
+                        //System.out.println(X + " " + Y);
+
+
+                        //X = Float.parseFloat(in.readUTF());
+                        //Y = Float.parseFloat(in.readUTF());
+                        //bitmapAngle = Float.parseFloat(in.readUTF());
+                        //targetX = Float.parseFloat(in.readUTF());
+                        //targetY = Float.parseFloat(in.readUTF());
 
                         ArrayList<String> list = new ArrayList<String>();
                         list.add(String.valueOf(X));
@@ -204,6 +215,8 @@ public class SocketService extends Service {
                         intent.putStringArrayListExtra("update", list);
                         sendBroadcast(intent);
                         //}
+
+
                     }
 
                     if (str.equals("$fire$")){
@@ -264,8 +277,7 @@ public class SocketService extends Service {
                     while(!Thread.interrupted()){
                         String str = queue.take();
                         sendMessage(str);
-                        //System.out.println("!!!! : " + str);
-                        if(str.equals("$motion$")){
+                        if(str.equals("m")){
                             sendMessage(valueQueue.take());
                             sendMessage(valueQueue.take());
                             sendMessage(valueQueue.take());

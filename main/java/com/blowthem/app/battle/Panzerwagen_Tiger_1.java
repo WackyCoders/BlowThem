@@ -15,7 +15,7 @@ public class Panzerwagen_Tiger_1 extends ProthoTank {
     private final Integer type;
     private final StaticInitials initials;
     public final Float HP = 380.0f;
-    public final Float DAMAGE = 37.0f;
+    public final Float DAMAGE = 150.0f;
 
     public Panzerwagen_Tiger_1(Context context, ViewGroup layout, JoyStick joystick, int tank_id, Point size){
         super(context, layout, joystick, tank_id, size);

@@ -12,7 +12,7 @@ public class LoopThread extends Thread {
 
     private static final String TAG = LoopThread.class.getSimpleName();
 
-    private final static int 	MAX_FPS = 50;
+    private final static int 	MAX_FPS = 20;
     private final static int	MAX_FRAME_SKIPS = 5;
     private final static int	FRAME_PERIOD = 1000 / MAX_FPS;
 

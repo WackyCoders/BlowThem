@@ -5,21 +5,22 @@
     android:layout_height="match_parent"
     style="@style/MainMenu"
     android:weightSum="1"
-    android:background="@drawable/snow_camoufl">
+    android:background="@drawable/registration_logo">
+
+    <ImageView
+        android:id="@+id/text_logo"
+        android:layout_width="100dp"
+        android:layout_height="100dp"
+        android:background="@drawable/registration_logo_text"/>
 
     <TextView
-        android:layout_marginTop="30dp"
-        android:id="@+id/main_label"
-        android:text="@string/registration"
-        style="@style/menu_label"/>
-
-    <TextView
-        android:layout_below="@+id/main_label"
+        android:layout_below="@+id/text_logo"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:id="@+id/nickname_label"
         android:text="@string/nickname"
-        style="@style/common_label"/>
+        style="@style/common_label"
+        android:layout_centerInParent="true"/>
 
     <EditText
         android:background="#91A297"
@@ -27,20 +28,20 @@
         android:layout_height="wrap_content"
         android:inputType="textPersonName"
         android:layout_marginTop="0dp"
-        android:text="Name"
+        android:hint="Name"
         android:ems="10"
         android:id="@+id/nameText"
         android:layout_below="@+id/nickname_label"
-        android:layout_alignParentLeft="true"
-        android:layout_alignParentStart="true" />
+        android:layout_centerInParent="true"/>
 
     <TextView
         android:layout_below="@+id/nameText"
-        android:layout_width="match_parent"
+        android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:id="@+id/password_label"
         android:text="@string/password"
-        style="@style/common_label"/>
+        style="@style/common_label"
+        android:layout_centerInParent="true"/>
 
     <EditText
         android:background="#91A297"
@@ -49,38 +50,46 @@
         android:inputType="textPassword"
         android:ems="10"
         android:id="@+id/passwordText"
-        android:text="Password"
+        android:hint="Password"
         android:layout_gravity="center_horizontal"
         android:layout_below="@+id/password_label"
-        android:layout_alignParentLeft="true"
-        android:layout_alignParentStart="true" />
+        android:layout_centerInParent="true" />
 
     <TextView
         android:layout_below="@+id/passwordText"
-        android:layout_width="match_parent"
+        android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:id="@+id/mail_label"
         android:text="@string/mail"
-        style="@style/common_label"/>
+        style="@style/common_label"
+        android:layout_centerInParent="true"/>
 
     <EditText
         android:background="#91A297"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:inputType="textPersonName"
-        android:text="Mail"
+        android:hint="Mail"
         android:ems="10"
         android:id="@+id/mailText"
         android:layout_below="@+id/mail_label"
-        android:layout_alignParentLeft="true"
-        android:layout_alignParentStart="true" />
+        android:layout_centerInParent="true"/>
 
     <Button
         android:id="@+id/registration_button"
         android:text="@string/login"
         android:background="@drawable/main_menu_button"
-        android:layout_alignParentBottom="true"
-        style="@style/main_menu_text"/>
+        android:layout_below="@+id/mailText"
+        style="@style/main_menu_text"
+        android:layout_centerInParent="true"/>
+
+    <Button
+        android:id="@+id/music"
+        android:layout_width="20dp"
+        android:layout_height="20dp"
+        android:background="@drawable/music"
+        android:layout_alignParentTop="true"
+        android:layout_alignParentLeft="true"/>
 
 
 </RelativeLayout>

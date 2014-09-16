@@ -50,4 +50,5 @@ public class CustomDialog extends Dialog implements
         }
         dismiss();
     }
+
 }

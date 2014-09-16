@@ -41,6 +41,14 @@
             android:layout_centerInParent="true" />
     </RelativeLayout>
 
+    <Button
+        android:id="@+id/music"
+        android:layout_width="20dp"
+        android:layout_height="20dp"
+        android:background="@drawable/music"
+        android:layout_alignParentTop="true"
+        android:layout_alignParentLeft="true"/>
+
     <com.blowthem.app.JoyStick
         android:id="@+id/layout_joystick"
         android:layout_width="100dp"
@@ -61,9 +69,14 @@
         android:layout_height="20dp"
         android:id="@+id/my_hp"
         android:layout_alignParentTop="true"
-        android:layout_alignParentLeft="true"
-        android:layout_alignParentStart="true"
-        android:layout_marginLeft="20dp"/>
+        android:layout_toRightOf="@+id/music" />
+
+    <TextView
+        android:id="@+id/timer"
+        android:layout_width="100dp"
+        android:layout_height="100dp"
+        android:layout_alignParentRight="true"
+        android:layout_alignParentTop="true"/>
 
 
 </RelativeLayout>
