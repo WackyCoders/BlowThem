@@ -80,7 +80,6 @@ public class RegistrationActivity extends Activity {
         getActionBar().hide();
         setRequestedOrientation(ActivityInfo.SCREEN_ORIENTATION_LANDSCAPE);
         setContentView(R.layout.activity_registration);
-
         this.mainActivityIntent = new Intent(this, MainSettingsActivity.class);
         this.serviceIntent = new Intent(this, SocketService.class);
 

@@ -29,7 +29,7 @@ import android.widget.Toast;
  */
 public class SocketService extends Service {
 
-    public static final String SERVERIP = /*"192.168.56.1";*/ /*"192.168.1.5"*/ "10.160.20.15"; //your server IP address should be written here
+    public static final String SERVERIP = /*"192.168.56.1";*/ /*"192.168.1.5"*/ "192.168.43.194"; //your server IP address should be written here
     public static final int SERVERPORT = 8080;
     private DataOutputStream out;
     private DataInputStream in;
